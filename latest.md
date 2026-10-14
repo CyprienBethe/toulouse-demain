@@ -1,11 +1,11 @@
 <!-- toulouse-demain:graph-report -->
 ## Rapport de construction du graphe : SUCCÈS
 
-- Date : 2026-10-14 11:23 UTC
-- Événement : `pull_request`, branche `1/merge`, commit `c0d0393`
+- Date : 2026-10-14 11:29 UTC
+- Événement : `workflow_dispatch`, branche `main`, commit `8a90658`
 - Image OTP : `docker.io/opentripplanner/opentripplanner:2.10.0`
-- Exécution : https://github.com/CyprienBethe/toulouse-demain/actions/runs/38555570185
-- Durée depuis le début du workflow : 5 min 09 s
+- Exécution : https://github.com/CyprienBethe/toulouse-demain/actions/runs/38556486810
+- Durée depuis le début du workflow : 3 min 28 s
 
 ### Étapes
 
@@ -37,14 +37,14 @@ GTFS futur : 2,88 Mo, 2 lignes (C, B), 105 arrêts, 13950 courses.
 
 | Mesure | Valeur |
 | --- | --- |
-| Durée de construction du graphe | 3 min 15 s |
-| Mémoire max du conteneur pendant la construction (-Xmx12g) | 5,91 Go |
-| Tas Java vivant max après GC, construction | 1,49 Go |
+| Durée de construction du graphe | 1 min 35 s |
+| Mémoire max du conteneur pendant la construction (-Xmx12g) | 4,06 Go |
+| Tas Java vivant max après GC, construction | 1,53 Go |
 | Taille de graph.obj | 88,08 Mo |
-| Démarrage du serveur (chargement du graphe) | 11 s |
+| Démarrage du serveur (chargement du graphe) | 6 s |
 | Mémoire du conteneur serveur prêt (-Xmx6g) | 1,16 Go |
-| Mémoire du conteneur serveur après les trajets | 1,24 Go |
-| Tas Java vivant max après GC, serveur | 850,40 Mo |
+| Mémoire du conteneur serveur après les trajets | 1,23 Go |
+| Tas Java vivant max après GC, serveur | 384,83 Mo |
 
 ### Trajets de référence (départ 2026-10-20T08:30:00+02:00)
 
@@ -68,23 +68,23 @@ GTFS futur : 2,88 Mo, 2 lignes (C, B), 105 arrêts, 13950 courses.
 - actuel : 33 min, 0 corresp., walk 8 min → BUS AERO (tisseo) → walk 0 min
 - actuel : 32 min, 0 corresp., walk 8 min → BUS AERO (tisseo) → walk 0 min
 - actuel : 26 min, 0 corresp., walk 8 min → BUS AERO (tisseo) → walk 0 min
-  (réponse en 674 ms)
+  (réponse en 557 ms)
 - 2028 : 33 min, 0 corresp., walk 8 min → BUS AERO (tisseo) → walk 0 min
 - 2028 : 32 min, 0 corresp., walk 8 min → BUS AERO (tisseo) → walk 0 min
 - 2028 : 26 min, 0 corresp., walk 8 min → BUS AERO (tisseo) → walk 0 min
-  (réponse en 212 ms)
+  (réponse en 181 ms)
 
 **Gare Matabiau → Ramonville** (transit)
 - Départ : Toulouse Matabiau [sncf, 4 arrêt(s), 43.611206, 1.453616]
 - Arrivée : Ramonville [tisseo, 11 arrêt(s), 43.555883, 1.477122]
 - actuel : 21 min, 1 corresp., RAIL K5 (sncf) → walk 4 min → SUBWAY B (tisseo) → walk 2 min
-- actuel : 31 min, 0 corresp., walk 14 min → SUBWAY B (tisseo) → walk 2 min
+- actuel : 32 min, 0 corresp., walk 14 min → SUBWAY B (tisseo) → walk 2 min
 - actuel : 31 min, 0 corresp., walk 1 min → BUS 27 (tisseo) → walk 0 min
-  (réponse en 372 ms)
+  (réponse en 231 ms)
 - 2028 : 21 min, 1 corresp., RAIL K5 (sncf) → walk 4 min → SUBWAY B (futur) → walk 3 min
 - 2028 : 32 min, 0 corresp., walk 13 min → SUBWAY B (futur) → walk 3 min
 - 2028 : 31 min, 0 corresp., walk 1 min → BUS 27 (tisseo) → walk 0 min
-  (réponse en 216 ms)
+  (réponse en 156 ms)
 
 **Colomiers gare → Labège** (transit)
 - Départ : Colomiers [sncf, 3 arrêt(s), 43.603734, 1.334221]
@@ -92,22 +92,24 @@ GTFS futur : 2,88 Mo, 2 lignes (C, B), 105 arrêts, 13950 courses.
 - actuel : 45 min, 1 corresp., RAIL C6 (sncf) → RAIL K3 (sncf)
 - actuel : 53 min, 2 corresp., RAIL C6 (sncf) → walk 4 min → SUBWAY B (tisseo) → walk 4 min → BUS 80 (tisseo) → walk 3 min
 - actuel : 68 min, 1 corresp., RAIL C6 (sncf) → RAIL C3 (sncf)
-  (réponse en 416 ms)
+  (réponse en 323 ms)
 - 2028 : 48 min, 0 corresp., walk 4 min → SUBWAY C (futur) → walk 10 min
 - 2028 : 48 min, 0 corresp., walk 4 min → SUBWAY C (futur) → walk 10 min
 - 2028 : 48 min, 0 corresp., walk 4 min → SUBWAY C (futur) → walk 10 min
-  (réponse en 392 ms)
+  (réponse en 221 ms)
 
 **Capitole → Gare Matabiau, marche seule** (walk)
 - Départ : Capitole [tisseo, 3 arrêt(s), 43.604465, 1.445537]
 - Arrivée : Toulouse Matabiau [sncf, 4 arrêt(s), 43.611206, 1.453616]
 - actuel : 17 min, 0 corresp., walk 17 min
-  (réponse en 19 ms)
+  (réponse en 14 ms)
 
 **Capitole → Aéroport Toulouse-Blagnac, vélo** (bicycle)
 - Départ : Capitole [tisseo, 3 arrêt(s), 43.604465, 1.445537]
 - Arrivée : Aéroport [tisseo, 4 arrêt(s), 43.631247, 1.374752]
 - actuel : 38 min, 0 corresp., bicycle 38 min
-  (réponse en 129 ms)
+  (réponse en 90 ms)
 
 </details>
+
+- Graphe publié : release « graph-20261014-3 »
