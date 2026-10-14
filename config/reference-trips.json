@@ -55,6 +55,36 @@
       ]
     },
     {
+      "id": "colomiers-diagora",
+      "label": "Gare de Colomiers → Diagora (Labège)",
+      "_explication": "Exemple des maquettes (docs/ux/). Arrivée : un arrêt Tisséo nommé Diagora s'il existe ; sinon la future station Diagora de la ligne C (flux futur, position extraite d'OpenStreetMap, nœud 8832628132) ; en dernier recours, si le flux futur est absent, la gare de Labège-Innopole, à 450 m de cette station (distance calculée sur les coordonnées du rapport CI du 14/10/2026). Le rapport affiche l'arrêt retenu. Le même point d'arrivée sert aux deux scénarios.",
+      "mode": "transit",
+      "scenarios": ["actuel", "2028"],
+      "from": [
+        {"feed": "sncf", "pattern": "^colomiers$"},
+        {"feed": "tisseo", "pattern": "^colomiers gare"}
+      ],
+      "to": [
+        {"feed": "tisseo", "pattern": "\\bdiagora\\b"},
+        {"feed": "futur", "pattern": "^diagora$"},
+        {"feed": "sncf", "pattern": "labege innopole"}
+      ],
+      "checks": [
+        {
+          "scenario": "2028",
+          "fastest_uses": {"feed": "futur", "line": "C"},
+          "severity": "warning",
+          "_explication": "Diagora est une station de la ligne C : en 2028, le trajet le plus rapide doit l'emprunter (sinon avertissement)."
+        },
+        {
+          "scenario": "actuel",
+          "never_uses_feed": "futur",
+          "severity": "failure",
+          "_explication": "Le réseau actuel ne doit jamais emprunter le flux futur."
+        }
+      ]
+    },
+    {
       "id": "capitole-matabiau-marche",
       "label": "Capitole → Gare Matabiau, marche seule",
       "mode": "walk",
