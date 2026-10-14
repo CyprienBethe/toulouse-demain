@@ -1,0 +1,113 @@
+{
+  "_synthetic": "SYNTHETIC test fixture (site/tests/fixtures/make-fixtures.mjs): made-up data, not an OTP answer, never published.",
+  "colomiers": {
+    "type": "FeatureCollection",
+    "features": [
+      {
+        "type": "Feature",
+        "geometry": {
+          "type": "Point",
+          "coordinates": [
+            1.3366,
+            43.6118
+          ]
+        },
+        "properties": {
+          "_type": "poi",
+          "toponym": "Gare de Colomiers",
+          "name": [
+            "Gare de Colomiers"
+          ],
+          "city": [
+            "Colomiers"
+          ],
+          "postcode": [
+            "31770"
+          ]
+        }
+      },
+      {
+        "type": "Feature",
+        "geometry": {
+          "type": "Point",
+          "coordinates": [
+            1.3392,
+            43.6105
+          ]
+        },
+        "properties": {
+          "_type": "address",
+          "label": "Allée du Comminges 31770 Colomiers",
+          "name": "Allée du Comminges",
+          "city": "Colomiers",
+          "postcode": "31770",
+          "type": "street"
+        }
+      },
+      {
+        "type": "Feature",
+        "geometry": {
+          "type": "Point",
+          "coordinates": [
+            2.3,
+            48.9
+          ]
+        },
+        "properties": {
+          "_type": "address",
+          "label": "Rue de Colomiers 75000 Paris",
+          "name": "Rue de Colomiers",
+          "city": "Paris",
+          "postcode": "75000",
+          "type": "street"
+        }
+      }
+    ]
+  },
+  "labege": {
+    "type": "FeatureCollection",
+    "features": [
+      {
+        "type": "Feature",
+        "geometry": {
+          "type": "Point",
+          "coordinates": [
+            1.5128,
+            43.5462
+          ]
+        },
+        "properties": {
+          "_type": "address",
+          "label": "Diagora 31670 Labège",
+          "name": "Diagora",
+          "city": "Labège",
+          "postcode": "31670",
+          "type": "street"
+        }
+      }
+    ]
+  },
+  "reverse": {
+    "type": "FeatureCollection",
+    "features": [
+      {
+        "type": "Feature",
+        "geometry": {
+          "type": "Point",
+          "coordinates": [
+            1.4442,
+            43.6047
+          ]
+        },
+        "properties": {
+          "_type": "address",
+          "label": "1 Place du Capitole 31000 Toulouse",
+          "name": "1 Place du Capitole",
+          "city": "Toulouse",
+          "postcode": "31000",
+          "type": "housenumber"
+        }
+      }
+    ]
+  }
+}

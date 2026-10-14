@@ -51,6 +51,31 @@ jobs:
           echo "ee5c42d5fd6346b6062d057030f8cb2062517b31e93add66ca5a92cae247aac4  otp-schema.graphqls" | sha256sum --check
           python -m unittest discover -s scripts/tests -v
 
+  site:
+    name: Tests du site (logique, requête validée contre le schéma OTP 2.10.0)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: site
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1  # v7.1.0
+        with:
+          node-version: "22"
+      - name: Tests (node --test)
+        env:
+          OTP_SCHEMA: otp-schema.graphqls
+          REQUIRE_OTP_SCHEMA: "1"
+        run: |
+          npm ci --ignore-scripts --no-audit --no-fund
+          curl -fsSL -o otp-schema.graphqls \
+            https://raw.githubusercontent.com/opentripplanner/OpenTripPlanner/v2.10.0/application/src/main/resources/org/opentripplanner/apis/gtfs/schema.graphqls
+          echo "ee5c42d5fd6346b6062d057030f8cb2062517b31e93add66ca5a92cae247aac4  otp-schema.graphqls" | sha256sum --check
+          npm test
+
   deploy:
     name: Configuration du serveur (Compose et Caddy)
     runs-on: ubuntu-24.04

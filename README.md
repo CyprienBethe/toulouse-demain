@@ -15,7 +15,7 @@ Site web gratuit de calcul d'itinéraires sur le réseau Tisséo (114 communes) 
                              4. construire le graphe OpenTripPlanner  ──────▶ OpenTripPlanner (un seul graphe)
                              5. tester des trajets de référence      release   ▲
                              6. publier le rapport et le graphe                │  requêtes GraphQL
-                                                                     Site statique, à venir au sprint 1 (GitHub Pages, MapLibre)
+                                                                     Site statique site/ (GitHub Pages, MapLibre)
 ```
 
 - **Moteur** : [OpenTripPlanner](https://www.opentripplanner.org/) 2.10.0. Un seul graphe contient trois flux GTFS : `tisseo`, `sncf` et `futur`. Le scénario « actuel » exclut simplement les lignes du flux `futur` à chaque requête. Les raisons de ces choix sont dans [docs/adr/0001-moteur-et-hebergement.md](docs/adr/0001-moteur-et-hebergement.md).
@@ -30,7 +30,8 @@ Site web gratuit de calcul d'itinéraires sur le réseau Tisséo (114 communes) 
 | `otp/` | Configuration d'OpenTripPlanner : construction (`build-config.json`), routage (`router-config.json`), fonctionnalités (`otp-config.json`) |
 | `scripts/` | Pipeline de données : `download_sources.py`, `compute_zone.py`, `clip_osm.sh`, `filter_gtfs_sncf.py`, `run_otp.py`, `reference_trips.py`, `write_report.py`, `publish_report.sh`, `package_graph.sh` ; `build_gtfs_futur.py` et `extract_futur_osm.py` (GTFS des lignes futures, par le data engineer) ; tests du pipeline dans `scripts/tests/` |
 | `data/futur/` | Données sources des lignes futures (stations, hypothèses) |
-| `.github/workflows/` | `build-graph.yml` (construction et test du graphe), `checks.yml` (vérifications rapides) |
+| `site/` | Le site statique (carte, recherche, comparateur 2028) et ses tests ; voir [site/README.md](site/README.md) |
+| `.github/workflows/` | `build-graph.yml` (construction et test du graphe), `checks.yml` (vérifications rapides), `pages.yml` (publication du site sur GitHub Pages) |
 | `deploy/` | Serveur : `bootstrap.sh` (installation complète), `docker-compose.yml`, `Caddyfile`, `caddy/Dockerfile`, `.env.example`, `update-graph.sh`, `duckdns-update.sh` |
 | `docs/` | Décisions d'architecture (`adr/`), guide de création du serveur (`guide-serveur-oracle.md`), parcours et maquettes (`ux/`), équipe (`equipe/`) |
 

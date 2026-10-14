@@ -1,0 +1,261 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- Everything is served by the site itself, except: the itinerary server
+     (*.duckdns.org, see config.js), the IGN geocoder and the OpenFreeMap
+     base map. No tracker, no cookie. blob: is needed by the map's worker. -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' data: blob:; font-src 'self'; connect-src 'self' https://*.duckdns.org https://data.geopf.fr https://tiles.openfreemap.org; worker-src 'self' blob:; child-src 'self' blob:; manifest-src 'self'; base-uri 'none'; form-action 'none'">
+<meta name="referrer" content="no-referrer">
+<title>Toulouse Demain — itinéraires aujourd'hui et en 2028</title>
+<meta name="description" content="Calculez un trajet en transports en commun, à pied ou à vélo dans l'agglomération toulousaine, sur le réseau d'aujourd'hui ou sur le réseau 2028 avec la ligne C du métro et la ligne B prolongée.">
+<meta name="theme-color" content="#D8E3F0">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="preload" href="fonts/schibsted-grotesk-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="fonts/schibsted-grotesk-latin-800-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="css/app.css">
+<script type="module" src="js/app.js"></script>
+</head>
+<body>
+<div class="app" id="app" data-view="search">
+
+  <main class="sheet" id="sheet">
+    <header class="brand">
+      <svg class="brand-logo" width="44" height="20" viewBox="0 0 44 20" aria-hidden="true" focusable="false">
+        <path d="M2 10H16" class="logo-solid"/>
+        <path d="M28 10H42" class="logo-dashed"/>
+        <circle cx="22" cy="10" r="5" class="logo-station"/>
+      </svg>
+      <h1 class="brand-name">Toulouse <span>Demain</span><span class="sr-only"> : itinéraires aujourd'hui et en 2028</span></h1>
+    </header>
+
+    <div class="scenario">
+      <div class="scenario-toggle" role="group" aria-label="Réseau utilisé pour le calcul">
+        <button type="button" data-scenario="actuel" aria-pressed="true">
+          <svg class="check" width="16" height="16" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M3 8.5 6.5 12 13 4.5"/></svg>
+          Aujourd'hui
+        </button>
+        <button type="button" data-scenario="2028" aria-pressed="false">
+          <svg class="check" width="16" height="16" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M3 8.5 6.5 12 13 4.5"/></svg>
+          2028
+        </button>
+      </div>
+      <div class="projection" id="projection" role="note" hidden>
+        <svg class="projection-icon" width="28" height="12" viewBox="0 0 28 12" aria-hidden="true" focusable="false"><path d="M2 6H10"/><path d="M14 6H26"/><circle cx="12" cy="6" r="3"/></svg>
+        <p><strong>Projection 2028</strong> : la ligne C et la ligne B prolongée sont ajoutées au réseau d'aujourd'hui. Durées indicatives.
+          <a href="#hypotheses" data-open-hypotheses>Hypothèses et sources</a></p>
+      </div>
+      <p class="demo-banner" id="demo-banner" role="status" hidden></p>
+    </div>
+
+    <!-- 1. Search -->
+    <section class="view view-search" id="view-search" aria-labelledby="search-title">
+      <h2 class="sr-only" id="search-title">Rechercher un itinéraire</h2>
+      <section class="demo-trips" id="demo-trips" aria-labelledby="demo-trips-title" hidden>
+        <h2 id="demo-trips-title">Trajets enregistrés</h2>
+        <ul id="demo-trips-list"></ul>
+      </section>
+      <form id="search-form" class="search-form" novalidate>
+        <div class="places">
+          <div class="place-field">
+            <label for="from-input">Départ</label>
+            <div class="combo">
+              <input id="from-input" type="text" role="combobox" aria-autocomplete="list" aria-expanded="false"
+                aria-controls="from-list" autocomplete="off" spellcheck="false" enterkeyhint="next"
+                placeholder="Adresse ou lieu" aria-describedby="from-status places-hint">
+              <button type="button" class="icon-button" id="locate" aria-label="Ma position">
+                <svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true" focusable="false"><circle cx="11" cy="11" r="6"/><circle cx="11" cy="11" r="2" class="fill"/><path d="M11 1v4M11 17v4M1 11h4M17 11h4"/></svg>
+              </button>
+            </div>
+            <ul class="suggestions" id="from-list" role="listbox" aria-label="Suggestions pour le départ" hidden></ul>
+            <p class="field-status" id="from-status" aria-live="polite"></p>
+          </div>
+          <div class="place-field">
+            <label for="to-input">Arrivée</label>
+            <div class="combo">
+              <input id="to-input" type="text" role="combobox" aria-autocomplete="list" aria-expanded="false"
+                aria-controls="to-list" autocomplete="off" spellcheck="false" enterkeyhint="search"
+                placeholder="Adresse ou lieu" aria-describedby="to-status places-hint">
+            </div>
+            <ul class="suggestions" id="to-list" role="listbox" aria-label="Suggestions pour l'arrivée" hidden></ul>
+            <p class="field-status" id="to-status" aria-live="polite"></p>
+          </div>
+          <button type="button" class="icon-button swap" id="swap" aria-label="Inverser départ et arrivée">
+            <svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true" focusable="false"><path d="M7 3v15M3 14l4 4 4-4M15 19V4M11 8l4-4 4 4"/></svg>
+          </button>
+          <p class="places-hint" id="places-hint">Vous pouvez aussi choisir un point sur la carte.</p>
+        </div>
+
+        <fieldset class="choice">
+          <legend>Quand</legend>
+          <div class="segmented">
+            <input type="radio" name="when" id="when-now" value="now" checked><label for="when-now">Maintenant</label>
+            <input type="radio" name="when" id="when-depart" value="depart"><label for="when-depart">Partir à</label>
+            <input type="radio" name="when" id="when-arrive" value="arrive"><label for="when-arrive">Arriver à</label>
+          </div>
+          <div class="when-inputs" id="when-inputs" hidden>
+            <div class="small-field"><label for="when-date">Jour</label><input type="date" id="when-date"></div>
+            <div class="small-field"><label for="when-time">Heure</label><input type="time" id="when-time" step="60"></div>
+          </div>
+        </fieldset>
+
+        <fieldset class="choice">
+          <legend>Comment</legend>
+          <div class="segmented">
+            <input type="radio" name="mode" id="mode-transit" value="transit" checked><label for="mode-transit">Transports</label>
+            <input type="radio" name="mode" id="mode-walk" value="walk"><label for="mode-walk">Marche</label>
+            <input type="radio" name="mode" id="mode-bicycle" value="bicycle"><label for="mode-bicycle">Vélo</label>
+          </div>
+        </fieldset>
+
+        <p class="form-error" id="form-error" role="alert" hidden></p>
+        <button type="submit" class="primary-button">Rechercher</button>
+      </form>
+
+      <div class="notice" id="search-notice" role="alert" hidden></div>
+    </section>
+
+    <!-- 2. Results -->
+    <section class="view view-results" id="view-results" aria-labelledby="results-title" hidden>
+      <div class="trip-header">
+        <dl class="ends">
+          <dt>De</dt><dd id="res-from"></dd>
+          <dt>À</dt><dd id="res-to"></dd>
+        </dl>
+        <div class="trip-header-row">
+          <p id="res-when"></p>
+          <button type="button" class="secondary-button" id="edit">Modifier</button>
+        </div>
+      </div>
+      <div class="results-body">
+        <h2 class="results-title" id="results-title" tabindex="-1">Trajets</h2>
+        <p class="status" id="results-status" role="status" aria-live="polite"></p>
+        <p class="bars-help" id="bars-help" hidden></p>
+        <div class="notice" id="results-notice" hidden></div>
+        <ol class="results" id="results-list"></ol>
+      </div>
+    </section>
+
+    <!-- 3. Detail -->
+    <section class="view view-detail" id="view-detail" aria-labelledby="detail-title" hidden>
+      <button type="button" class="back-button" id="back">
+        <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true" focusable="false"><path d="M11 3 5 9l6 6"/></svg>
+        Tous les trajets
+      </button>
+      <div id="detail-content"></div>
+    </section>
+
+    <footer class="credits">
+      <p>Horaires : Tisséo et SNCF, licence ODbL. Carte : © les contributeurs d'OpenStreetMap, OpenMapTiles, OpenFreeMap. Adresses : Base Adresse Nationale, via l'IGN.</p>
+      <p><a href="#hypotheses" data-open-hypotheses>Hypothèses, sources et licences</a> · Site indépendant, sans cookie ni traceur.</p>
+    </footer>
+  </main>
+
+  <div class="map-area" id="map-area" role="region" aria-label="Carte. Le trajet y est tracé ; toutes ses étapes sont aussi décrites en texte.">
+    <div class="map" id="map"></div>
+    <div class="map-legend" id="map-legend" hidden>
+      <span class="legend-item"><span class="legend-line solid" aria-hidden="true"></span>Ligne existante</span>
+      <span class="legend-item"><span class="legend-line dashed" aria-hidden="true"></span>En projet</span>
+      <span class="legend-item"><span class="legend-line dotted" aria-hidden="true"></span>À pied</span>
+    </div>
+    <p class="map-message" id="map-message" hidden></p>
+  </div>
+</div>
+
+<dialog class="hypotheses" id="hypotheses" aria-labelledby="hyp-title">
+  <div class="hyp-head">
+    <h2 id="hyp-title">Hypothèses et sources</h2>
+    <button type="button" class="icon-button" id="hyp-close" aria-label="Fermer">
+      <svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true" focusable="false"><path d="M4 4l12 12M16 4 4 16"/></svg>
+    </button>
+  </div>
+  <div class="hyp-body">
+    <p class="lead">Le réseau 2028 est une <strong>projection</strong> : il ajoute au réseau d'aujourd'hui la ligne C du métro et la ligne B prolongée, construites à partir des chiffres publics. Ce ne sont ni des horaires officiels ni une promesse. Les durées sont indicatives.</p>
+
+    <section aria-labelledby="hyp-lines">
+      <h3 id="hyp-lines">Ce qui est ajouté</h3>
+      <ul class="hyp-lines">
+        <li><span class="hyp-badge c" aria-hidden="true">C</span>
+          <div><strong>Métro C, Colomiers - Gare ↔ Labège - Gare</strong>
+          21 stations sur 27 km, mise en service annoncée fin 2028 [S1][S3]. Noms des stations : liste officielle de Tisséo du 10/05/2023 [S8] ; ils peuvent encore changer.</div></li>
+        <li><span class="hyp-badge b" aria-hidden="true">B</span>
+          <div><strong>Métro B prolongé, Ramonville ↔ Labège Madron</strong>
+          2 nouvelles stations (Parc du Canal, Labège Madron) sur 2,7 km [S2][S9]. Ouverture annoncée en septembre 2027 [S9], annonce de mars 2024 à revérifier. Rames directes de la ligne B, comme l'annonce Tisséo [S10].</div></li>
+      </ul>
+    </section>
+
+    <section aria-labelledby="hyp-rules">
+      <h3 id="hyp-rules">Comment on calcule</h3>
+      <ol class="hyp-rules">
+        <li>Les nouvelles lignes roulent sur le <strong>calendrier d'aujourd'hui</strong> : « et si la ligne C existait déjà ? ».</li>
+        <li>Les <strong>bus restent ceux d'aujourd'hui</strong> : le futur réseau de bus n'est pas connu.</li>
+        <li>Les chiffres officiels sont repris tels quels ; quand il en manque, c'est une <strong>hypothèse</strong>, signalée ci-dessous.</li>
+        <li>Quand la ligne B prolongée ouvrira vraiment, elle passera dans le réseau « Aujourd'hui ».</li>
+      </ol>
+    </section>
+
+    <section aria-labelledby="hyp-table">
+      <h3 id="hyp-table">Les chiffres et leur statut</h3>
+      <dl class="hyp-facts">
+        <div><dt>Ligne C, Colomiers → Labège</dt><dd>37 min <span class="tag">fait</span> [S3]</dd></div>
+        <div><dt>Ligne C, Labège → Matabiau</dt><dd>20 min <span class="tag">fait, 2022</span> [S1][S2]</dd></div>
+        <div><dt>Ligne C, Colomiers → Matabiau</dt><dd>17 min, déduit de 37 − 20 <span class="tag hyp">hypothèse</span></dd></div>
+        <div><dt>Ligne C, une rame toutes les</dt><dd>3 min 25 en heure de pointe <span class="tag">fait</span> [S1]</dd></div>
+        <div><dt>B prolongée, Ramonville → Labège Madron</dt><dd>3 min 30, haut de la fourchette « 3 à 3 min 30 » <span class="tag">fait</span> [S10]</dd></div>
+        <div><dt>B prolongée, une rame toutes les</dt><dd>5 min en heure de pointe <span class="tag">fait</span> [S1][S2]</dd></div>
+        <div><dt>Part des rames B qui vont jusqu'à Labège</dt><dd>celle qui donne 5 min en pointe ; Tisséo ne la publie pas <span class="tag hyp">hypothèse</span></dd></div>
+        <div><dt>Arrêt en station</dt><dd>20 s <span class="tag hyp">hypothèse</span></dd></div>
+        <div><dt>Temps entre deux stations</dt><dd>temps officiels répartis selon la distance <span class="tag hyp">hypothèse</span></dd></div>
+        <div><dt>Heures creuses, soirée, week-end</dt><dd>même rythme que la ligne B actuelle, mesuré dans les horaires Tisséo <span class="tag hyp">hypothèse</span></dd></div>
+        <div><dt>Heures de pointe</dt><dd>7 h – 9 h et 16 h 30 – 19 h en semaine ; soirée après 20 h 30 <span class="tag hyp">hypothèse</span></dd></div>
+        <div><dt>Premier et dernier métro de la ligne C</dt><dd>ceux de la ligne B actuelle, lus dans les horaires Tisséo</dd></div>
+        <div><dt>Correspondance C ↔ B à Labège Madron</dt><dd>2 min <span class="tag hyp">hypothèse</span></dd></div>
+        <div><dt>Position des stations</dt><dd>OpenStreetMap, avec des contrôles automatiques : une station douteuse est écartée, jamais devinée</dd></div>
+      </dl>
+      <p>Non modélisé : la voie unique entre Parc du Canal et Labège Madron [S10]. Le détail de chaque chiffre est dans le document <a href="https://github.com/CyprienBethe/toulouse-demain/blob/main/docs/hypotheses-reseau-2028.md">« Hypothèses du réseau 2028 »</a> du projet.</p>
+    </section>
+
+    <section aria-labelledby="hyp-compare">
+      <h3 id="hyp-compare">Le comparateur</h3>
+      <p>En 2028, la même demande est envoyée aux deux réseaux. La liste réunit les trajets 2028 et ceux d'aujourd'hui encore possibles en 2028. Les deux barres mesurent le temps porte à porte, attente comprise, depuis l'heure demandée : la barre hachurée pour le meilleur trajet d'aujourd'hui, la barre pleine pour le trajet affiché.</p>
+    </section>
+
+    <section aria-labelledby="hyp-sources">
+      <h3 id="hyp-sources">Sources (consultées le 14/10/2026)</h3>
+      <ol class="hyp-sources">
+        <li>[S1] Tisséo Collectivités, démarrage des travaux de Labège, 15/02/2022 — <a href="https://tisseo-collectivites.fr/sites/default/files/media/downloads/lab-demarrage-tvx-metro-20220215.pdf">PDF</a></li>
+        <li>[S2] Tisséo Collectivités, démarrage des travaux de la Connexion Ligne B à Ramonville, 09/02/2022 — <a href="https://tisseo-collectivites.fr/sites/default/files/media/downloads/ram_-_dmarrage_tvx_clb_-_2022_02_09_.pdf">PDF</a></li>
+        <li>[S3] Toulouse Métropole, « La Ligne C embarque ses voyageurs fin 2028 » — <a href="https://metropole.toulouse.fr/mon-environnement/amenagement/3e-ligne-metro-ligne-C">page</a></li>
+        <li>[S4] Wikipédia, « Ligne C du métro de Toulouse » — <a href="https://fr.wikipedia.org/wiki/Ligne_C_du_m%C3%A9tro_de_Toulouse">page</a></li>
+        <li>[S5] Wikipedia, « List of Toulouse Metro stations » — <a href="https://en.wikipedia.org/wiki/List_of_Toulouse_Metro_stations">page</a></li>
+        <li>[S6] Toulouse Métropole, « Chantier de la ligne C : où se trouvent les travaux ? » — <a href="https://metropole.toulouse.fr/actualites/chantier-de-la-ligne-c-ou-se-trouvent-les-travaux">page</a></li>
+        <li>[S7] Le Journal toulousain, « Dernier métro à 3 h le jeudi », 29/08/2020 — <a href="https://lejournaltoulousain.fr/les-breves-du-jt/dernier-metro-3h-jeudi-86039">page</a></li>
+        <li>[S8] Tisséo, « Les noms des futures stations de la ligne C », 10/05/2023 — <a href="https://www.projetsmetro.tisseo.fr/actualites/les-noms-des-futures-stations-de-la-ligne-c">page</a></li>
+        <li>[S9] Tisséo Collectivités, chantiers ligne C, Connexion Ligne B, Ligne Aéroport Express, 25/03/2024 — <a href="https://tisseo-collectivites.fr/actualites/chantiers-ligne-c-connexion-ligne-b-ligne-aeroport-express-2">page</a></li>
+        <li>[S10] Tisséo Collectivités, « Connexion Ligne B » — <a href="https://tisseo-collectivites.fr/connexion-ligne-b">page</a></li>
+      </ol>
+    </section>
+
+    <section aria-labelledby="hyp-data">
+      <h3 id="hyp-data">Données et licences</h3>
+      <ul class="hyp-data">
+        <li><strong>Horaires Tisséo</strong> (GTFS), licence ODbL — <a href="https://www.data.gouv.fr/datasets/tisseo-reseau-transport-urbain-toulousain">data.gouv.fr</a>. Mis à jour chaque semaine.</li>
+        <li><strong>Horaires SNCF</strong> (GTFS, trains de la zone), licence ODbL — <a href="https://www.data.gouv.fr/datasets/horaires-sncf">data.gouv.fr</a>.</li>
+        <li><strong>OpenStreetMap</strong> : rues, chemins et position des futures stations, © les contributeurs d'OpenStreetMap, licence ODbL — <a href="https://www.openstreetmap.org/copyright">openstreetmap.org/copyright</a>.</li>
+        <li><strong>Fond de carte</strong> : <a href="https://openfreemap.org">OpenFreeMap</a>, © <a href="https://www.openmaptiles.org/">OpenMapTiles</a>, données OpenStreetMap.</li>
+        <li><strong>Adresses</strong> : Base Adresse Nationale, via le service de géocodage de la <a href="https://cartes.gouv.fr/aide/fr/guides-utilisateur/utiliser-les-services-de-la-geoplateforme/geocodage/">Géoplateforme de l'IGN</a>.</li>
+        <li><strong>Calcul des trajets</strong> : <a href="https://www.opentripplanner.org/">OpenTripPlanner</a> 2.10.0.</li>
+        <li>Les données dérivées (horaires du réseau 2028, graphe) sont publiées sous licence ODbL ; le code du site est sous licence MIT — <a href="https://github.com/CyprienBethe/toulouse-demain">code source</a>.</li>
+      </ul>
+      <p>Site indépendant, sans lien avec Tisséo, Toulouse Métropole ni la SNCF.</p>
+    </section>
+
+    <section aria-labelledby="hyp-privacy">
+      <h3 id="hyp-privacy">Vie privée</h3>
+      <p>Aucun cookie, aucun traceur, aucune statistique de visite. Le site retient seulement, dans votre navigateur, le dernier réseau choisi. Ce que vous cherchez part vers trois services : notre serveur d'itinéraires (départ, arrivée, heure), la Géoplateforme de l'IGN (le texte des adresses tapées) et OpenFreeMap (les morceaux de carte affichés). « Ma position » n'est utilisée que si vous la demandez.</p>
+    </section>
+  </div>
+</dialog>
+</body>
+</html>

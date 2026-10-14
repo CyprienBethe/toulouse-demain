@@ -5,6 +5,14 @@ build/
 deploy/.env
 deploy/data/
 
+# Site: files added when it is published (.github/workflows/pages.yml),
+# test dependencies and screenshots
+site/node_modules/
+site/demo/demo-responses.json
+site/data/
+site/tests/screenshots/
+site/otp-schema.graphqls
+
 # Python
 __pycache__/
 *.pyc

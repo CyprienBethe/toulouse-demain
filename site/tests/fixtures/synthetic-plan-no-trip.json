@@ -1,0 +1,15 @@
+{
+  "_synthetic": "SYNTHETIC test fixture (site/tests/fixtures/make-fixtures.mjs): made-up data, not an OTP answer, never published.",
+  "data": {
+    "planConnection": {
+      "searchDateTime": "2026-10-20T08:30:00+02:00",
+      "routingErrors": [
+        {
+          "code": "NO_TRANSIT_CONNECTION",
+          "description": "synthetic"
+        }
+      ],
+      "edges": []
+    }
+  }
+}

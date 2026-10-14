@@ -1,0 +1,17 @@
+{
+  "name": "toulouse-demain-site",
+  "private": true,
+  "description": "Site statique de Toulouse Demain. Aucune dépendance à l'exécution : ce fichier ne sert qu'aux tests.",
+  "license": "MIT",
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "test": "node --test \"tests/*.test.js\"",
+    "fixtures": "node tests/fixtures/make-fixtures.mjs"
+  },
+  "devDependencies": {
+    "graphql": "16.14.2"
+  }
+}
