@@ -1,5 +1,6 @@
 # Server stack: OpenTripPlanner (routing engine) behind Caddy (HTTPS gateway).
-# Usage (from this directory, see README.md, section "Déploiement"):
+# First installation: deploy/bootstrap.sh (guide: docs/guide-serveur-oracle.md).
+# By hand (from this directory):
 #   cp .env.example .env    # then edit .env
 #   ./update-graph.sh       # downloads the graph built by GitHub Actions
 #   docker compose up -d
@@ -18,13 +19,19 @@ services:
       # graph.obj, router-config.json and otp-config.json (written by update-graph.sh)
       - ./data/otp:/var/opentripplanner
     ports:
-      # Reachable from the server only (debug UI through an SSH tunnel).
-      # The public entry point is Caddy.
+      # Reachable from the server only (health check, debug UI through an SSH
+      # tunnel). The public entry point is Caddy.
       - "127.0.0.1:8080:8080"
     mem_limit: ${OTP_MEM_LIMIT:?set OTP_MEM_LIMIT in .env}
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
+    logging:
+      # Rotated logs (the default driver keeps everything): at most 3 x 10 MB.
+      driver: local
+      options:
+        max-size: "10m"
+        max-file: "3"
 
   caddy:
     # Official Caddy image + the rate_limit module (see caddy/Dockerfile).
@@ -33,9 +40,9 @@ services:
     depends_on:
       - otp
     ports:
+      # TCP only: the Caddyfile disables HTTP/3 (UDP).
       - "80:80"
       - "443:443"
-      - "443:443/udp"
     environment:
       API_DOMAIN: ${API_DOMAIN:?set API_DOMAIN in .env}
       SITE_ORIGIN: ${SITE_ORIGIN:?set SITE_ORIGIN in .env}
@@ -44,11 +51,19 @@ services:
       GLOBAL_RATE_LIMIT_EVENTS: ${GLOBAL_RATE_LIMIT_EVENTS:-600}
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      # scenario-filters.json and scenario-2028.json of the installed graph,
+      # served under /meta/ (written by update-graph.sh).
+      - ./data/meta:/srv/meta:ro
       - caddy_data:/data
       - caddy_config:/config
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
+    logging:
+      driver: local
+      options:
+        max-size: "10m"
+        max-file: "3"
 
 volumes:
   # Certificates issued by Let's Encrypt: keep them, or Caddy asks for new ones.
