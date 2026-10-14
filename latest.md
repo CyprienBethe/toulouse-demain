@@ -1,11 +1,11 @@
 <!-- toulouse-demain:graph-report -->
 ## Rapport de construction du graphe : SUCCÈS
 
-- Date : 2026-10-14 11:29 UTC
-- Événement : `workflow_dispatch`, branche `main`, commit `8a90658`
+- Date : 2026-10-14 18:12 UTC
+- Événement : `pull_request`, branche `2/merge`, commit `bbaf0e2`
 - Image OTP : `docker.io/opentripplanner/opentripplanner:2.10.0`
-- Exécution : https://github.com/CyprienBethe/toulouse-demain/actions/runs/38556486810
-- Durée depuis le début du workflow : 3 min 28 s
+- Exécution : https://github.com/CyprienBethe/toulouse-demain/actions/runs/38612457054
+- Durée depuis le début du workflow : 5 min 10 s
 
 ### Étapes
 
@@ -37,14 +37,14 @@ GTFS futur : 2,88 Mo, 2 lignes (C, B), 105 arrêts, 13950 courses.
 
 | Mesure | Valeur |
 | --- | --- |
-| Durée de construction du graphe | 1 min 35 s |
-| Mémoire max du conteneur pendant la construction (-Xmx12g) | 4,06 Go |
-| Tas Java vivant max après GC, construction | 1,53 Go |
+| Durée de construction du graphe | 2 min 57 s |
+| Mémoire max du conteneur pendant la construction (-Xmx12g) | 5,77 Go |
+| Tas Java vivant max après GC, construction | 1,50 Go |
 | Taille de graph.obj | 88,08 Mo |
-| Démarrage du serveur (chargement du graphe) | 6 s |
-| Mémoire du conteneur serveur prêt (-Xmx6g) | 1,16 Go |
-| Mémoire du conteneur serveur après les trajets | 1,23 Go |
-| Tas Java vivant max après GC, serveur | 384,83 Mo |
+| Démarrage du serveur (chargement du graphe) | 11 s |
+| Mémoire du conteneur serveur prêt (-Xmx6g) | 1,19 Go |
+| Mémoire du conteneur serveur après les trajets | 1,28 Go |
+| Tas Java vivant max après GC, serveur | 493,88 Mo |
 
 ### Trajets de référence (départ 2026-10-20T08:30:00+02:00)
 
@@ -53,6 +53,7 @@ GTFS futur : 2,88 Mo, 2 lignes (C, B), 105 arrêts, 13950 courses.
 | Capitole → Aéroport Toulouse-Blagnac | 26 min | 26 min | identique |
 | Gare Matabiau → Ramonville | 21 min | 21 min | identique |
 | Colomiers gare → Labège | 45 min | 48 min | 3 min plus long en 2028 |
+| Gare de Colomiers → Diagora (Labège) | 53 min | 38 min | 15 min plus court en 2028 |
 | Capitole → Gare Matabiau, marche seule | 17 min | — |  |
 | Capitole → Aéroport Toulouse-Blagnac, vélo | 38 min | — |  |
 
@@ -68,11 +69,11 @@ GTFS futur : 2,88 Mo, 2 lignes (C, B), 105 arrêts, 13950 courses.
 - actuel : 33 min, 0 corresp., walk 8 min → BUS AERO (tisseo) → walk 0 min
 - actuel : 32 min, 0 corresp., walk 8 min → BUS AERO (tisseo) → walk 0 min
 - actuel : 26 min, 0 corresp., walk 8 min → BUS AERO (tisseo) → walk 0 min
-  (réponse en 557 ms)
+  (réponse en 838 ms)
 - 2028 : 33 min, 0 corresp., walk 8 min → BUS AERO (tisseo) → walk 0 min
 - 2028 : 32 min, 0 corresp., walk 8 min → BUS AERO (tisseo) → walk 0 min
 - 2028 : 26 min, 0 corresp., walk 8 min → BUS AERO (tisseo) → walk 0 min
-  (réponse en 181 ms)
+  (réponse en 295 ms)
 
 **Gare Matabiau → Ramonville** (transit)
 - Départ : Toulouse Matabiau [sncf, 4 arrêt(s), 43.611206, 1.453616]
@@ -80,11 +81,11 @@ GTFS futur : 2,88 Mo, 2 lignes (C, B), 105 arrêts, 13950 courses.
 - actuel : 21 min, 1 corresp., RAIL K5 (sncf) → walk 4 min → SUBWAY B (tisseo) → walk 2 min
 - actuel : 32 min, 0 corresp., walk 14 min → SUBWAY B (tisseo) → walk 2 min
 - actuel : 31 min, 0 corresp., walk 1 min → BUS 27 (tisseo) → walk 0 min
-  (réponse en 231 ms)
+  (réponse en 396 ms)
 - 2028 : 21 min, 1 corresp., RAIL K5 (sncf) → walk 4 min → SUBWAY B (futur) → walk 3 min
 - 2028 : 32 min, 0 corresp., walk 13 min → SUBWAY B (futur) → walk 3 min
 - 2028 : 31 min, 0 corresp., walk 1 min → BUS 27 (tisseo) → walk 0 min
-  (réponse en 156 ms)
+  (réponse en 225 ms)
 
 **Colomiers gare → Labège** (transit)
 - Départ : Colomiers [sncf, 3 arrêt(s), 43.603734, 1.334221]
@@ -92,24 +93,34 @@ GTFS futur : 2,88 Mo, 2 lignes (C, B), 105 arrêts, 13950 courses.
 - actuel : 45 min, 1 corresp., RAIL C6 (sncf) → RAIL K3 (sncf)
 - actuel : 53 min, 2 corresp., RAIL C6 (sncf) → walk 4 min → SUBWAY B (tisseo) → walk 4 min → BUS 80 (tisseo) → walk 3 min
 - actuel : 68 min, 1 corresp., RAIL C6 (sncf) → RAIL C3 (sncf)
-  (réponse en 323 ms)
+  (réponse en 367 ms)
 - 2028 : 48 min, 0 corresp., walk 4 min → SUBWAY C (futur) → walk 10 min
 - 2028 : 48 min, 0 corresp., walk 4 min → SUBWAY C (futur) → walk 10 min
 - 2028 : 48 min, 0 corresp., walk 4 min → SUBWAY C (futur) → walk 10 min
-  (réponse en 221 ms)
+  (réponse en 273 ms)
+
+**Gare de Colomiers → Diagora (Labège)** (transit)
+- Départ : Colomiers [sncf, 3 arrêt(s), 43.603734, 1.334221]
+- Arrivée : Diagora [futur, 2 arrêt(s), 43.544148, 1.50968]
+- actuel : 53 min, 1 corresp., RAIL C6 (sncf) → RAIL K3 (sncf) → walk 8 min
+- actuel : 59 min, 2 corresp., RAIL C6 (sncf) → walk 4 min → SUBWAY B (tisseo) → walk 2 min → BUS 79 (tisseo) → walk 2 min
+- actuel : 76 min, 1 corresp., RAIL C6 (sncf) → RAIL C3 (sncf) → walk 8 min
+  (réponse en 285 ms)
+- 2028 : 38 min, 0 corresp., walk 4 min → SUBWAY C (futur)
+- 2028 : 38 min, 0 corresp., walk 4 min → SUBWAY C (futur)
+- 2028 : 38 min, 0 corresp., walk 4 min → SUBWAY C (futur)
+  (réponse en 213 ms)
 
 **Capitole → Gare Matabiau, marche seule** (walk)
 - Départ : Capitole [tisseo, 3 arrêt(s), 43.604465, 1.445537]
 - Arrivée : Toulouse Matabiau [sncf, 4 arrêt(s), 43.611206, 1.453616]
 - actuel : 17 min, 0 corresp., walk 17 min
-  (réponse en 14 ms)
+  (réponse en 18 ms)
 
 **Capitole → Aéroport Toulouse-Blagnac, vélo** (bicycle)
 - Départ : Capitole [tisseo, 3 arrêt(s), 43.604465, 1.445537]
 - Arrivée : Aéroport [tisseo, 4 arrêt(s), 43.631247, 1.374752]
 - actuel : 38 min, 0 corresp., bicycle 38 min
-  (réponse en 90 ms)
+  (réponse en 115 ms)
 
 </details>
-
-- Graphe publié : release « graph-20261014-3 »

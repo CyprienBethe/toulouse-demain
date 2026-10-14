@@ -1,0 +1,4004 @@
+{
+  "recorded_at": "2026-10-14T18:12:33+00:00",
+  "query": "\nquery Plan($origin: PlanLabeledLocationInput!, $destination: PlanLabeledLocationInput!,\n           $dateTime: PlanDateTimeInput!, $modes: PlanModesInput, $preferences: PlanPreferencesInput) {\n  planConnection(origin: $origin, destination: $destination, dateTime: $dateTime,\n                 modes: $modes, preferences: $preferences, first: 3) {\n    searchDateTime\n    routingErrors { code description }\n    edges {\n      node {\n        start\n        end\n        duration\n        numberOfTransfers\n        walkDistance\n        walkTime\n        waitingTime\n        legs {\n          mode\n          transitLeg\n          start { scheduledTime estimated { time delay } }\n          end { scheduledTime estimated { time delay } }\n          duration\n          distance\n          headsign\n          from { name lat lon stop { gtfsId } }\n          to { name lat lon stop { gtfsId } }\n          agency { gtfsId name }\n          route { gtfsId shortName longName color textColor }\n          legGeometry { points }\n        }\n      }\n    }\n  }\n}\n",
+  "requests": [
+    {
+      "id": "capitole-aeroport",
+      "label": "Capitole → Aéroport Toulouse-Blagnac",
+      "scenario": "actuel",
+      "variables": {
+        "origin": {
+          "label": "Capitole",
+          "location": {
+            "coordinate": {
+              "latitude": 43.604465,
+              "longitude": 1.445537
+            }
+          }
+        },
+        "destination": {
+          "label": "Aéroport Toulouse-Blagnac",
+          "location": {
+            "coordinate": {
+              "latitude": 43.631247,
+              "longitude": 1.374752
+            }
+          }
+        },
+        "dateTime": {
+          "earliestDeparture": "2026-10-20T08:30:00+02:00"
+        },
+        "modes": {
+          "direct": [
+            "WALK"
+          ],
+          "transit": {
+            "access": [
+              "WALK"
+            ],
+            "egress": [
+              "WALK"
+            ],
+            "transfer": [
+              "WALK"
+            ],
+            "transit": [
+              {
+                "mode": "BUS"
+              },
+              {
+                "mode": "TRAM"
+              },
+              {
+                "mode": "SUBWAY"
+              },
+              {
+                "mode": "RAIL"
+              },
+              {
+                "mode": "GONDOLA"
+              }
+            ]
+          }
+        },
+        "preferences": {
+          "transit": {
+            "filters": [
+              {
+                "exclude": [
+                  {
+                    "agencies": [
+                      "futur:FUT_TD"
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      },
+      "response": {
+        "data": {
+          "planConnection": {
+            "searchDateTime": "2026-10-20T08:30:00+02:00",
+            "routingErrors": [],
+            "edges": [
+              {
+                "node": {
+                  "start": "2026-10-20T08:35:22+02:00",
+                  "end": "2026-10-20T09:08:08+02:00",
+                  "duration": 1966,
+                  "numberOfTransfers": 0,
+                  "walkDistance": 507.73,
+                  "walkTime": 466,
+                  "waitingTime": 0,
+                  "legs": [
+                    {
+                      "mode": "WALK",
+                      "transitLeg": false,
+                      "start": {
+                        "scheduledTime": "2026-10-20T08:35:22+02:00",
+                        "estimated": null
+                      },
+                      "end": {
+                        "scheduledTime": "2026-10-20T08:43:00+02:00",
+                        "estimated": null
+                      },
+                      "duration": 458.0,
+                      "distance": 497.93,
+                      "headsign": null,
+                      "from": {
+                        "name": "Capitole",
+                        "lat": 43.604465,
+                        "lon": 1.445537,
+                        "stop": null
+                      },
+                      "to": {
+                        "name": "Jeanne d'Arc",
+                        "lat": 43.6083372,
+                        "lon": 1.4461283,
+                        "stop": {
+                          "gtfsId": "tisseo:stop_point:SP_2021"
+                        }
+                      },
+                      "agency": null,
+                      "route": null,
+                      "legGeometry": {
+                        "points": "{nciGqiyGAC???AOKAA?@E?K?@R?BA?Y?E?AOCWC?G?qDAaA?gDAcC?IAEAGIACYo@ACA?CIMUKSMUEDA@@D?F]ZGH@B"
+                      }
+                    },
+                    {
+                      "mode": "BUS",
+                      "transitLeg": true,
+                      "start": {
+                        "scheduledTime": "2026-10-20T08:43:00+02:00",
+                        "estimated": null
+                      },
+                      "end": {
+                        "scheduledTime": "2026-10-20T09:08:00+02:00",
+                        "estimated": null
+                      },
+                      "duration": 1500.0,
+                      "distance": 8899.0,
+                      "headsign": "Aéroport",
+                      "from": {
+                        "name": "Jeanne d'Arc",
+                        "lat": 43.6083372,
+                        "lon": 1.4461283,
+                        "stop": {
+                          "gtfsId": "tisseo:stop_point:SP_2021"
+                        }
+                      },
+                      "to": {
+                        "name": "Aéroport",
+                        "lat": 43.6308999,
+                        "lon": 1.374478,
+                        "stop": {
+                          "gtfsId": "tisseo:stop_point:SP_1753"
+                        }
+                      },
+                      "agency": {
+                        "gtfsId": "tisseo:network:1",
+                        "name": "Tisséo"
+                      },
+                      "route": {
+                        "gtfsId": "tisseo:line:99",
+                        "shortName": "AERO",
+                        "longName": "Navette Aéroport",
+                        "color": "e46809",
+                        "textColor": "ffffff"
+                      },
+                      "legGeometry": {
+                        "points": "yfdiGslyGOPk@j@_@b@m@n@w@x@gBjBSRQRKLKNQZINOZ]p@IPIRITIXI\\I`@ETG`@Kp@OlAUhBQtAKx@S~AYzBEZKNGb@AFEZA^AF?D@LBDBDDNFTBHBFLHBNFZNv@Hb@f@|B\\~AZxA?RJd@H\\DVJj@P|@DTLn@FXFVLl@TbAj@fCPx@DPJJBJDNFXJh@DTJb@H`@Lj@r@`DuAn@m@Z{@f@mAl@_@RyBfAq@^uAp@aBx@WFCBABAHAVn@nEL`AHf@PnAPnAVhCODODKBEBE?[FDn@BRD`@Dj@H~@JrAj@zGj@lG^nEN~BFbADz@@d@?N?NATAJAHITMNQJUFS@u@AUMg@Iq@G}AUoDe@w@MkACaEe@m@GM?mCUuAKuAOsAKwAKiAAI?q@Dm@Dc@Jk@Ny@VQDGB[LKDm@T]Ns@VC?E?M@O?WDKCIAICKEGEIKCEIQc@aAGMMQOOSOOIQGSCU?S@I@SD_@JWDW?e@?WCUEQGESIOIKMEMCM@KFKHGLENCR?PBNDPHLAd@?VATEXGd@EZMfAGd@Gd@Gb@kBjNUfBUpBGx@Gx@G`BCbB?hB?l@@l@@j@@b@Bh@Dx@H~@J|@`@xBh@tBVx@`@bAp@xA|@fBXl@P^Rb@P`@Pb@Pf@Pd@Vr@Pj@Rn@Nf@Ld@Nj@Pp@XtAX~AThAH`@Nx@hArGFZJh@Fd@Dd@@j@?J@`A?dBCnCC~AArABp@Bh@Ff@NbA@d@PhAFf@F`ABjA?ZGj@Gb@I`@K^O^QV[^QXIPELGXOX]p@Uh@g@tA{AjEM\\GR}CtIg@tA_AnCWr@sAnDYl@iAzB{@xAcAtAc@`@g@^QL}@h@a@Ne@Jw@Li@Jy@N}@XaBt@OFqB`Ai@Xa@RwAz@gCnAoAr@s@`@i@l@WZWXe@x@_@`AK\\If@Ib@Kx@Cb@?n@@fAFfAJbAd@vCB^GRCR@^QXS\\Y^CDEFOTEFINM\\Ir@?j@KHINET?R@PFJJJJBJBJELIHSBc@TCVKPCJGDAJCHCJEXJFBHBHLZp@RZLRPV\\T^VVJB@"
+                      }
+                    },
+                    {
+                      "mode": "WALK",
+                      "transitLeg": false,
+                      "start": {
+                        "scheduledTime": "2026-10-20T09:08:00+02:00",
+                        "estimated": null
+                      },
+                      "end": {
+                        "scheduledTime": "2026-10-20T09:08:08+02:00",
+                        "estimated": null
+                      },
+                      "duration": 8.0,
+                      "distance": 9.8,
+                      "headsign": null,
+                      "from": {
+                        "name": "Aéroport",
+                        "lat": 43.6308999,
+                        "lon": 1.374478,
+                        "stop": {
+                          "gtfsId": "tisseo:stop_point:SP_1753"
+                        }
+                      },
+                      "to": {
+                        "name": "Aéroport Toulouse-Blagnac",
+                        "lat": 43.631247,
+                        "lon": 1.374752,
+                        "stop": null
+                      },
+                      "agency": null,
+                      "route": null,
+                      "legGeometry": {
+                        "points": "yuhiGinkGMQ"
+                      }
+                    }
+                  ]
+                }
+              },
+              {
+                "node": {
+                  "start": "2026-10-20T08:50:22+02:00",
+                  "end": "2026-10-20T09:22:08+02:00",
+                  "duration": 1906,
+                  "numberOfTransfers": 0,
+                  "walkDistance": 507.73,
+                  "walkTime": 466,
+                  "waitingTime": 0,
+                  "legs": [
+                    {
+                      "mode": "WALK",
+                      "transitLeg": false,
+                      "start": {
+                        "scheduledTime": "2026-10-20T08:50:22+02:00",
+                        "estimated": null
+                      },
+                      "end": {
+                        "scheduledTime": "2026-10-20T08:58:00+02:00",
+                        "estimated": null
+                      },
+                      "duration": 458.0,
+                      "distance": 497.93,
+                      "headsign": null,
+                      "from": {
+                        "name": "Capitole",
+                        "lat": 43.604465,
+                        "lon": 1.445537,
+                        "stop": null
+                      },
+                      "to": {
+                        "name": "Jeanne d'Arc",
+                        "lat": 43.6083372,
+                        "lon": 1.4461283,
+                        "stop": {
+                          "gtfsId": "tisseo:stop_point:SP_2021"
+                        }
+                      },
+                      "agency": null,
+                      "route": null,
+                      "legGeometry": {
+                        "points": "{nciGqiyGAC???AOKAA?@E?K?@R?BA?Y?E?AOCWC?G?qDAaA?gDAcC?IAEAGIACYo@ACA?CIMUKSMUEDA@@D?F]ZGH@B"
+                      }
+                    },
+                    {
+                      "mode": "BUS",
+                      "transitLeg": true,
+                      "start": {
+                        "scheduledTime": "2026-10-20T08:58:00+02:00",
+                        "estimated": null
+                      },
+                      "end": {
+                        "scheduledTime": "2026-10-20T09:22:00+02:00",
+                        "estimated": null
+                      },
+                      "duration": 1440.0,
+                      "distance": 8899.0,
+                      "headsign": "Aéroport",
+                      "from": {
+                        "name": "Jeanne d'Arc",
+                        "lat": 43.6083372,
+                        "lon": 1.4461283,
+                        "stop": {
+                          "gtfsId": "tisseo:stop_point:SP_2021"
+                        }
+                      },
+                      "to": {
+                        "name": "Aéroport",
+                        "lat": 43.6308999,
+                        "lon": 1.374478,
+                        "stop": {
+                          "gtfsId": "tisseo:stop_point:SP_1753"
+                        }
+                      },
+                      "agency": {
+                        "gtfsId": "tisseo:network:1",
+                        "name": "Tisséo"
+                      },
+                      "route": {
+                        "gtfsId": "tisseo:line:99",
+                        "shortName": "AERO",
+                        "longName": "Navette Aéroport",
+                        "color": "e46809",
+                        "textColor": "ffffff"
+                      },
+                      "legGeometry": {
+                        "points": "yfdiGslyGOPk@j@_@b@m@n@w@x@gBjBSRQRKLKNQZINOZ]p@IPIRITIXI\\I`@ETG`@Kp@OlAUhBQtAKx@S~AYzBEZKNGb@AFEZA^AF?D@LBDBDDNFTBHBFLHBNFZNv@Hb@f@|B\\~AZxA?RJd@H\\DVJj@P|@DTLn@FXFVLl@TbAj@fCPx@DPJJBJDNFXJh@DTJb@H`@Lj@r@`DuAn@m@Z{@f@mAl@_@RyBfAq@^uAp@aBx@WFCBABAHAVn@nEL`AHf@PnAPnAVhCODODKBEBE?[FDn@BRD`@Dj@H~@JrAj@zGj@lG^nEN~BFbADz@@d@?N?NATAJAHITMNQJUFS@u@AUMg@Iq@G}AUoDe@w@MkACaEe@m@GM?mCUuAKuAOsAKwAKiAAI?q@Dm@Dc@Jk@Ny@VQDGB[LKDm@T]Ns@VC?E?M@O?WDKCIAICKEGEIKCEIQc@aAGMMQOOSOOIQGSCU?S@I@SD_@JWDW?e@?WCUEQGESIOIKMEMCM@KFKHGLENCR?PBNDPHLAd@?VATEXGd@EZMfAGd@Gd@Gb@kBjNUfBUpBGx@Gx@G`BCbB?hB?l@@l@@j@@b@Bh@Dx@H~@J|@`@xBh@tBVx@`@bAp@xA|@fBXl@P^Rb@P`@Pb@Pf@Pd@Vr@Pj@Rn@Nf@Ld@Nj@Pp@XtAX~AThAH`@Nx@hArGFZJh@Fd@Dd@@j@?J@`A?dBCnCC~AArABp@Bh@Ff@NbA@d@PhAFf@F`ABjA?ZGj@Gb@I`@K^O^QV[^QXIPELGXOX]p@Uh@g@tA{AjEM\\GR}CtIg@tA_AnCWr@sAnDYl@iAzB{@xAcAtAc@`@g@^QL}@h@a@Ne@Jw@Li@Jy@N}@XaBt@OFqB`Ai@Xa@RwAz@gCnAoAr@s@`@i@l@WZWXe@x@_@`AK\\If@Ib@Kx@Cb@?n@@fAFfAJbAd@vCB^GRCR@^QXS\\Y^CDEFOTEFINM\\Ir@?j@KHINET?R@PFJJJJBJBJELIHSBc@TCVKPCJGDAJCHCJEXJFBHBHLZp@RZLRPV\\T^VVJB@"
+                      }
+                    },
+                    {
+                      "mode": "WALK",
+                      "transitLeg": false,
+                      "start": {
+                        "scheduledTime": "2026-10-20T09:22:00+02:00",
+                        "estimated": null
+                      },
+                      "end": {
+                        "scheduledTime": "2026-10-20T09:22:08+02:00",
+                        "estimated": null
+                      },
+                      "duration": 8.0,
+                      "distance": 9.8,
+                      "headsign": null,
+                      "from": {
+                        "name": "Aéroport",
+                        "lat": 43.6308999,
+                        "lon": 1.374478,
+                        "stop": {
+                          "gtfsId": "tisseo:stop_point:SP_1753"
+                        }
+                      },
+                      "to": {
+                        "name": "Aéroport Toulouse-Blagnac",
+                        "lat": 43.631247,
+                        "lon": 1.374752,
+                        "stop": null
+                      },
+                      "agency": null,
+                      "route": null,
+                      "legGeometry": {
+                        "points": "yuhiGinkGMQ"
+                      }
+                    }
+                  ]
+                }
+              },
+              {
+                "node": {
+                  "start": "2026-10-20T09:05:22+02:00",
+                  "end": "2026-10-20T09:31:08+02:00",
+                  "duration": 1546,
+                  "numberOfTransfers": 0,
+                  "walkDistance": 507.73,
+                  "walkTime": 466,
+                  "waitingTime": 0,
+                  "legs": [
+                    {
+                      "mode": "WALK",
+                      "transitLeg": false,
+                      "start": {
+                        "scheduledTime": "2026-10-20T09:05:22+02:00",
+                        "estimated": null
+                      },
+                      "end": {
+                        "scheduledTime": "2026-10-20T09:13:00+02:00",
+                        "estimated": null
+                      },
+                      "duration": 458.0,
+                      "distance": 497.93,
+                      "headsign": null,
+                      "from": {
+                        "name": "Capitole",
+                        "lat": 43.604465,
+                        "lon": 1.445537,
+                        "stop": null
+                      },
+                      "to": {
+                        "name": "Jeanne d'Arc",
+                        "lat": 43.6083372,
+                        "lon": 1.4461283,
+                        "stop": {
+                          "gtfsId": "tisseo:stop_point:SP_2021"
+                        }
+                      },
+                      "agency": null,
+                      "route": null,
+                      "legGeometry": {
+                        "points": "{nciGqiyGAC???AOKAA?@E?K?@R?BA?Y?E?AOCWC?G?qDAaA?gDAcC?IAEAGIACYo@ACA?CIMUKSMUEDA@@D?F]ZGH@B"
+                      }
+                    },
+                    {
+                      "mode": "BUS",
+                      "transitLeg": true,
+                      "start": {
+                        "scheduledTime": "2026-10-20T09:13:00+02:00",
+                        "estimated": null
+                      },
+                      "end": {
+                        "scheduledTime": "2026-10-20T09:31:00+02:00",
+                        "estimated": null
+                      },
+                      "duration": 1080.0,
+                      "distance": 8899.0,
+                      "headsign": "Aéroport",
+                      "from": {
+                        "name": "Jeanne d'Arc",
+                        "lat": 43.6083372,
+                        "lon": 1.4461283,
+                        "stop": {
+                          "gtfsId": "tisseo:stop_point:SP_2021"
+                        }
+                      },
+                      "to": {
+                        "name": "Aéroport",
+                        "lat": 43.6308999,
+                        "lon": 1.374478,
+                        "stop": {
+                          "gtfsId": "tisseo:stop_point:SP_1753"
+                        }
+                      },
+                      "agency": {
+                        "gtfsId": "tisseo:network:1",
+                        "name": "Tisséo"
+                      },
+                      "route": {
+                        "gtfsId": "tisseo:line:99",
+                        "shortName": "AERO",
+                        "longName": "Navette Aéroport",
+                        "color": "e46809",
+                        "textColor": "ffffff"
+                      },
+                      "legGeometry": {
+                        "points": "yfdiGslyGOPk@j@_@b@m@n@w@x@gBjBSRQRKLKNQZINOZ]p@IPIRITIXI\\I`@ETG`@Kp@OlAUhBQtAKx@S~AYzBEZKNGb@AFEZA^AF?D@LBDBDDNFTBHBFLHBNFZNv@Hb@f@|B\\~AZxA?RJd@H\\DVJj@P|@DTLn@FXFVLl@TbAj@fCPx@DPJJBJDNFXJh@DTJb@H`@Lj@r@`DuAn@m@Z{@f@mAl@_@RyBfAq@^uAp@aBx@WFCBABAHAVn@nEL`AHf@PnAPnAVhCODODKBEBE?[FDn@BRD`@Dj@H~@JrAj@zGj@lG^nEN~BFbADz@@d@?N?NATAJAHITMNQJUFS@u@AUMg@Iq@G}AUoDe@w@MkACaEe@m@GM?mCUuAKuAOsAKwAKiAAI?q@Dm@Dc@Jk@Ny@VQDGB[LKDm@T]Ns@VC?E?M@O?WDKCIAICKEGEIKCEIQc@aAGMMQOOSOOIQGSCU?S@I@SD_@JWDW?e@?WCUEQGESIOIKMEMCM@KFKHGLENCR?PBNDPHLAd@?VATEXGd@EZMfAGd@Gd@Gb@kBjNUfBUpBGx@Gx@G`BCbB?hB?l@@l@@j@@b@Bh@Dx@H~@J|@`@xBh@tBVx@`@bAp@xA|@fBXl@P^Rb@P`@Pb@Pf@Pd@Vr@Pj@Rn@Nf@Ld@Nj@Pp@XtAX~AThAH`@Nx@hArGFZJh@Fd@Dd@@j@?J@`A?dBCnCC~AArABp@Bh@Ff@NbA@d@PhAFf@F`ABjA?ZGj@Gb@I`@K^O^QV[^QXIPELGXOX]p@Uh@g@tA{AjEM\\GR}CtIg@tA_AnCWr@sAnDYl@iAzB{@xAcAtAc@`@g@^QL}@h@a@Ne@Jw@Li@Jy@N}@XaBt@OFqB`Ai@Xa@RwAz@gCnAoAr@s@`@i@l@WZWXe@x@_@`AK\\If@Ib@Kx@Cb@?n@@fAFfAJbAd@vCB^GRCR@^QXS\\Y^CDEFOTEFINM\\Ir@?j@KHINET?R@PFJJJJBJBJELIHSBc@TCVKPCJGDAJCHCJEXJFBHBHLZp@RZLRPV\\T^VVJB@"
+                      }
+                    },
+                    {
+                      "mode": "WALK",
+                      "transitLeg": false,
+                      "start": {
+                        "scheduledTime": "2026-10-20T09:31:00+02:00",
+                        "estimated": null
+                      },
+                      "end": {
+                        "scheduledTime": "2026-10-20T09:31:08+02:00",
+                        "estimated": null
+                      },
+                      "duration": 8.0,
+                      "distance": 9.8,
+                      "headsign": null,
+                      "from": {
+                        "name": "Aéroport",
+                        "lat": 43.6308999,
+                        "lon": 1.374478,
+                        "stop": {
+                          "gtfsId": "tisseo:stop_point:SP_1753"
+                        }
+                      },
+                      "to": {
+                        "name": "Aéroport Toulouse-Blagnac",
+                        "lat": 43.631247,
+                        "lon": 1.374752,
+                        "stop": null
+                      },
+                      "agency": null,
+                      "route": null,
+                      "legGeometry": {
+                        "points": "yuhiGinkGMQ"
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": "capitole-aeroport",
+      "label": "Capitole → Aéroport Toulouse-Blagnac",
+      "scenario": "2028",
+      "variables": {
+        "origin": {
+          "label": "Capitole",
+          "location": {
+            "coordinate": {
+              "latitude": 43.604465,
+              "longitude": 1.445537
+            }
+          }
+        },
+        "destination": {
+          "label": "Aéroport Toulouse-Blagnac",
+          "location": {
+            "coordinate": {
+              "latitude": 43.631247,
+              "longitude": 1.374752
+            }
+          }
+        },
+        "dateTime": {
+          "earliestDeparture": "2026-10-20T08:30:00+02:00"
+        },
+        "modes": {
+          "direct": [
+            "WALK"
+          ],
+          "transit": {
+            "access": [
+              "WALK"
+            ],
+            "egress": [
+              "WALK"
+            ],
+            "transfer": [
+              "WALK"
+            ],
+            "transit": [
+              {
+                "mode": "BUS"
+              },
+              {
+                "mode": "TRAM"
+              },
+              {
+                "mode": "SUBWAY"
+              },
+              {
+                "mode": "RAIL"
+              },
+              {
+                "mode": "GONDOLA"
+              }
+            ]
+          }
+        },
+        "preferences": {
+          "transit": {
+            "filters": [
+              {
+                "exclude": [
+                  {
+                    "routes": [
+                      "tisseo:line:69"
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      },
+      "response": {
+        "data": {
+          "planConnection": {
+            "searchDateTime": "2026-10-20T08:30:00+02:00",
+            "routingErrors": [],
+            "edges": [
+              {
+                "node": {
+                  "start": "2026-10-20T08:35:22+02:00",
+                  "end": "2026-10-20T09:08:08+02:00",
+                  "duration": 1966,
+                  "numberOfTransfers": 0,
+                  "walkDistance": 507.73,
+                  "walkTime": 466,
+                  "waitingTime": 0,
+                  "legs": [
+                    {
+                      "mode": "WALK",
+                      "transitLeg": false,
+                      "start": {
+                        "scheduledTime": "2026-10-20T08:35:22+02:00",
+                        "estimated": null
+                      },
+                      "end": {
+                        "scheduledTime": "2026-10-20T08:43:00+02:00",
+                        "estimated": null
+                      },
+                      "duration": 458.0,
+                      "distance": 497.93,
+                      "headsign": null,
+                      "from": {
+                        "name": "Capitole",
+                        "lat": 43.604465,
+                        "lon": 1.445537,
+                        "stop": null
+                      },
+                      "to": {
+                        "name": "Jeanne d'Arc",
+                        "lat": 43.6083372,
+                        "lon": 1.4461283,
+                        "stop": {
+                          "gtfsId": "tisseo:stop_point:SP_2021"
+                        }
+                      },
+                      "agency": null,
+                      "route": null,
+                      "legGeometry": {
+                        "points": "{nciGqiyGAC???AOKAA?@E?K?@R?BA?Y?E?AOCWC?G?qDAaA?gDAcC?IAEAGIACYo@ACA?CIMUKSMUEDA@@D?F]ZGH@B"
+                      }
+                    },
+                    {
+                      "mode": "BUS",
+                      "transitLeg": true,
+                      "start": {
+                        "scheduledTime": "2026-10-20T08:43:00+02:00",
+                        "estimated": null
+                      },
+                      "end": {
+                        "scheduledTime": "2026-10-20T09:08:00+02:00",
+                        "estimated": null
+                      },
+                      "duration": 1500.0,
+                      "distance": 8899.0,
+                      "headsign": "Aéroport",
+                      "from": {
+                        "name": "Jeanne d'Arc",
+                        "lat": 43.6083372,
+                        "lon": 1.4461283,
+                        "stop": {
+                          "gtfsId": "tisseo:stop_point:SP_2021"
+                        }
+                      },
+                      "to": {
+                        "name": "Aéroport",
+                        "lat": 43.6308999,
+                        "lon": 1.374478,
+                        "stop": {
+                          "gtfsId": "tisseo:stop_point:SP_1753"
+                        }
+                      },
+                      "agency": {
+                        "gtfsId": "tisseo:network:1",
+                        "name": "Tisséo"
+                      },
+                      "route": {
+                        "gtfsId": "tisseo:line:99",
+                        "shortName": "AERO",
+                        "longName": "Navette Aéroport",
+                        "color": "e46809",
+                        "textColor": "ffffff"
+                      },
+                      "legGeometry": {
+                        "points": "yfdiGslyGOPk@j@_@b@m@n@w@x@gBjBSRQRKLKNQZINOZ]p@IPIRITIXI\\I`@ETG`@Kp@OlAUhBQtAKx@S~AYzBEZKNGb@AFEZA^AF?D@LBDBDDNFTBHBFLHBNFZNv@Hb@f@|B\\~AZxA?RJd@H\\DVJj@P|@DTLn@FXFVLl@TbAj@fCPx@DPJJBJDNFXJh@DTJb@H`@Lj@r@`DuAn@m@Z{@f@mAl@_@RyBfAq@^uAp@aBx@WFCBABAHAVn@nEL`AHf@PnAPnAVhCODODKBEBE?[FDn@BRD`@Dj@H~@JrAj@zGj@lG^nEN~BFbADz@@d@?N?NATAJAHITMNQJUFS@u@AUMg@Iq@G}AUoDe@w@MkACaEe@m@GM?mCUuAKuAOsAKwAKiAAI?q@Dm@Dc@Jk@Ny@VQDGB[LKDm@T]Ns@VC?E?M@O?WDKCIAICKEGEIKCEIQc@aAGMMQOOSOOIQGSCU?S@I@SD_@JWDW?e@?WCUEQGESIOIKMEMCM@KFKHGLENCR?PBNDPHLAd@?VATEXGd@EZMfAGd@Gd@Gb@kBjNUfBUpBGx@Gx@G`BCbB?hB?l@@l@@j@@b@Bh@Dx@H~@J|@`@xBh@tBVx@`@bAp@xA|@fBXl@P^Rb@P`@Pb@Pf@Pd@Vr@Pj@Rn@Nf@Ld@Nj@Pp@XtAX~AThAH`@Nx@hArGFZJh@Fd@Dd@@j@?J@`A?dBCnCC~AArABp@Bh@Ff@NbA@d@PhAFf@F`ABjA?ZGj@Gb@I`@K^O^QV[^QXIPELGXOX]p@Uh@g@tA{AjEM\\GR}CtIg@tA_AnCWr@sAnDYl@iAzB{@xAcAtAc@`@g@^QL}@h@a@Ne@Jw@Li@Jy@N}@XaBt@OFqB`Ai@Xa@RwAz@gCnAoAr@s@`@i@l@WZWXe@x@_@`AK\\If@Ib@Kx@Cb@?n@@fAFfAJbAd@vCB^GRCR@^QXS\\Y^CDEFOTEFINM\\Ir@?j@KHINET?R@PFJJJJBJBJELIHSBc@TCVKPCJGDAJCHCJEXJFBHBHLZp@RZLRPV\\T^VVJB@"
+                      }
+                    },
+                    {
+                      "mode": "WALK",
+                      "transitLeg": false,
+                      "start": {
+                        "scheduledTime": "2026-10-20T09:08:00+02:00",
+                        "estimated": null
+                      },
+                      "end": {
+                        "scheduledTime": "2026-10-20T09:08:08+02:00",
+                        "estimated": null
+                      },
+                      "duration": 8.0,
+                      "distance": 9.8,
+                      "headsign": null,
+                      "from": {
+                        "name": "Aéroport",
+                        "lat": 43.6308999,
+                        "lon": 1.374478,
+                        "stop": {
+                          "gtfsId": "tisseo:stop_point:SP_1753"
+                        }
+                      },
+                      "to": {
+                        "name": "Aéroport Toulouse-Blagnac",
+                        "lat": 43.631247,
+                        "lon": 1.374752,
+                        "stop": null
+                      },
+                      "agency": null,
+                      "route": null,
+                      "legGeometry": {
+                        "points": "yuhiGinkGMQ"
+                      }
+                    }
+                  ]
+                }
+              },
+              {
+                "node": {
+                  "start": "2026-10-20T08:50:22+02:00",
+                  "end": "2026-10-20T09:22:08+02:00",
+                  "duration": 1906,
+                  "numberOfTransfers": 0,
+                  "walkDistance": 507.73,
+                  "walkTime": 466,
+                  "waitingTime": 0,
+                  "legs": [
+                    {
+                      "mode": "WALK",
+                      "transitLeg": false,
+                      "start": {
+                        "scheduledTime": "2026-10-20T08:50:22+02:00",
+                        "estimated": null
+                      },
+                      "end": {
+                        "scheduledTime": "2026-10-20T08:58:00+02:00",
+                        "estimated": null
+                      },
+                      "duration": 458.0,
+                      "distance": 497.93,
+                      "headsign": null,
+                      "from": {
+                        "name": "Capitole",
+                        "lat": 43.604465,
+                        "lon": 1.445537,
+                        "stop": null
+                      },
+                      "to": {
+                        "name": "Jeanne d'Arc",
+                        "lat": 43.6083372,
+                        "lon": 1.4461283,
+                        "stop": {
+                          "gtfsId": "tisseo:stop_point:SP_2021"
+                        }
+                      },
+                      "agency": null,
+                      "route": null,
+                      "legGeometry": {
+                        "points": "{nciGqiyGAC???AOKAA?@E?K?@R?BA?Y?E?AOCWC?G?qDAaA?gDAcC?IAEAGIACYo@ACA?CIMUKSMUEDA@@D?F]ZGH@B"
+                      }
+                    },
+                    {
+                      "mode": "BUS",
+                      "transitLeg": true,
+                      "start": {
+                        "scheduledTime": "2026-10-20T08:58:00+02:00",
+                        "estimated": null
+                      },
+                      "end": {
+                        "scheduledTime": "2026-10-20T09:22:00+02:00",
+                        "estimated": null
+                      },
+                      "duration": 1440.0,
+                      "distance": 8899.0,
+                      "headsign": "Aéroport",
+                      "from": {
+                        "name": "Jeanne d'Arc",
+                        "lat": 43.6083372,
+                        "lon": 1.4461283,
+                        "stop": {
+                          "gtfsId": "tisseo:stop_point:SP_2021"
+                        }
+                      },
+                      "to": {
+                        "name": "Aéroport",
+                        "lat": 43.6308999,
+                        "lon": 1.374478,
+                        "stop": {
+                          "gtfsId": "tisseo:stop_point:SP_1753"
+                        }
+                      },
+                      "agency": {
+                        "gtfsId": "tisseo:network:1",
+                        "name": "Tisséo"
+                      },
+                      "route": {
+                        "gtfsId": "tisseo:line:99",
+                        "shortName": "AERO",
+                        "longName": "Navette Aéroport",
+                        "color": "e46809",
+                        "textColor": "ffffff"
+                      },
+                      "legGeometry": {
+                        "points": "yfdiGslyGOPk@j@_@b@m@n@w@x@gBjBSRQRKLKNQZINOZ]p@IPIRITIXI\\I`@ETG`@Kp@OlAUhBQtAKx@S~AYzBEZKNGb@AFEZA^AF?D@LBDBDDNFTBHBFLHBNFZNv@Hb@f@|B\\~AZxA?RJd@H\\DVJj@P|@DTLn@FXFVLl@TbAj@fCPx@DPJJBJDNFXJh@DTJb@H`@Lj@r@`DuAn@m@Z{@f@mAl@_@RyBfAq@^uAp@aBx@WFCBABAHAVn@nEL`AHf@PnAPnAVhCODODKBEBE?[FDn@BRD`@Dj@H~@JrAj@zGj@lG^nEN~BFbADz@@d@?N?NATAJAHITMNQJUFS@u@AUMg@Iq@G}AUoDe@w@MkACaEe@m@GM?mCUuAKuAOsAKwAKiAAI?q@Dm@Dc@Jk@Ny@VQDGB[LKDm@T]Ns@VC?E?M@O?WDKCIAICKEGEIKCEIQc@aAGMMQOOSOOIQGSCU?S@I@SD_@JWDW?e@?WCUEQGESIOIKMEMCM@KFKHGLENCR?PBNDPHLAd@?VATEXGd@EZMfAGd@Gd@Gb@kBjNUfBUpBGx@Gx@G`BCbB?hB?l@@l@@j@@b@Bh@Dx@H~@J|@`@xBh@tBVx@`@bAp@xA|@fBXl@P^Rb@P`@Pb@Pf@Pd@Vr@Pj@Rn@Nf@Ld@Nj@Pp@XtAX~AThAH`@Nx@hArGFZJh@Fd@Dd@@j@?J@`A?dBCnCC~AArABp@Bh@Ff@NbA@d@PhAFf@F`ABjA?ZGj@Gb@I`@K^O^QV[^QXIPELGXOX]p@Uh@g@tA{AjEM\\GR}CtIg@tA_AnCWr@sAnDYl@iAzB{@xAcAtAc@`@g@^QL}@h@a@Ne@Jw@Li@Jy@N}@XaBt@OFqB`Ai@Xa@RwAz@gCnAoAr@s@`@i@l@WZWXe@x@_@`AK\\If@Ib@Kx@Cb@?n@@fAFfAJbAd@vCB^GRCR@^QXS\\Y^CDEFOTEFINM\\Ir@?j@KHINET?R@PFJJJJBJBJELIHSBc@TCVKPCJGDAJCHCJEXJFBHBHLZp@RZLRPV\\T^VVJB@"
+                      }
+                    },
+                    {
+                      "mode": "WALK",
+                      "transitLeg": false,
+                      "start": {
+                        "scheduledTime": "2026-10-20T09:22:00+02:00",
+                        "estimated": null
+                      },
+                      "end": {
+                        "scheduledTime": "2026-10-20T09:22:08+02:00",
+                        "estimated": null
+                      },
+                      "duration": 8.0,
+                      "distance": 9.8,
+                      "headsign": null,
+                      "from": {
+                        "name": "Aéroport",
+                        "lat": 43.6308999,
+                        "lon": 1.374478,
+                        "stop": {
+                          "gtfsId": "tisseo:stop_point:SP_1753"
+                        }
+                      },
+                      "to": {
+                        "name": "Aéroport Toulouse-Blagnac",
+                        "lat": 43.631247,
+                        "lon": 1.374752,
+                        "stop": null
+                      },
+                      "agency": null,
+                      "route": null,
+                      "legGeometry": {
+                        "points": "yuhiGinkGMQ"
+                      }
+                    }
+                  ]
+                }
+              },
+              {
+                "node": {
+                  "start": "2026-10-20T09:05:22+02:00",
+                  "end": "2026-10-20T09:31:08+02:00",
+                  "duration": 1546,
+                  "numberOfTransfers": 0,
+                  "walkDistance": 507.73,
+                  "walkTime": 466,
+                  "waitingTime": 0,
+                  "legs": [
+                    {
+                      "mode": "WALK",
+                      "transitLeg": false,
+                      "start": {
+                        "scheduledTime": "2026-10-20T09:05:22+02:00",
+                        "estimated": null
+                      },
+                      "end": {
+                        "scheduledTime": "2026-10-20T09:13:00+02:00",
+                        "estimated": null
+                      },
+                      "duration": 458.0,
+                      "distance": 497.93,
+                      "headsign": null,
+                      "from": {
+                        "name": "Capitole",
+                        "lat": 43.604465,
+                        "lon": 1.445537,
+                        "stop": null
+                      },
+                      "to": {
+                        "name": "Jeanne d'Arc",
+                        "lat": 43.6083372,
+                        "lon": 1.4461283,
+                        "stop": {
+                          "gtfsId": "tisseo:stop_point:SP_2021"
+                        }
+                      },
+                      "agency": null,
+                      "route": null,
+                      "legGeometry": {
+                        "points": "{nciGqiyGAC???AOKAA?@E?K?@R?BA?Y?E?AOCWC?G?qDAaA?gDAcC?IAEAGIACYo@ACA?CIMUKSMUEDA@@D?F]ZGH@B"
+                      }
+                    },
+                    {
+                      "mode": "BUS",
+                      "transitLeg": true,
+                      "start": {
+                        "scheduledTime": "2026-10-20T09:13:00+02:00",
+                        "estimated": null
+                      },
+                      "end": {
+                        "scheduledTime": "2026-10-20T09:31:00+02:00",
+                        "estimated": null
+                      },
+                      "duration": 1080.0,
+                      "distance": 8899.0,
+                      "headsign": "Aéroport",
+                      "from": {
+                        "name": "Jeanne d'Arc",
+                        "lat": 43.6083372,
+                        "lon": 1.4461283,
+                        "stop": {
+                          "gtfsId": "tisseo:stop_point:SP_2021"
+                        }
+                      },
+                      "to": {
+                        "name": "Aéroport",
+                        "lat": 43.6308999,
+                        "lon": 1.374478,
+                        "stop": {
+                          "gtfsId": "tisseo:stop_point:SP_1753"
+                        }
+                      },
+                      "agency": {
+                        "gtfsId": "tisseo:network:1",
+                        "name": "Tisséo"
+                      },
+                      "route": {
+                        "gtfsId": "tisseo:line:99",
+                        "shortName": "AERO",
+                        "longName": "Navette Aéroport",
+                        "color": "e46809",
+                        "textColor": "ffffff"
+                      },
+                      "legGeometry": {
+                        "points": "yfdiGslyGOPk@j@_@b@m@n@w@x@gBjBSRQRKLKNQZINOZ]p@IPIRITIXI\\I`@ETG`@Kp@OlAUhBQtAKx@S~AYzBEZKNGb@AFEZA^AF?D@LBDBDDNFTBHBFLHBNFZNv@Hb@f@|B\\~AZxA?RJd@H\\DVJj@P|@DTLn@FXFVLl@TbAj@fCPx@DPJJBJDNFXJh@DTJb@H`@Lj@r@`DuAn@m@Z{@f@mAl@_@RyBfAq@^uAp@aBx@WFCBABAHAVn@nEL`AHf@PnAPnAVhCODODKBEBE?[FDn@BRD`@Dj@H~@JrAj@zGj@lG^nEN~BFbADz@@d@?N?NATAJAHITMNQJUFS@u@AUMg@Iq@G}AUoDe@w@MkACaEe@m@GM?mCUuAKuAOsAKwAKiAAI?q@Dm@Dc@Jk@Ny@VQDGB[LKDm@T]Ns@VC?E?M@O?WDKCIAICKEGEIKCEIQc@aAGMMQOOSOOIQGSCU?S@I@SD_@JWDW?e@?WCUEQGESIOIKMEMCM@KFKHGLENCR?PBNDPHLAd@?VATEXGd@EZMfAGd@Gd@Gb@kBjNUfBUpBGx@Gx@G`BCbB?hB?l@@l@@j@@b@Bh@Dx@H~@J|@`@xBh@tBVx@`@bAp@xA|@fBXl@P^Rb@P`@Pb@Pf@Pd@Vr@Pj@Rn@Nf@Ld@Nj@Pp@XtAX~AThAH`@Nx@hArGFZJh@Fd@Dd@@j@?J@`A?dBCnCC~AArABp@Bh@Ff@NbA@d@PhAFf@F`ABjA?ZGj@Gb@I`@K^O^QV[^QXIPELGXOX]p@Uh@g@tA{AjEM\\GR}CtIg@tA_AnCWr@sAnDYl@iAzB{@xAcAtAc@`@g@^QL}@h@a@Ne@Jw@Li@Jy@N}@XaBt@OFqB`Ai@Xa@RwAz@gCnAoAr@s@`@i@l@WZWXe@x@_@`AK\\If@Ib@Kx@Cb@?n@@fAFfAJbAd@vCB^GRCR@^QXS\\Y^CDEFOTEFINM\\Ir@?j@KHINET?R@PFJJJJBJBJELIHSBc@TCVKPCJGDAJCHCJEXJFBHBHLZp@RZLRPV\\T^VVJB@"
+                      }
+                    },
+                    {
+                      "mode": "WALK",
+                      "transitLeg": false,
+                      "start": {
+                        "scheduledTime": "2026-10-20T09:31:00+02:00",
+                        "estimated": null
+                      },
+                      "end": {
+                        "scheduledTime": "2026-10-20T09:31:08+02:00",
+                        "estimated": null
+                      },
+                      "duration": 8.0,
+                      "distance": 9.8,
+                      "headsign": null,
+                      "from": {
+                        "name": "Aéroport",
+                        "lat": 43.6308999,
+                        "lon": 1.374478,
+                        "stop": {
+                          "gtfsId": "tisseo:stop_point:SP_1753"
+                        }
+                      },
+                      "to": {
+                        "name": "Aéroport Toulouse-Blagnac",
+                        "lat": 43.631247,
+                        "lon": 1.374752,
+                        "stop": null
+                      },
+                      "agency": null,
+                      "route": null,
+                      "legGeometry": {
+                        "points": "yuhiGinkGMQ"
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": "matabiau-ramonville",
+      "label": "Gare Matabiau → Ramonville",
+      "scenario": "actuel",
+      "variables": {
+        "origin": {
+          "label": "Gare Matabiau",
+          "location": {
+            "coordinate": {
+              "latitude": 43.611206,
+              "longitude": 1.453616
+            }
+          }
+        },
+        "destination": {
+          "label": "Ramonville",
+          "location": {
+            "coordinate": {
+              "latitude": 43.555883,
+              "longitude": 1.477122
+            }
+          }
+        },
+        "dateTime": {
+          "earliestDeparture": "2026-10-20T08:30:00+02:00"
+        },
+        "modes": {
+          "direct": [
+            "WALK"
+          ],
+          "transit": {
+            "access": [
+              "WALK"
+            ],
+            "egress": [
+              "WALK"
+            ],
+            "transfer": [
+              "WALK"
+            ],
+            "transit": [
+              {
+                "mode": "BUS"
+              },
+              {
+                "mode": "TRAM"
+              },
+              {
+                "mode": "SUBWAY"
+              },
+              {
+                "mode": "RAIL"
+              },
+              {
+                "mode": "GONDOLA"
+              }
+            ]
+          }
+        },
+        "preferences": {
+          "transit": {
+            "filters": [
+              {
+                "exclude": [
+                  {
+                    "agencies": [
+                      "futur:FUT_TD"
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      },
+      "response": {
+        "data": {
+          "planConnection": {
+            "searchDateTime": "2026-10-20T08:30:00+02:00",
+            "routingErrors": [],
+            "edges": [
+              {
+                "node": {
+                  "start": "2026-10-20T08:31:00+02:00",
+                  "end": "2026-10-20T08:51:52+02:00",
+                  "duration": 1252,
+                  "numberOfTransfers": 1,
+                  "walkDistance": 298.26,
+                  "walkTime": 363,
+                  "waitingTime": 203,
+                  "legs": [
+                    {
+                      "mode": "RAIL",
+                      "transitLeg": true,
+                      "start": {
+                        "scheduledTime": "2026-10-20T08:31:00+02:00",
+                        "estimated": null
+                      },
+                      "end": {
+                        "scheduledTime": "2026-10-20T08:35:00+02:00",
+                        "estimated": null
+                      },
+                      "duration": 240.0,
+                      "distance": 3539.0,
+                      "headsign": "872701",
+                      "from": {
+                        "name": "Toulouse Matabiau",
+                        "lat": 43.611206,
+                        "lon": 1.453616,
+                        "stop": {
+                          "gtfsId": "sncf:StopPoint:OCETrain TER-87611004"
+                        }
+                      },
+                      "to": {
+                        "name": "Saint-Agne",
+                        "lat": 43.579477,
+                        "lon": 1.45012,
+                        "stop": {
+                          "gtfsId": "sncf:StopPoint:OCETrain TER-87611301"
+                        }
+                      },
+                      "agency": {
+                        "gtfsId": "sncf:1187",
+                        "name": "SNCF VOYAGEURS"
+                      },
+                      "route": {
+                        "gtfsId": "sncf:FR:Line::BE27A9C7-13DC-4189-A2DF-7DDE28924201:",
+                        "shortName": "K5",
+                        "longName": "Toulouse Matabiau - Pau",
+                        "color": "BF005F",
+                        "textColor": "FFFFFF"
+                      },
+                      "legGeometry": {
+                        "points": "_ydiGa|zGheExT"
+                      }
+                    },
+                    {
+                      "mode": "WALK",
+                      "transitLeg": false,
+                      "start": {
+                        "scheduledTime": "2026-10-20T08:35:00+02:00",
+                        "estimated": null
+                      },
+                      "end": {
+                        "scheduledTime": "2026-10-20T08:39:27+02:00",
+                        "estimated": null
+                      },
+                      "duration": 267.0,
+                      "distance": 216.21,
+                      "headsign": null,
+                      "from": {
+                        "name": "Saint-Agne",
+                        "lat": 43.579477,
+                        "lon": 1.45012,
+                        "stop": {
+                          "gtfsId": "sncf:StopPoint:OCETrain TER-87611301"
+                        }
+                      },
+                      "to": {
+                        "name": "Saint Agne SNCF",
+                        "lat": 43.5799003,
+                        "lon": 1.4498336,
+                        "stop": {
+                          "gtfsId": "tisseo:stop_point:SP_685"
+                        }
+                      },
+                      "agency": null,
+                      "route": null,
+                      "legGeometry": {
+                        "points": "ur~hGgfzG??@DB@DBDJHLWHq@RKCWFMBe@JGFGAK@?GBICWAGG@EMEDKYBCHVBCJIGO??ED"
+                      }
+                    },
+                    {
+                      "mode": "SUBWAY",
+                      "transitLeg": true,
+                      "start": {
+                        "scheduledTime": "2026-10-20T08:42:50+02:00",
+                        "estimated": null
+                      },
+                      "end": {
+                        "scheduledTime": "2026-10-20T08:50:16+02:00",
+                        "estimated": null
+                      },
+                      "duration": 446.0,
+                      "distance": 4346.0,
+                      "headsign": "Ramonville",
+                      "from": {
+                        "name": "Saint Agne SNCF",
+                        "lat": 43.5799003,
+                        "lon": 1.4498336,
+                        "stop": {
+                          "gtfsId": "tisseo:stop_point:SP_685"
+                        }
+                      },
+                      "to": {
+                        "name": "Ramonville",
+                        "lat": 43.5557497,
+                        "lon": 1.4763858,
+                        "stop": {
+                          "gtfsId": "tisseo:stop_point:SP_645"
+                        }
+                      },
+                      "agency": {
+                        "gtfsId": "tisseo:network:1",
+                        "name": "Tisséo"
+                      },
+                      "route": {
+                        "gtfsId": "tisseo:line:69",
+                        "shortName": "B",
+                        "longName": "Borderouge / Ramonville",
+                        "color": "ffdd00",
+                        "textColor": "000000"
+                      },
+                      "legGeometry": {
+                        "points": "su~hGidzGSw@I[EQIWEUI_@EQKg@CMESCSEQEUIe@E[E]EWE_@CWEYE]C_@E_@C]E]AWEg@Ci@C]Co@AS?GA_@?i@?i@?g@Bk@Bg@@S@UD]@KDe@@EFe@Hc@@GHa@Jc@Lc@La@@ENa@Na@Ne@FSPc@N_@JQFOLWLWHOJSFKHQNWBG??JUJSTc@FOXm@\\q@Zo@N[JORa@FMBER[RWV[VYTUXU\\UTMXQZMZM\\K\\GZG\\E\\A\\A^?Z@\\D\\DZF\\Hv@VXHPBLBVBZBX@\\?ZAZCZCXGZI\\KTKXMXOVQVSLKHITUBC\\a@\\a@RSRSb@a@b@]XSf@[^Sd@SPI\\MZKZKb@Kb@IZEtAQnBWxAQb@G\\ERC`AKd@GXE\\AR?^?T@d@DTBPDTFLBXJNH\\NXNTPNLf@^`At@ZTx@f@b@TTL`@P|@Xd@L`@HTDZDb@D`@Bd@BP?V?ZAb@ATCb@ENC^EZGd@MNEVI`@ORIA?t@]TOTMROVORSROTURQTUHKJMHIHKFGVYf@q@V]RYZe@Zc@\\k@R[Ta@NYFKR_@Tc@Xm@Zq@Zs@N]Tm@L]JWNe@Rk@FSJYHYJ]FSNi@BMDKFUH]DUJa@DODQ@KBKBKFYJg@F_@F[Fa@DUFa@BQDU@MDSD[Fk@Da@Fg@D_@B[Fo@B]Be@Dc@@QBa@@g@@a@@S?U?[?_@@KAQ?e@?OA[A_@AOA[AMASAOAMAMAKAKAIAMAIAMAG"
+                      }
+                    },
+                    {
+                      "mode": "WALK",
+                      "transitLeg": false,
+                      "start": {
+                        "scheduledTime": "2026-10-20T08:50:16+02:00",
+                        "estimated": null
+                      },
+                      "end": {
+                        "scheduledTime": "2026-10-20T08:51:52+02:00",
+                        "estimated": null
+                      },
+                      "duration": 96.0,
+                      "distance": 82.05,
+                      "headsign": null,
+                      "from": {
+                        "name": "Ramonville",
+                        "lat": 43.5557497,
+                        "lon": 1.4763858,
+                        "stop": {
+                          "gtfsId": "tisseo:stop_point:SP_645"
+                        }
+                      },
+                      "to": {
+                        "name": "Ramonville",
+                        "lat": 43.555883,
+                        "lon": 1.477122,
+                        "stop": null
+                      },
+                      "agency": null,
+                      "route": null,
+                      "legGeometry": {
+                        "points": "i~yhGkj_H?q@BAE_@?EA?K@CWAOQDAU"
+                      }
+                    }
+                  ]
+                }
+              },
+              {
+                "node": {
+                  "start": "2026-10-20T08:30:26+02:00",
+                  "end": "2026-10-20T09:02:15+02:00",
+                  "duration": 1909,
+                  "numberOfTransfers": 0,
+                  "walkDistance": 1066.94,
+                  "walkTime": 963,
+                  "waitingTime": 0,
+                  "legs": [
+                    {
+                      "mode": "WALK",
+                      "transitLeg": false,
+                      "start": {
+                        "scheduledTime": "2026-10-20T08:30:26+02:00",
+                        "estimated": null
+                      },
+                      "end": {
+                        "scheduledTime": "2026-10-20T08:44:53+02:00",
+                        "estimated": null
+                      },
+                      "duration": 867.0,
+                      "distance": 984.89,
+                      "headsign": null,
+                      "from": {
+                        "name": "Gare Matabiau",
+                        "lat": 43.611206,
+                        "lon": 1.453616,
+                        "stop": null
+                      },
+                      "to": {
+                        "name": "Jean Jaurès",
+                        "lat": 43.6059699,
+                        "lon": 1.4491068,
+                        "stop": {
+                          "gtfsId": "tisseo:stop_point:SP_676"
+                        }
+                      },
+                      "agency": null,
+                      "route": null,
+                      "legGeometry": {
+                        "points": "aydiGa|zG?F@D@J?H@FD^@L@F@FBH@HJn@@FFCDAVK|@]RINGFV@F@FRGRKJED@ND`@@@@??H?B?@?@?fAFB??GF?F@@???v@DF@Xd@NXBDBDDFh@~@JPrBlD@BBBBD??HLHNT^tA`Ch@~@^h@FJDI@AFIBCBEHMhAlBFHCDA@BFNRBCJMQ[LO@C@AAACG@?BFDFBDA?A@GHJPLTHN@@?@DDDHDHo@t@BFJKHO"
+                      }
+                    },
+                    {
+                      "mode": "SUBWAY",
+                      "transitLeg": true,
+                      "start": {
+                        "scheduledTime": "2026-10-20T08:44:53+02:00",
+                        "estimated": null
+                      },
+                      "end": {
+                        "scheduledTime": "2026-10-20T09:00:39+02:00",
+                        "estimated": null
+                      },
+                      "duration": 946.0,
+                      "distance": 9088.0,
+                      "headsign": "Ramonville",
+                      "from": {
+                        "name": "Jean Jaurès",
+                        "lat": 43.6059699,
+                        "lon": 1.4491068,
+                        "stop": {
+                          "gtfsId": "tisseo:stop_point:SP_676"
+                        }
+                      },
+                      "to": {
+                        "name": "Ramonville",
+                        "lat": 43.5557497,
+                        "lon": 1.4763858,
+                        "stop": {
+                          "gtfsId": "tisseo:stop_point:SP_645"
+                        }
+                      },
+                      "agency": {
+                        "gtfsId": "tisseo:network:1",
+                        "name": "Tisséo"
+                      },
+                      "route": {
+                        "gtfsId": "tisseo:line:69",
+                        "shortName": "B",
+                        "longName": "Borderouge / Ramonville",
+                        "color": "ffdd00",
+                        "textColor": "000000"
+                      },
+                      "legGeometry": {
+                        "points": "qxciGc`zG@?^c@p@s@l@q@t@w@fAmAj@o@r@u@RUf@c@VS`@]VQ\\Ud@YRMXO\\Qf@Sd@Qb@Oh@OXIVETERE\\CZCZC\\?V?`@@V@j@Fb@F\\Fd@NND\\LXLf@TPLLJPNPRJLNTLTLVHTFRJ`@HZDXBVB\\@X@^?TA`@A\\CVCVGZIb@I\\EXG^E`@E`@A`@A^A`@@^@d@@XB^D\\@NBPFXBNFXFTJZNf@Pb@R`@FLLVLVHLFJRZJPRTVZRTd@b@VT`@XXRZPf@T^P`@Nd@Nb@JNDz@Nb@Ff@Fd@Bb@@d@?d@?`@Ch@Cf@Gb@Gd@K`@IPGVGPGtAc@zAe@pAa@dA[zAe@rAa@bBi@~Ag@~Ag@|Ae@fA[nAa@tAc@xAc@hBk@??LE\\K\\K`@MXK^KTI\\K\\KXIPITGRERATARAR@RBTBRFPFRHPJPLPLFFHHFFJNJLDHRZNVPZLVP^Th@Rd@Pd@HVL`@JZHRL^Rd@P`@N\\LVR\\DHLRJRV`@RVJNJLPTRVJJLLLNLLJJNLHFDDLJNJTPVP`@T?@`@Rf@VRHVHVFTDVBX@V@VAVCVCVEVIXITKRMTMTQDGLKPQLOLSJQHSHSFUDWDUDW@Y@W@WAYAWCWCWEWGUAGEMGSGMMYWo@KU]u@Sc@Sc@Qa@MUEMIOEIIOIOIQIOGMMUIOIMGMMUEIGKGMGKKQIOGKKSIOCGGKGKEKISKSMWGOO]GQKWO]GOGUIQGSK[GQIWGSEMCKSw@I[EQIWEUI_@EQKg@CMESCSEQEUIe@E[E]EWE_@CWEYE]C_@E_@C]E]AWEg@Ci@C]Co@AS?GA_@?i@?i@?g@Bk@Bg@@S@UD]@KDe@@EFe@Hc@@GHa@Jc@Lc@La@@ENa@Na@Ne@FSPc@N_@JQFOLWLWHOJSFKHQNWBG??JUJSTc@FOXm@\\q@Zo@N[JORa@FMBER[RWV[VYTUXU\\UTMXQZMZM\\K\\GZG\\E\\A\\A^?Z@\\D\\DZF\\Hv@VXHPBLBVBZBX@\\?ZAZCZCXGZI\\KTKXMXOVQVSLKHITUBC\\a@\\a@RSRSb@a@b@]XSf@[^Sd@SPI\\MZKZKb@Kb@IZEtAQnBWxAQb@G\\ERC`AKd@GXE\\AR?^?T@d@DTBPDTFLBXJNH\\NXNTPNLf@^`At@ZTx@f@b@TTL`@P|@Xd@L`@HTDZDb@D`@Bd@BP?V?ZAb@ATCb@ENC^EZGd@MNEVI`@ORIA?t@]TOTMROVORSROTURQTUHKJMHIHKFGVYf@q@V]RYZe@Zc@\\k@R[Ta@NYFKR_@Tc@Xm@Zq@Zs@N]Tm@L]JWNe@Rk@FSJYHYJ]FSNi@BMDKFUH]DUJa@DODQ@KBKBKFYJg@F_@F[Fa@DUFa@BQDU@MDSD[Fk@Da@Fg@D_@B[Fo@B]Be@Dc@@QBa@@g@@a@@S?U?[?_@@KAQ?e@?OA[A_@AOA[AMASAOAMAMAKAKAIAMAIAMAG"
+                      }
+                    },
+                    {
+                      "mode": "WALK",
+                      "transitLeg": false,
+                      "start": {
+                        "scheduledTime": "2026-10-20T09:00:39+02:00",
+                        "estimated": null
+                      },
+                      "end": {
+                        "scheduledTime": "2026-10-20T09:02:15+02:00",
+                        "estimated": null
+                      },
+                      "duration": 96.0,
+                      "distance": 82.05,
+                      "headsign": null,
+                      "from": {
+                        "name": "Ramonville",
+                        "lat": 43.5557497,
+                        "lon": 1.4763858,
+                        "stop": {
+                          "gtfsId": "tisseo:stop_point:SP_645"
+                        }
+                      },
+                      "to": {
+                        "name": "Ramonville",
+                        "lat": 43.555883,
+                        "lon": 1.477122,
+                        "stop": null
+                      },
+                      "agency": null,
+                      "route": null,
+                      "legGeometry": {
+                        "points": "i~yhGkj_H?q@BAE_@?EA?K@CWAOQDAU"
+                      }
+                    }
+                  ]
+                }
+              },
+              {
+                "node": {
+                  "start": "2026-10-20T08:32:46+02:00",
+                  "end": "2026-10-20T09:03:26+02:00",
+                  "duration": 1840,
+                  "numberOfTransfers": 0,
+                  "walkDistance": 99.42999999999999,
+                  "walkTime": 100,
+                  "waitingTime": 0,
+                  "legs": [
+                    {
+                      "mode": "WALK",
+                      "transitLeg": false,
+                      "start": {
+                        "scheduledTime": "2026-10-20T08:32:46+02:00",
+                        "estimated": null
+                      },
+                      "end": {
+                        "scheduledTime": "2026-10-20T08:34:00+02:00",
+                        "estimated": null
+                      },
+                      "duration": 74.0,
+                      "distance": 74.8,
+                      "headsign": null,
+                      "from": {
+                        "name": "Gare Matabiau",
+                        "lat": 43.611206,
+                        "lon": 1.453616,
+                        "stop": null
+                      },
+                      "to": {
+                        "name": "Matabiau Gare SNCF",
+                        "lat": 43.610881,
+                        "lon": 1.4531436,
+                        "stop": {
+                          "gtfsId": "tisseo:stop_point:SP_2927"
+                        }
+                      },
+                      "agency": null,
+                      "route": null,
+                      "legGeometry": {
+                        "points": "aydiGa|zG?F@D@J?H@FD^@L@F@FBH^KFCDAAC"
+                      }
+                    },
+                    {
+                      "mode": "BUS",
+                      "transitLeg": true,
+                      "start": {
+                        "scheduledTime": "2026-10-20T08:34:00+02:00",
+                        "estimated": null
+                      },
+                      "end": {
+                        "scheduledTime": "2026-10-20T09:03:00+02:00",
+                        "estimated": null
+                      },
+                      "duration": 1740.0,
+                      "distance": 8425.0,
+                      "headsign": "Ramonville",
+                      "from": {
+                        "name": "Matabiau Gare SNCF",
+                        "lat": 43.610881,
+                        "lon": 1.4531436,
+                        "stop": {
+                          "gtfsId": "tisseo:stop_point:SP_2927"
+                        }
+                      },
+                      "to": {
+                        "name": "Ramonville",
+                        "lat": 43.555966,
+                        "lon": 1.4771451,
+                        "stop": {
+                          "gtfsId": "tisseo:stop_point:SP_548"
+                        }
+                      },
+                      "agency": {
+                        "gtfsId": "tisseo:network:1",
+                        "name": "Tisséo"
+                      },
+                      "route": {
+                        "gtfsId": "tisseo:line:76",
+                        "shortName": "27",
+                        "longName": "Toulouse-Lautrec Négreneys / Ramonville",
+                        "color": "58ac25",
+                        "textColor": "ffffff"
+                      },
+                      "legGeometry": {
+                        "points": "ewdiGuyzG?Ah@Qd@QVKXM^WJINORSLOn@{@NUl@w@f@i@DGn@i@l@]xAq@|E}BhB{@t@_@^Qr@]`@Sj@Ul@Q`AK^AhAArABh@@P?j@@nA?F@JA`@@vBd@dAVdA^v@Xf@PNFH?L@\\@zA?rEAjBErAC`AMjAYT?h@?J?|A?zA@N?d@@nABb@AZ?`@In@Y^S^QJKHKX]j@g@\\[LKr@u@JM\\]BCz@y@HIn@s@FIHKRSV[p@]FCLGLGXOHGRKLQJOX_@Va@DGHGFGXWJE^ORID?bASb@CJATAtAAj@ITIVGXETCjBQVEP?JAN?N?LBLNBKHYDO\\gAHUJUJW^iAHWb@yALEdCo@z@U^KNELEf@OfBe@f@O`Dw@HEnBi@`AW\\IHCLEf@KXK~@Uf@MLEXIPGPIPKLKLMLMJMNOBBD?BC@C?GCEFQFQHQLUZi@LULUL[JWBGNe@HWJUNWZa@NORSPOFGPMd@]VSFEJGNMPING@JDFF@D@BEBE@KAIAEV]DCb@[JGTMJI@?^QNEFEHGPONOLONSRYR[h@}@PYTc@FMVg@FIL[Te@N[N[BEVg@\\o@Vc@Zm@Zm@BEFILWFKTa@PU`@i@bAqAHIZa@DEZ_@`@e@RUNOp@w@PQDIV]B@B@BCBC@G?EAEHGLKHIDE`BcBRSDCLMNKTMFZTRL@REJOX\\Zb@JJPRX\\NNCJATBRDLJJJ@NEHGDEn@t@nArA`@\\~A~AFFh@`@h@V~@VhABv@Mn@S~@m@d@i@^m@Ra@l@iBn@aBD@HCJGFGBQ@SAULg@Ro@Lg@xCuJTg@P_@Ze@f@{@LODDLCJGLb@Zr@lGbODH@RALGLINYLyC|Cg@f@qCtCS`@Qd@K`AG~D?HAd@?J?J?F?Z@fAVxAb@rAd@dBt@`CJRXr@LPRFRAbDyCl@m@bCaCTWxA{ABCrAoALIzAuAj@k@|HsHr@o@h@i@HSJSN_@~@kBf@}Af@mAr@}@p@g@^QTGNC^Ix@MhB[AMMoBC]"
+                      }
+                    },
+                    {
+                      "mode": "WALK",
+                      "transitLeg": false,
+                      "start": {
+                        "scheduledTime": "2026-10-20T09:03:00+02:00",
+                        "estimated": null
+                      },
+                      "end": {
+                        "scheduledTime": "2026-10-20T09:03:26+02:00",
+                        "estimated": null
+                      },
+                      "duration": 26.0,
+                      "distance": 24.63,
+                      "headsign": null,
+                      "from": {
+                        "name": "Ramonville",
+                        "lat": 43.555966,
+                        "lon": 1.4771451,
+                        "stop": {
+                          "gtfsId": "tisseo:stop_point:SP_548"
+                        }
+                      },
+                      "to": {
+                        "name": "Ramonville",
+                        "lat": 43.555883,
+                        "lon": 1.477122,
+                        "stop": null
+                      },
+                      "agency": null,
+                      "route": null,
+                      "legGeometry": {
+                        "points": "w_zhGco_H???T@HBAAU"
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": "matabiau-ramonville",
+      "label": "Gare Matabiau → Ramonville",
+      "scenario": "2028",
+      "variables": {
+        "origin": {
+          "label": "Gare Matabiau",
+          "location": {
+            "coordinate": {
+              "latitude": 43.611206,
+              "longitude": 1.453616
+            }
+          }
+        },
+        "destination": {
+          "label": "Ramonville",
+          "location": {
+            "coordinate": {
+              "latitude": 43.555883,
+              "longitude": 1.477122
+            }
+          }
+        },
+        "dateTime": {
+          "earliestDeparture": "2026-10-20T08:30:00+02:00"
+        },
+        "modes": {
+          "direct": [
+            "WALK"
+          ],
+          "transit": {
+            "access": [
+              "WALK"
+            ],
+            "egress": [
+              "WALK"
+            ],
+            "transfer": [
+              "WALK"
+            ],
+            "transit": [
+              {
+                "mode": "BUS"
+              },
+              {
+                "mode": "TRAM"
+              },
+              {
+                "mode": "SUBWAY"
+              },
+              {
+                "mode": "RAIL"
+              },
+              {
+                "mode": "GONDOLA"
+              }
+            ]
+          }
+        },
+        "preferences": {
+          "transit": {
+            "filters": [
+              {
+                "exclude": [
+                  {
+                    "routes": [
+                      "tisseo:line:69"
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      },
+      "response": {
+        "data": {
+          "planConnection": {
+            "searchDateTime": "2026-10-20T08:30:00+02:00",
+            "routingErrors": [],
+            "edges": [
+              {
+                "node": {
+                  "start": "2026-10-20T08:31:00+02:00",
+                  "end": "2026-10-20T08:52:13+02:00",
+                  "duration": 1273,
+                  "numberOfTransfers": 1,
+                  "walkDistance": 187.1,
+                  "walkTime": 418,
+                  "waitingTime": 169,
+                  "legs": [
+                    {
+                      "mode": "RAIL",
+                      "transitLeg": true,
+                      "start": {
+                        "scheduledTime": "2026-10-20T08:31:00+02:00",
+                        "estimated": null
+                      },
+                      "end": {
+                        "scheduledTime": "2026-10-20T08:35:00+02:00",
+                        "estimated": null
+                      },
+                      "duration": 240.0,
+                      "distance": 3539.0,
+                      "headsign": "872701",
+                      "from": {
+                        "name": "Toulouse Matabiau",
+                        "lat": 43.611206,
+                        "lon": 1.453616,
+                        "stop": {
+                          "gtfsId": "sncf:StopPoint:OCETrain TER-87611004"
+                        }
+                      },
+                      "to": {
+                        "name": "Saint-Agne",
+                        "lat": 43.579477,
+                        "lon": 1.45012,
+                        "stop": {
+                          "gtfsId": "sncf:StopPoint:OCETrain TER-87611301"
+                        }
+                      },
+                      "agency": {
+                        "gtfsId": "sncf:1187",
+                        "name": "SNCF VOYAGEURS"
+                      },
+                      "route": {
+                        "gtfsId": "sncf:FR:Line::BE27A9C7-13DC-4189-A2DF-7DDE28924201:",
+                        "shortName": "K5",
+                        "longName": "Toulouse Matabiau - Pau",
+                        "color": "BF005F",
+                        "textColor": "FFFFFF"
+                      },
+                      "legGeometry": {
+                        "points": "_ydiGa|zGheExT"
+                      }
+                    },
+                    {
+                      "mode": "WALK",
+                      "transitLeg": false,
+                      "start": {
+                        "scheduledTime": "2026-10-20T08:35:00+02:00",
+                        "estimated": null
+                      },
+                      "end": {
+                        "scheduledTime": "2026-10-20T08:38:32+02:00",
+                        "estimated": null
+                      },
+                      "duration": 212.0,
+                      "distance": 85.44,
+                      "headsign": null,
+                      "from": {
+                        "name": "Saint-Agne",
+                        "lat": 43.579477,
+                        "lon": 1.45012,
+                        "stop": {
+                          "gtfsId": "sncf:StopPoint:OCETrain TER-87611301"
+                        }
+                      },
+                      "to": {
+                        "name": "Saint Agne SNCF",
+                        "lat": 43.5799,
+                        "lon": 1.449834,
+                        "stop": {
+                          "gtfsId": "futur:FUT_TIS_stop_point:SP_685"
+                        }
+                      },
+                      "agency": null,
+                      "route": null,
+                      "legGeometry": {
+                        "points": "ur~hGgfzG??@DB@DBDJHLWHq@RKCWFCM"
+                      }
+                    },
+                    {
+                      "mode": "SUBWAY",
+                      "transitLeg": true,
+                      "start": {
+                        "scheduledTime": "2026-10-20T08:41:21+02:00",
+                        "estimated": null
+                      },
+                      "end": {
+                        "scheduledTime": "2026-10-20T08:48:47+02:00",
+                        "estimated": null
+                      },
+                      "duration": 446.0,
+                      "distance": 4347.0,
+                      "headsign": "Ramonville",
+                      "from": {
+                        "name": "Saint Agne SNCF",
+                        "lat": 43.5799,
+                        "lon": 1.449834,
+                        "stop": {
+                          "gtfsId": "futur:FUT_TIS_stop_point:SP_685"
+                        }
+                      },
+                      "to": {
+                        "name": "Ramonville",
+                        "lat": 43.55575,
+                        "lon": 1.476386,
+                        "stop": {
+                          "gtfsId": "futur:FUT_TIS_stop_point:SP_645"
+                        }
+                      },
+                      "agency": {
+                        "gtfsId": "futur:FUT_TD",
+                        "name": "Lignes futures — simulation Toulouse Demain (non officiel)"
+                      },
+                      "route": {
+                        "gtfsId": "futur:FUT_B",
+                        "shortName": "B",
+                        "longName": "Borderouge / Ramonville – prolongée jusqu'à Labège Madron (projet)",
+                        "color": "FFDD00",
+                        "textColor": "000000"
+                      },
+                      "legGeometry": {
+                        "points": "qu~hGgdzGAASw@I[EQIWEUI_@EQKg@CMESCSEQEUIe@E[E]EWE_@CWEYE]C_@E_@C]E]AWEg@Ci@C]Co@AS?GA_@?i@?i@?g@Bk@Bg@@S@UD]@KDe@@EFe@Hc@@GHa@Jc@Lc@La@@ENa@Na@Ne@FSPc@N_@JQFOLWLWHOJSFKHQNW??BG??JUJSTc@FOXm@\\q@Zo@N[JORa@FMBER[RWV[VYTUXU\\UTMXQZMZM\\K\\GZG\\E\\A\\A^?Z@\\D\\DZF\\Hv@VXHPB@?JBVBZBX@\\?ZAZCZCXGZI\\KTKXMXOVQVSLKHITUBC\\a@\\a@RSRSb@a@b@]XSf@[^Sd@SPI\\MZKZKb@Kb@IZEtAQnBWxAQb@G\\ERC@?~@Kd@GXE\\AR?^?T@d@DTBPDTFLBXJNH\\NXNTPNLf@^`At@ZTx@f@b@TTL`@P|@Xd@L`@HTDZDb@D`@Bd@BP?V?ZAb@ATCb@ENC^EZGd@MNEVI`@ORIA?`@SRITOTMROVORSROTURQTUHKJMHIHKFGVYf@q@V]RYZe@Zc@\\k@R[Ta@NYFKR_@Tc@Xm@Zq@Zs@N]Tm@L]JWNe@Rk@FSJYHYJ]FSNi@BMDKFUH]DUJa@DODQ@KBKBKFYJg@F_@F[Fa@DUFa@BQDU@MDSD[Fk@Da@Fg@D_@B[Fo@B]Be@Dc@@QBa@@g@@a@@S?U?[?_@@KAQ?e@?OA[A_@AOA[AMASAOAMAMAKAKAIAMAIAMAG"
+                      }
+                    },
+                    {
+                      "mode": "WALK",
+                      "transitLeg": false,
+                      "start": {
+                        "scheduledTime": "2026-10-20T08:48:47+02:00",
+                        "estimated": null
+                      },
+                      "end": {
+                        "scheduledTime": "2026-10-20T08:52:13+02:00",
+                        "estimated": null
+                      },
+                      "duration": 206.0,
+                      "distance": 101.66,
+                      "headsign": null,
+                      "from": {
+                        "name": "Ramonville",
+                        "lat": 43.55575,
+                        "lon": 1.476386,
+                        "stop": {
+                          "gtfsId": "futur:FUT_TIS_stop_point:SP_645"
+                        }
+                      },
+                      "to": {
+                        "name": "Ramonville",
+                        "lat": 43.555883,
+                        "lon": 1.477122,
+                        "stop": null
+                      },
+                      "agency": null,
+                      "route": null,
+                      "legGeometry": {
+                        "points": "m~yhGkj_H@?QDUBG@AOS}AFGBA@AFEDCBAAU"
+                      }
+                    }
+                  ]
+                }
+              },
+              {
+                "node": {
+                  "start": "2026-10-20T08:30:11+02:00",
+                  "end": "2026-10-20T09:02:36+02:00",
+                  "duration": 1945,
+                  "numberOfTransfers": 0,
+                  "walkDistance": 909.74,
+                  "walkTime": 999,
+                  "waitingTime": 0,
+                  "legs": [
+                    {
+                      "mode": "WALK",
+                      "transitLeg": false,
+                      "start": {
+                        "scheduledTime": "2026-10-20T08:30:11+02:00",
+                        "estimated": null
+                      },
+                      "end": {
+                        "scheduledTime": "2026-10-20T08:43:24+02:00",
+                        "estimated": null
+                      },
+                      "duration": 793.0,
+                      "distance": 808.08,
+                      "headsign": null,
+                      "from": {
+                        "name": "Gare Matabiau",
+                        "lat": 43.611206,
+                        "lon": 1.453616,
+                        "stop": null
+                      },
+                      "to": {
+                        "name": "Jean Jaurès",
+                        "lat": 43.60597,
+                        "lon": 1.449107,
+                        "stop": {
+                          "gtfsId": "futur:FUT_TIS_stop_point:SP_676"
+                        }
+                      },
+                      "agency": null,
+                      "route": null,
+                      "legGeometry": {
+                        "points": "aydiGa|zG?F@D@J?H@FD^@L@F@FBH@HJn@@FFCDAVK|@]RINGFV@F@FRGRKJED@ND`@@@@??H?B?@?@?fAFB??GF?F@@???v@DF@Xd@NXBDBDDFh@~@JPrBlD@BBBBD??HLHNT^tA`Ch@~@^h@FJDI@AFIBCBEHMhAlBFH@CDFDH?A"
+                      }
+                    },
+                    {
+                      "mode": "SUBWAY",
+                      "transitLeg": true,
+                      "start": {
+                        "scheduledTime": "2026-10-20T08:43:24+02:00",
+                        "estimated": null
+                      },
+                      "end": {
+                        "scheduledTime": "2026-10-20T08:59:10+02:00",
+                        "estimated": null
+                      },
+                      "duration": 946.0,
+                      "distance": 9087.0,
+                      "headsign": "Labège Madron",
+                      "from": {
+                        "name": "Jean Jaurès",
+                        "lat": 43.60597,
+                        "lon": 1.449107,
+                        "stop": {
+                          "gtfsId": "futur:FUT_TIS_stop_point:SP_676"
+                        }
+                      },
+                      "to": {
+                        "name": "Ramonville",
+                        "lat": 43.55575,
+                        "lon": 1.476386,
+                        "stop": {
+                          "gtfsId": "futur:FUT_TIS_stop_point:SP_645"
+                        }
+                      },
+                      "agency": {
+                        "gtfsId": "futur:FUT_TD",
+                        "name": "Lignes futures — simulation Toulouse Demain (non officiel)"
+                      },
+                      "route": {
+                        "gtfsId": "futur:FUT_B",
+                        "shortName": "B",
+                        "longName": "Borderouge / Ramonville – prolongée jusqu'à Labège Madron (projet)",
+                        "color": "FFDD00",
+                        "textColor": "000000"
+                      },
+                      "legGeometry": {
+                        "points": "mxciGe`zG\\a@p@s@l@q@t@w@fAmAj@o@r@u@RUf@c@VS`@]VQ\\Ud@YRMXO\\Qf@Sd@Qb@Oh@OXIVETERE\\CZCZC\\?V?`@@@?T@j@Fb@F\\Fd@NND\\LXLf@TPLLJPNPRJLNTLTLVHTFRJ`@HZDXBVB\\@X@^?TA`@A\\CVCVGZIb@I\\EXG^E`@E`@A`@A^A`@@^@d@@XB^D\\@NBPFXBNFXFTJZNf@Pb@R`@FLLVLVHLFJ@@PXJPRTVZRTd@b@VT`@XXRZPf@T^P`@Nd@Nb@JNDz@Nb@Ff@Fd@Bb@@d@?d@?`@Ch@Cf@Gb@Gd@K`@IPGVGPG@ArAa@zAe@pAa@dA[zAe@rAa@bBi@~Ag@~Ag@|Ae@fA[nAa@tAc@xAc@hBk@??BAHC\\K\\K`@MXK^KTI\\K\\KXIPITGRERATARAR@RBTBRFPFRHPJPLPLFFHHFFJNJLDHRZNVPZLVP^Th@Rd@Pd@HVL`@JZHRL^Rd@P`@N\\LVR\\DHLRJRV`@RVJNJLPTRVJJLLLNLLJJNLHFDDLJNJTPVP`@T?@@?^Rf@VRHVHVFTDVBX@V@VAVCVCVEVIXITKRMTMTQDGLKPQLOLSJQHSHSFUDWDUDW@Y@W@WAYAWCWCWEWGUAGEMGSGMMYWo@KU]u@Sc@Sc@Qa@MUEMIOEIIOIOIQIOGMMUIOIMGMMUEIGKGMGKKQIOGKKSIOCGGKGKEKISKSMWGOO]GQKWO]GOGUIQGSK[GQIWGSEMAIAASw@I[EQIWEUI_@EQKg@CMESCSEQEUIe@E[E]EWE_@CWEYE]C_@E_@C]E]AWEg@Ci@C]Co@AS?GA_@?i@?i@?g@Bk@Bg@@S@UD]@KDe@@EFe@Hc@@GHa@Jc@Lc@La@@ENa@Na@Ne@FSPc@N_@JQFOLWLWHOJSFKHQNW??BG??JUJSTc@FOXm@\\q@Zo@N[JORa@FMBER[RWV[VYTUXU\\UTMXQZMZM\\K\\GZG\\E\\A\\A^?Z@\\D\\DZF\\Hv@VXHPB@?JBVBZBX@\\?ZAZCZCXGZI\\KTKXMXOVQVSLKHITUBC\\a@\\a@RSRSb@a@b@]XSf@[^Sd@SPI\\MZKZKb@Kb@IZEtAQnBWxAQb@G\\ERC@?~@Kd@GXE\\AR?^?T@d@DTBPDTFLBXJNH\\NXNTPNLf@^`At@ZTx@f@b@TTL`@P|@Xd@L`@HTDZDb@D`@Bd@BP?V?ZAb@ATCb@ENC^EZGd@MNEVI`@ORIA?`@SRITOTMROVORSROTURQTUHKJMHIHKFGVYf@q@V]RYZe@Zc@\\k@R[Ta@NYFKR_@Tc@Xm@Zq@Zs@N]Tm@L]JWNe@Rk@FSJYHYJ]FSNi@BMDKFUH]DUJa@DODQ@KBKBKFYJg@F_@F[Fa@DUFa@BQDU@MDSD[Fk@Da@Fg@D_@B[Fo@B]Be@Dc@@QBa@@g@@a@@S?U?[?_@@KAQ?e@?OA[A_@AOA[AMASAOAMAMAKAKAIAMAIAMAG"
+                      }
+                    },
+                    {
+                      "mode": "WALK",
+                      "transitLeg": false,
+                      "start": {
+                        "scheduledTime": "2026-10-20T08:59:10+02:00",
+                        "estimated": null
+                      },
+                      "end": {
+                        "scheduledTime": "2026-10-20T09:02:36+02:00",
+                        "estimated": null
+                      },
+                      "duration": 206.0,
+                      "distance": 101.66,
+                      "headsign": null,
+                      "from": {
+                        "name": "Ramonville",
+                        "lat": 43.55575,
+                        "lon": 1.476386,
+                        "stop": {
+                          "gtfsId": "futur:FUT_TIS_stop_point:SP_645"
+                        }
+                      },
+                      "to": {
+                        "name": "Ramonville",
+                        "lat": 43.555883,
+                        "lon": 1.477122,
+                        "stop": null
+                      },
+                      "agency": null,
+                      "route": null,
+                      "legGeometry": {
+                        "points": "m~yhGkj_H@?QDUBG@AOS}AFGBA@AFEDCBAAU"
+                      }
+                    }
+                  ]
+                }
+              },
+              {
+                "node": {
+                  "start": "2026-10-20T08:32:46+02:00",
+                  "end": "2026-10-20T09:03:26+02:00",
+                  "duration": 1840,
+                  "numberOfTransfers": 0,
+                  "walkDistance": 99.42999999999999,
+                  "walkTime": 100,
+                  "waitingTime": 0,
+                  "legs": [
+                    {
+                      "mode": "WALK",
+                      "transitLeg": false,
+                      "start": {
+                        "scheduledTime": "2026-10-20T08:32:46+02:00",
+                        "estimated": null
+                      },
+                      "end": {
+                        "scheduledTime": "2026-10-20T08:34:00+02:00",
+                        "estimated": null
+                      },
+                      "duration": 74.0,
+                      "distance": 74.8,
+                      "headsign": null,
+                      "from": {
+                        "name": "Gare Matabiau",
+                        "lat": 43.611206,
+                        "lon": 1.453616,
+                        "stop": null
+                      },
+                      "to": {
+                        "name": "Matabiau Gare SNCF",
+                        "lat": 43.610881,
+                        "lon": 1.4531436,
+                        "stop": {
+                          "gtfsId": "tisseo:stop_point:SP_2927"
+                        }
+                      },
+                      "agency": null,
+                      "route": null,
+                      "legGeometry": {
+                        "points": "aydiGa|zG?F@D@J?H@FD^@L@F@FBH^KFCDAAC"
+                      }
+                    },
+                    {
+                      "mode": "BUS",
+                      "transitLeg": true,
+                      "start": {
+                        "scheduledTime": "2026-10-20T08:34:00+02:00",
+                        "estimated": null
+                      },
+                      "end": {
+                        "scheduledTime": "2026-10-20T09:03:00+02:00",
+                        "estimated": null
+                      },
+                      "duration": 1740.0,
+                      "distance": 8425.0,
+                      "headsign": "Ramonville",
+                      "from": {
+                        "name": "Matabiau Gare SNCF",
+                        "lat": 43.610881,
+                        "lon": 1.4531436,
+                        "stop": {
+                          "gtfsId": "tisseo:stop_point:SP_2927"
+                        }
+                      },
+                      "to": {
+                        "name": "Ramonville",
+                        "lat": 43.555966,
+                        "lon": 1.4771451,
+                        "stop": {
+                          "gtfsId": "tisseo:stop_point:SP_548"
+                        }
+                      },
+                      "agency": {
+                        "gtfsId": "tisseo:network:1",
+                        "name": "Tisséo"
+                      },
+                      "route": {
+                        "gtfsId": "tisseo:line:76",
+                        "shortName": "27",
+                        "longName": "Toulouse-Lautrec Négreneys / Ramonville",
+                        "color": "58ac25",
+                        "textColor": "ffffff"
+                      },
+                      "legGeometry": {
+                        "points": "ewdiGuyzG?Ah@Qd@QVKXM^WJINORSLOn@{@NUl@w@f@i@DGn@i@l@]xAq@|E}BhB{@t@_@^Qr@]`@Sj@Ul@Q`AK^AhAArABh@@P?j@@nA?F@JA`@@vBd@dAVdA^v@Xf@PNFH?L@\\@zA?rEAjBErAC`AMjAYT?h@?J?|A?zA@N?d@@nABb@AZ?`@In@Y^S^QJKHKX]j@g@\\[LKr@u@JM\\]BCz@y@HIn@s@FIHKRSV[p@]FCLGLGXOHGRKLQJOX_@Va@DGHGFGXWJE^ORID?bASb@CJATAtAAj@ITIVGXETCjBQVEP?JAN?N?LBLNBKHYDO\\gAHUJUJW^iAHWb@yALEdCo@z@U^KNELEf@OfBe@f@O`Dw@HEnBi@`AW\\IHCLEf@KXK~@Uf@MLEXIPGPIPKLKLMLMJMNOBBD?BC@C?GCEFQFQHQLUZi@LULUL[JWBGNe@HWJUNWZa@NORSPOFGPMd@]VSFEJGNMPING@JDFF@D@BEBE@KAIAEV]DCb@[JGTMJI@?^QNEFEHGPONOLONSRYR[h@}@PYTc@FMVg@FIL[Te@N[N[BEVg@\\o@Vc@Zm@Zm@BEFILWFKTa@PU`@i@bAqAHIZa@DEZ_@`@e@RUNOp@w@PQDIV]B@B@BCBC@G?EAEHGLKHIDE`BcBRSDCLMNKTMFZTRL@REJOX\\Zb@JJPRX\\NNCJATBRDLJJJ@NEHGDEn@t@nArA`@\\~A~AFFh@`@h@V~@VhABv@Mn@S~@m@d@i@^m@Ra@l@iBn@aBD@HCJGFGBQ@SAULg@Ro@Lg@xCuJTg@P_@Ze@f@{@LODDLCJGLb@Zr@lGbODH@RALGLINYLyC|Cg@f@qCtCS`@Qd@K`AG~D?HAd@?J?J?F?Z@fAVxAb@rAd@dBt@`CJRXr@LPRFRAbDyCl@m@bCaCTWxA{ABCrAoALIzAuAj@k@|HsHr@o@h@i@HSJSN_@~@kBf@}Af@mAr@}@p@g@^QTGNC^Ix@MhB[AMMoBC]"
+                      }
+                    },
+                    {
+                      "mode": "WALK",
+                      "transitLeg": false,
+                      "start": {
+                        "scheduledTime": "2026-10-20T09:03:00+02:00",
+                        "estimated": null
+                      },
+                      "end": {
+                        "scheduledTime": "2026-10-20T09:03:26+02:00",
+                        "estimated": null
+                      },
+                      "duration": 26.0,
+                      "distance": 24.63,
+                      "headsign": null,
+                      "from": {
+                        "name": "Ramonville",
+                        "lat": 43.555966,
+                        "lon": 1.4771451,
+                        "stop": {
+                          "gtfsId": "tisseo:stop_point:SP_548"
+                        }
+                      },
+                      "to": {
+                        "name": "Ramonville",
+                        "lat": 43.555883,
+                        "lon": 1.477122,
+                        "stop": null
+                      },
+                      "agency": null,
+                      "route": null,
+                      "legGeometry": {
+                        "points": "w_zhGco_H???T@HBAAU"
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": "colomiers-labege",
+      "label": "Colomiers gare → Labège",
+      "scenario": "actuel",
+      "variables": {
+        "origin": {
+          "label": "Colomiers gare",
+          "location": {
+            "coordinate": {
+              "latitude": 43.603734,
+              "longitude": 1.334221
+            }
+          }
+        },
+        "destination": {
+          "label": "Labège",
+          "location": {
+            "coordinate": {
+              "latitude": 43.547467,
+              "longitude": 1.512964
+            }
+          }
+        },
+        "dateTime": {
+          "earliestDeparture": "2026-10-20T08:30:00+02:00"
+        },
+        "modes": {
+          "direct": [
+            "WALK"
+          ],
+          "transit": {
+            "access": [
+              "WALK"
+            ],
+            "egress": [
+              "WALK"
+            ],
+            "transfer": [
+              "WALK"
+            ],
+            "transit": [
+              {
+                "mode": "BUS"
+              },
+              {
+                "mode": "TRAM"
+              },
+              {
+                "mode": "SUBWAY"
+              },
+              {
+                "mode": "RAIL"
+              },
+              {
+                "mode": "GONDOLA"
+              }
+            ]
+          }
+        },
+        "preferences": {
+          "transit": {
+            "filters": [
+              {
+                "exclude": [
+                  {
+                    "agencies": [
+                      "futur:FUT_TD"
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      },
+      "response": {
+        "data": {
+          "planConnection": {
+            "searchDateTime": "2026-10-20T08:30:00+02:00",
+            "routingErrors": [],
+            "edges": [
+              {
+                "node": {
+                  "start": "2026-10-20T08:43:00+02:00",
+                  "end": "2026-10-20T09:28:00+02:00",
+                  "duration": 2700,
+                  "numberOfTransfers": 1,
+                  "walkDistance": 0.0,
+                  "walkTime": 0,
+                  "waitingTime": 780,
+                  "legs": [
+                    {
+                      "mode": "RAIL",
+                      "transitLeg": true,
+                      "start": {
+                        "scheduledTime": "2026-10-20T08:43:00+02:00",
+                        "estimated": null
+                      },
+                      "end": {
+                        "scheduledTime": "2026-10-20T09:06:00+02:00",
+                        "estimated": null
+                      },
+                      "duration": 1380.0,
+                      "distance": 15162.0,
+                      "headsign": "870404",
+                      "from": {
+                        "name": "Colomiers",
+                        "lat": 43.603734,
+                        "lon": 1.334221,
+                        "stop": {
+                          "gtfsId": "sncf:StopPoint:OCETrain TER-87611467"
+                        }
+                      },
+                      "to": {
+                        "name": "Toulouse Matabiau",
+                        "lat": 43.611206,
+                        "lon": 1.453616,
+                        "stop": {
+                          "gtfsId": "sncf:StopPoint:OCETrain TER-87611004"
+                        }
+                      },
+                      "agency": {
+                        "gtfsId": "sncf:1187",
+                        "name": "SNCF VOYAGEURS"
+                      },
+                      "route": {
+                        "gtfsId": "sncf:FR:Line::DDEF5935-0332-4ED5-B499-5C664AF7CF05:",
+                        "shortName": "C6",
+                        "longName": "Toulouse Matabiau - Auch",
+                        "color": "0749FF",
+                        "textColor": "FFFFFF"
+                      },
+                      "legGeometry": {
+                        "points": "ijciG{qcG`k@epHnO_pE~aCiR}f@{}DieEyT"
+                      }
+                    },
+                    {
+                      "mode": "RAIL",
+                      "transitLeg": true,
+                      "start": {
+                        "scheduledTime": "2026-10-20T09:19:00+02:00",
+                        "estimated": null
+                      },
+                      "end": {
+                        "scheduledTime": "2026-10-20T09:28:00+02:00",
+                        "estimated": null
+                      },
+                      "duration": 540.0,
+                      "distance": 8622.0,
+                      "headsign": "876253",
+                      "from": {
+                        "name": "Toulouse Matabiau",
+                        "lat": 43.611206,
+                        "lon": 1.453616,
+                        "stop": {
+                          "gtfsId": "sncf:StopPoint:OCETrain TER-87611004"
+                        }
+                      },
+                      "to": {
+                        "name": "Labège Innopole",
+                        "lat": 43.547467,
+                        "lon": 1.512964,
+                        "stop": {
+                          "gtfsId": "sncf:StopPoint:OCETrain TER-87612002"
+                        }
+                      },
+                      "agency": {
+                        "gtfsId": "sncf:1187",
+                        "name": "SNCF VOYAGEURS"
+                      },
+                      "route": {
+                        "gtfsId": "sncf:FR:Line::E5FF5D61-7D3C-4DDA-9663-3C36510681CF:",
+                        "shortName": "K3",
+                        "longName": "Toulouse Matabiau - Port Bou Frontiere",
+                        "color": "BF005F",
+                        "textColor": "FFFFFF"
+                      },
+                      "legGeometry": {
+                        "points": "_ydiGa|zGliFeeD|bDwkE"
+                      }
+                    }
+                  ]
+                }
+              },
+              {
+                "node": {
+                  "start": "2026-10-20T09:15:00+02:00",
+                  "end": "2026-10-20T10:08:07+02:00",
+                  "duration": 3187,
+                  "numberOfTransfers": 2,
+                  "walkDistance": 677.35,
+                  "walkTime": 684,
+                  "waitingTime": 428,
+                  "legs": [
+                    {
+                      "mode": "RAIL",
+                      "transitLeg": true,
+                      "start": {
+                        "scheduledTime": "2026-10-20T09:15:00+02:00",
+                        "estimated": null
+                      },
+                      "end": {
+                        "scheduledTime": "2026-10-20T09:28:00+02:00",
+                        "estimated": null
+                      },
+                      "duration": 780.0,
+                      "distance": 11616.0,
+                      "headsign": "870304",
+                      "from": {
+                        "name": "Colomiers",
+                        "lat": 43.603734,
+                        "lon": 1.334221,
+                        "stop": {
+                          "gtfsId": "sncf:StopPoint:OCETrain TER-87611467"
+                        }
+                      },
+                      "to": {
+                        "name": "Saint-Agne",
+                        "lat": 43.579477,
+                        "lon": 1.45012,
+                        "stop": {
+                          "gtfsId": "sncf:StopPoint:OCETrain TER-87611301"
+                        }
+                      },
+                      "agency": {
+                        "gtfsId": "sncf:1187",
+                        "name": "SNCF VOYAGEURS"
+                      },
+                      "route": {
+                        "gtfsId": "sncf:FR:Line::DDEF5935-0332-4ED5-B499-5C664AF7CF05:",
+                        "shortName": "C6",
+                        "longName": "Toulouse Matabiau - Auch",
+                        "color": "0749FF",
+                        "textColor": "FFFFFF"
+                      },
+                      "legGeometry": {
+                        "points": "ijciG{qcGp{@eaO~aCiR}f@{}D"
+                      }
+                    },
+                    {
+                      "mode": "WALK",
+                      "transitLeg": false,
+                      "start": {
+                        "scheduledTime": "2026-10-20T09:28:00+02:00",
+                        "estimated": null
+                      },
+                      "end": {
+                        "scheduledTime": "2026-10-20T09:32:27+02:00",
+                        "estimated": null
+                      },
+                      "duration": 267.0,
+                      "distance": 216.21,
+                      "headsign": null,
+                      "from": {
+                        "name": "Saint-Agne",
+                        "lat": 43.579477,
+                        "lon": 1.45012,
+                        "stop": {
+                          "gtfsId": "sncf:StopPoint:OCETrain TER-87611301"
+                        }
+                      },
+                      "to": {
+                        "name": "Saint Agne SNCF",
+                        "lat": 43.5799003,
+                        "lon": 1.4498336,
+                        "stop": {
+                          "gtfsId": "tisseo:stop_point:SP_685"
+                        }
+                      },
+                      "agency": null,
+                      "route": null,
+                      "legGeometry": {
+                        "points": "ur~hGgfzG??@DB@DBDJHLWHq@RKCWFMBe@JGFGAK@?GBICWAGG@EMEDKYBCHVBCJIGO??ED"
+                      }
+                    },
+                    {
+                      "mode": "SUBWAY",
+                      "transitLeg": true,
+                      "start": {
+                        "scheduledTime": "2026-10-20T09:34:50+02:00",
+                        "estimated": null
+                      },
+                      "end": {
+                        "scheduledTime": "2026-10-20T09:37:25+02:00",
+                        "estimated": null
+                      },
+                      "duration": 155.0,
+                      "distance": 1431.0,
+                      "headsign": "Ramonville",
+                      "from": {
+                        "name": "Saint Agne SNCF",
+                        "lat": 43.5799003,
+                        "lon": 1.4498336,
+                        "stop": {
+                          "gtfsId": "tisseo:stop_point:SP_685"
+                        }
+                      },
+                      "to": {
+                        "name": "Rangueil",
+                        "lat": 43.5748294,
+                        "lon": 1.4617783,
+                        "stop": {
+                          "gtfsId": "tisseo:stop_point:SP_1141"
+                        }
+                      },
+                      "agency": {
+                        "gtfsId": "tisseo:network:1",
+                        "name": "Tisséo"
+                      },
+                      "route": {
+                        "gtfsId": "tisseo:line:69",
+                        "shortName": "B",
+                        "longName": "Borderouge / Ramonville",
+                        "color": "ffdd00",
+                        "textColor": "000000"
+                      },
+                      "legGeometry": {
+                        "points": "su~hGidzGSw@I[EQIWEUI_@EQKg@CMESCSEQEUIe@E[E]EWE_@CWEYE]C_@E_@C]E]AWEg@Ci@C]Co@AS?GA_@?i@?i@?g@Bk@Bg@@S@UD]@KDe@@EFe@Hc@@GHa@Jc@Lc@La@@ENa@Na@Ne@FSPc@N_@JQFOLWLWHOJSFKHQNWBG??JUJSTc@FOXm@\\q@Zo@N[JORa@FMBER[RWV[VYTUXU\\UTMXQZMZM\\K\\GZG\\E\\A\\A^?Z@\\D\\DZF\\Hv@VXHPB"
+                      }
+                    },
+                    {
+                      "mode": "WALK",
+                      "transitLeg": false,
+                      "start": {
+                        "scheduledTime": "2026-10-20T09:37:25+02:00",
+                        "estimated": null
+                      },
+                      "end": {
+                        "scheduledTime": "2026-10-20T09:41:15+02:00",
+                        "estimated": null
+                      },
+                      "duration": 230.0,
+                      "distance": 231.09,
+                      "headsign": null,
+                      "from": {
+                        "name": "Rangueil",
+                        "lat": 43.5748294,
+                        "lon": 1.4617783,
+                        "stop": {
+                          "gtfsId": "tisseo:stop_point:SP_1141"
+                        }
+                      },
+                      "to": {
+                        "name": "Rangueil",
+                        "lat": 43.5738217,
+                        "lon": 1.4630919,
+                        "stop": {
+                          "gtfsId": "tisseo:stop_point:SP_5629"
+                        }
+                      },
+                      "agency": null,
+                      "route": null,
+                      "legGeometry": {
+                        "points": "cu}hGco|GDE?@KT?@CC@ADMAA@E@A@A?IAC?CQS@EBCt@_BBGDIDIZs@@MBCDK\\\\FFB@BABEDDDF@BJSLUCC"
+                      }
+                    },
+                    {
+                      "mode": "BUS",
+                      "transitLeg": true,
+                      "start": {
+                        "scheduledTime": "2026-10-20T09:46:00+02:00",
+                        "estimated": null
+                      },
+                      "end": {
+                        "scheduledTime": "2026-10-20T10:05:00+02:00",
+                        "estimated": null
+                      },
+                      "duration": 1140.0,
+                      "distance": 8184.0,
+                      "headsign": "Belberaud La Balme",
+                      "from": {
+                        "name": "Rangueil",
+                        "lat": 43.5738217,
+                        "lon": 1.4630919,
+                        "stop": {
+                          "gtfsId": "tisseo:stop_point:SP_5629"
+                        }
+                      },
+                      "to": {
+                        "name": "Lalande",
+                        "lat": 43.5488073,
+                        "lon": 1.5132816,
+                        "stop": {
+                          "gtfsId": "tisseo:stop_point:SP_1534"
+                        }
+                      },
+                      "agency": {
+                        "gtfsId": "tisseo:network:1",
+                        "name": "Tisséo"
+                      },
+                      "route": {
+                        "gtfsId": "tisseo:line:52",
+                        "shortName": "80",
+                        "longName": "Rangueil / Belberaud La Balme",
+                        "color": "3f2682",
+                        "textColor": "ffffff"
+                      },
+                      "legGeometry": {
+                        "points": "wo}hGsw|GVk@NYXa@LODoCAYIQ_@a@Ma@AAMYB?FO?OCMGGK?C@Uq@Ma@m@sBo@gBMYMQw@o@a@YMIQMKIOKMIQMSSKQGWEaAE[GUQ]mBcDQUUYFMVg@FIL[Te@N[N[BEVg@\\o@Vc@Zm@Zm@BEFILWFKTa@PU`@i@bAqAHIZa@DEZ_@`@e@RUNOp@w@PQDIV]B@B@BCBC@G?EAEHGLKHIDE`BcBRSDCLMNKTMFZTRL@REJOX\\Zb@JJPRX\\NNCJATBRDLJJJ@NEHGDEn@t@nArA`@\\~A~AFFh@`@h@V~@VhABv@Mn@S~@m@d@i@^m@Ra@l@iBn@aBD@HCJGFGBQ@SAULg@Ro@Lg@xCuJTg@P_@Ze@f@{@LODDLCJGFMBM@KAMAAVQ\\S`KeKZ]HMFMDa@?Oq@qCEq@TaGAkBOgAY_AaAwCGM_@u@u@oAOUMWe@y@Yi@Wc@Yc@MYGWCW@_@r@oFD_@@c@@sBAcAAs@H?HCFEHMD[E[GKKIKAKi@Ga@QmBGgAAk@@_@B[Dc@CKDc@D]BORmABQBOR}AReBFe@Fa@NwAN}@?G@a@CWGSKOsBiBWW}CkCQQQWMYI_@E]QmCCc@OmB[oEIaBGqBE}BGuCG}AIy@Kq@Mi@Sm@Sc@QYOUMOcAmAkAiABSCSKMMCMBKLCRBRJLLDHABCJMz@x@NNbAlALNNTPXRb@Rl@Lh@Jp@Hx@F|AFtCD|BFpBH`BZnEHCf@Ot@Wv@WjAa@TINGjAa@z@WhA_@HCPGjBk@|Ak@h@Q~@[r@Wt@Uh@Sv@W`@ONJ\\C`@G\\EdB]TGhA_@VWNAPAPCREREb@Qv@Y`Bk@VKZM\\O\\Q`B}@v@g@RMNMLKPOJKRW\\e@n@u@l@w@HOl@u@\\g@V]z@mAPUNWJUHUDQF]HDF@H?HCFCFIDK@I@KAKAGZMJELILKPSTWPSNSZa@nA_B\\a@d@m@vAiBf@m@l@w@Zc@`AoAxAmB`C}CV]RYLUL[J[DM"
+                      }
+                    },
+                    {
+                      "mode": "WALK",
+                      "transitLeg": false,
+                      "start": {
+                        "scheduledTime": "2026-10-20T10:05:00+02:00",
+                        "estimated": null
+                      },
+                      "end": {
+                        "scheduledTime": "2026-10-20T10:08:07+02:00",
+                        "estimated": null
+                      },
+                      "duration": 187.0,
+                      "distance": 230.05,
+                      "headsign": null,
+                      "from": {
+                        "name": "Lalande",
+                        "lat": 43.5488073,
+                        "lon": 1.5132816,
+                        "stop": {
+                          "gtfsId": "tisseo:stop_point:SP_1534"
+                        }
+                      },
+                      "to": {
+                        "name": "Labège",
+                        "lat": 43.547467,
+                        "lon": 1.512964,
+                        "stop": null
+                      },
+                      "agency": null,
+                      "route": null,
+                      "legGeometry": {
+                        "points": "_sxhG_qfH??DQPm@Pe@DBB@H@LCLCLGHIDEJMJL@CLKDCJBFD`@lADP?N?RAD?B@FAH@HDJJV"
+                      }
+                    }
+                  ]
+                }
+              },
+              {
+                "node": {
+                  "start": "2026-10-20T09:15:00+02:00",
+                  "end": "2026-10-20T10:23:00+02:00",
+                  "duration": 4080,
+                  "numberOfTransfers": 1,
+                  "walkDistance": 0.0,
+                  "walkTime": 0,
+                  "waitingTime": 2280,
+                  "legs": [
+                    {
+                      "mode": "RAIL",
+                      "transitLeg": true,
+                      "start": {
+                        "scheduledTime": "2026-10-20T09:15:00+02:00",
+                        "estimated": null
+                      },
+                      "end": {
+                        "scheduledTime": "2026-10-20T09:36:00+02:00",
+                        "estimated": null
+                      },
+                      "duration": 1260.0,
+                      "distance": 15156.0,
+                      "headsign": "870304",
+                      "from": {
+                        "name": "Colomiers",
+                        "lat": 43.603734,
+                        "lon": 1.334221,
+                        "stop": {
+                          "gtfsId": "sncf:StopPoint:OCETrain TER-87611467"
+                        }
+                      },
+                      "to": {
+                        "name": "Toulouse Matabiau",
+                        "lat": 43.611206,
+                        "lon": 1.453616,
+                        "stop": {
+                          "gtfsId": "sncf:StopPoint:OCETrain TER-87611004"
+                        }
+                      },
+                      "agency": {
+                        "gtfsId": "sncf:1187",
+                        "name": "SNCF VOYAGEURS"
+                      },
+                      "route": {
+                        "gtfsId": "sncf:FR:Line::DDEF5935-0332-4ED5-B499-5C664AF7CF05:",
+                        "shortName": "C6",
+                        "longName": "Toulouse Matabiau - Auch",
+                        "color": "0749FF",
+                        "textColor": "FFFFFF"
+                      },
+                      "legGeometry": {
+                        "points": "ijciG{qcGp{@eaO~aCiR}f@{}DieEyT"
+                      }
+                    },
+                    {
+                      "mode": "RAIL",
+                      "transitLeg": true,
+                      "start": {
+                        "scheduledTime": "2026-10-20T10:14:00+02:00",
+                        "estimated": null
+                      },
+                      "end": {
+                        "scheduledTime": "2026-10-20T10:23:00+02:00",
+                        "estimated": null
+                      },
+                      "duration": 540.0,
+                      "distance": 8622.0,
+                      "headsign": "876219",
+                      "from": {
+                        "name": "Toulouse Matabiau",
+                        "lat": 43.611206,
+                        "lon": 1.453616,
+                        "stop": {
+                          "gtfsId": "sncf:StopPoint:OCETrain TER-87611004"
+                        }
+                      },
+                      "to": {
+                        "name": "Labège Innopole",
+                        "lat": 43.547467,
+                        "lon": 1.512964,
+                        "stop": {
+                          "gtfsId": "sncf:StopPoint:OCETrain TER-87612002"
+                        }
+                      },
+                      "agency": {
+                        "gtfsId": "sncf:1187",
+                        "name": "SNCF VOYAGEURS"
+                      },
+                      "route": {
+                        "gtfsId": "sncf:FR:Line::52D5BA37-0A0E-43ED-AB0D-DAF12888D586:",
+                        "shortName": "C3",
+                        "longName": "Toulouse Matabiau - Narbonne",
+                        "color": "0749FF",
+                        "textColor": "FFFFFF"
+                      },
+                      "legGeometry": {
+                        "points": "_ydiGa|zGliFeeD|bDwkE"
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": "colomiers-labege",
+      "label": "Colomiers gare → Labège",
+      "scenario": "2028",
+      "variables": {
+        "origin": {
+          "label": "Colomiers gare",
+          "location": {
+            "coordinate": {
+              "latitude": 43.603734,
+              "longitude": 1.334221
+            }
+          }
+        },
+        "destination": {
+          "label": "Labège",
+          "location": {
+            "coordinate": {
+              "latitude": 43.547467,
+              "longitude": 1.512964
+            }
+          }
+        },
+        "dateTime": {
+          "earliestDeparture": "2026-10-20T08:30:00+02:00"
+        },
+        "modes": {
+          "direct": [
+            "WALK"
+          ],
+          "transit": {
+            "access": [
+              "WALK"
+            ],
+            "egress": [
+              "WALK"
+            ],
+            "transfer": [
+              "WALK"
+            ],
+            "transit": [
+              {
+                "mode": "BUS"
+              },
+              {
+                "mode": "TRAM"
+              },
+              {
+                "mode": "SUBWAY"
+              },
+              {
+                "mode": "RAIL"
+              },
+              {
+                "mode": "GONDOLA"
+              }
+            ]
+          }
+        },
+        "preferences": {
+          "transit": {
+            "filters": [
+              {
+                "exclude": [
+                  {
+                    "routes": [
+                      "tisseo:line:69"
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      },
+      "response": {
+        "data": {
+          "planConnection": {
+            "searchDateTime": "2026-10-20T08:30:00+02:00",
+            "routingErrors": [],
+            "edges": [
+              {
+                "node": {
+                  "start": "2026-10-20T08:30:57+02:00",
+                  "end": "2026-10-20T09:19:18+02:00",
+                  "duration": 2901,
+                  "numberOfTransfers": 0,
+                  "walkDistance": 706.75,
+                  "walkTime": 816,
+                  "waitingTime": 0,
+                  "legs": [
+                    {
+                      "mode": "WALK",
+                      "transitLeg": false,
+                      "start": {
+                        "scheduledTime": "2026-10-20T08:30:57+02:00",
+                        "estimated": null
+                      },
+                      "end": {
+                        "scheduledTime": "2026-10-20T08:34:36+02:00",
+                        "estimated": null
+                      },
+                      "duration": 219.0,
+                      "distance": 125.86,
+                      "headsign": null,
+                      "from": {
+                        "name": "Colomiers gare",
+                        "lat": 43.603734,
+                        "lon": 1.334221,
+                        "stop": null
+                      },
+                      "to": {
+                        "name": "Colomiers - Gare",
+                        "lat": 43.604438,
+                        "lon": 1.335278,
+                        "stop": {
+                          "gtfsId": "futur:FUT_C_COLOMIERS_GARE"
+                        }
+                      },
+                      "agency": null,
+                      "route": null,
+                      "legGeometry": {
+                        "points": "ijciGuqcGE?BYIAAOHaA?CACACAA{@u@A?S]CUk@L"
+                      }
+                    },
+                    {
+                      "mode": "SUBWAY",
+                      "transitLeg": true,
+                      "start": {
+                        "scheduledTime": "2026-10-20T08:34:36+02:00",
+                        "estimated": null
+                      },
+                      "end": {
+                        "scheduledTime": "2026-10-20T09:09:21+02:00",
+                        "estimated": null
+                      },
+                      "duration": 2085.0,
+                      "distance": 25175.0,
+                      "headsign": "Labège - Gare",
+                      "from": {
+                        "name": "Colomiers - Gare",
+                        "lat": 43.604438,
+                        "lon": 1.335278,
+                        "stop": {
+                          "gtfsId": "futur:FUT_C_COLOMIERS_GARE"
+                        }
+                      },
+                      "to": {
+                        "name": "Diagora",
+                        "lat": 43.544148,
+                        "lon": 1.50968,
+                        "stop": {
+                          "gtfsId": "futur:FUT_C_DIAGORA"
+                        }
+                      },
+                      "agency": {
+                        "gtfsId": "futur:FUT_TD",
+                        "name": "Lignes futures — simulation Toulouse Demain (non officiel)"
+                      },
+                      "route": {
+                        "gtfsId": "futur:FUT_C",
+                        "shortName": "C",
+                        "longName": "Colomiers - Gare – Labège - Gare (projet, mise en service annoncée fin 2028)",
+                        "color": "5BBF8A",
+                        "textColor": "1C1917"
+                      },
+                      "legGeometry": {
+                        "points": "unciGmxcGaOg{@mJwv@qAsK[qFh@oe@Jga@c@}Do@oBaDiFmCuDgFaF}AoDa@wEc@gg@m@{GyAgG{B}EyCkDsDuBiV{JoDkDgCkF}@sEScFPwMTqJpDwa@@}Fm@uPjAoZpD{y@IwE_AmFwA{FwC{FgCkCcDuAaFy@cPQgPiCkQIsEMeBo@{AmAiAgBgJaReAcDe@}DFgCX{BhBqEhC}CzEqEpMwGfBgBzF{H|CkC|FaDvH}B`JeCjEi@lEXrItC`CFvAQpBaA`BcBnAeCfAiDv@eCd@uCHcDMeDc@}Cu@mCmDmGa@cBWcDF}C\\yCzBaGxB_FnAwA|CwAfDUtQdEzBdBhEtGfBlChAfAvEvBlAJ|X}@bBHfBd@|A|@pEfFhAv@fDv@vCMtWiBhCwA`CiEfBoGt@kF|A{y@JaLQgMLwF`@oFxAoIdE_QtDqQdCqLpA{DpAmBzAqAbB}@fB_@`FCnq@zG|CZbE`AjT|HtBJrEa@xGu@~BcAnWk\\nAcDjBaKtEkHrCyGtDgJ|@sAt@g@|@WrOWzAm@tI{FtDmA|HyA|Au@xBqBfCeFt@uDV_EMsLLiB|@mCbCqCtD_DlGwB`B}@lP}OdAc@fAElDbA"
+                      }
+                    },
+                    {
+                      "mode": "WALK",
+                      "transitLeg": false,
+                      "start": {
+                        "scheduledTime": "2026-10-20T09:09:21+02:00",
+                        "estimated": null
+                      },
+                      "end": {
+                        "scheduledTime": "2026-10-20T09:19:18+02:00",
+                        "estimated": null
+                      },
+                      "duration": 597.0,
+                      "distance": 580.89,
+                      "headsign": null,
+                      "from": {
+                        "name": "Diagora",
+                        "lat": 43.544148,
+                        "lon": 1.50968,
+                        "stop": {
+                          "gtfsId": "futur:FUT_C_DIAGORA"
+                        }
+                      },
+                      "to": {
+                        "name": "Labège",
+                        "lat": 43.547467,
+                        "lon": 1.512964,
+                        "stop": null
+                      },
+                      "agency": null,
+                      "route": null,
+                      "legGeometry": {
+                        "points": "{uwhGozeHF]iAc@GCo@Y_@OIGWs@??CEAGWNCIQ?IBoA`AM@SCYCEGSKI@Oi@Q]OW??OYMQKSGUA@C@C@EBGKEEAAAAEAECOWmBiEWk@CMBK?CFOFMDIJV"
+                      }
+                    }
+                  ]
+                }
+              },
+              {
+                "node": {
+                  "start": "2026-10-20T08:34:22+02:00",
+                  "end": "2026-10-20T09:22:43+02:00",
+                  "duration": 2901,
+                  "numberOfTransfers": 0,
+                  "walkDistance": 706.75,
+                  "walkTime": 816,
+                  "waitingTime": 0,
+                  "legs": [
+                    {
+                      "mode": "WALK",
+                      "transitLeg": false,
+                      "start": {
+                        "scheduledTime": "2026-10-20T08:34:22+02:00",
+                        "estimated": null
+                      },
+                      "end": {
+                        "scheduledTime": "2026-10-20T08:38:01+02:00",
+                        "estimated": null
+                      },
+                      "duration": 219.0,
+                      "distance": 125.86,
+                      "headsign": null,
+                      "from": {
+                        "name": "Colomiers gare",
+                        "lat": 43.603734,
+                        "lon": 1.334221,
+                        "stop": null
+                      },
+                      "to": {
+                        "name": "Colomiers - Gare",
+                        "lat": 43.604438,
+                        "lon": 1.335278,
+                        "stop": {
+                          "gtfsId": "futur:FUT_C_COLOMIERS_GARE"
+                        }
+                      },
+                      "agency": null,
+                      "route": null,
+                      "legGeometry": {
+                        "points": "ijciGuqcGE?BYIAAOHaA?CACACAA{@u@A?S]CUk@L"
+                      }
+                    },
+                    {
+                      "mode": "SUBWAY",
+                      "transitLeg": true,
+                      "start": {
+                        "scheduledTime": "2026-10-20T08:38:01+02:00",
+                        "estimated": null
+                      },
+                      "end": {
+                        "scheduledTime": "2026-10-20T09:12:46+02:00",
+                        "estimated": null
+                      },
+                      "duration": 2085.0,
+                      "distance": 25175.0,
+                      "headsign": "Labège - Gare",
+                      "from": {
+                        "name": "Colomiers - Gare",
+                        "lat": 43.604438,
+                        "lon": 1.335278,
+                        "stop": {
+                          "gtfsId": "futur:FUT_C_COLOMIERS_GARE"
+                        }
+                      },
+                      "to": {
+                        "name": "Diagora",
+                        "lat": 43.544148,
+                        "lon": 1.50968,
+                        "stop": {
+                          "gtfsId": "futur:FUT_C_DIAGORA"
+                        }
+                      },
+                      "agency": {
+                        "gtfsId": "futur:FUT_TD",
+                        "name": "Lignes futures — simulation Toulouse Demain (non officiel)"
+                      },
+                      "route": {
+                        "gtfsId": "futur:FUT_C",
+                        "shortName": "C",
+                        "longName": "Colomiers - Gare – Labège - Gare (projet, mise en service annoncée fin 2028)",
+                        "color": "5BBF8A",
+                        "textColor": "1C1917"
+                      },
+                      "legGeometry": {
+                        "points": "unciGmxcGaOg{@mJwv@qAsK[qFh@oe@Jga@c@}Do@oBaDiFmCuDgFaF}AoDa@wEc@gg@m@{GyAgG{B}EyCkDsDuBiV{JoDkDgCkF}@sEScFPwMTqJpDwa@@}Fm@uPjAoZpD{y@IwE_AmFwA{FwC{FgCkCcDuAaFy@cPQgPiCkQIsEMeBo@{AmAiAgBgJaReAcDe@}DFgCX{BhBqEhC}CzEqEpMwGfBgBzF{H|CkC|FaDvH}B`JeCjEi@lEXrItC`CFvAQpBaA`BcBnAeCfAiDv@eCd@uCHcDMeDc@}Cu@mCmDmGa@cBWcDF}C\\yCzBaGxB_FnAwA|CwAfDUtQdEzBdBhEtGfBlChAfAvEvBlAJ|X}@bBHfBd@|A|@pEfFhAv@fDv@vCMtWiBhCwA`CiEfBoGt@kF|A{y@JaLQgMLwF`@oFxAoIdE_QtDqQdCqLpA{DpAmBzAqAbB}@fB_@`FCnq@zG|CZbE`AjT|HtBJrEa@xGu@~BcAnWk\\nAcDjBaKtEkHrCyGtDgJ|@sAt@g@|@WrOWzAm@tI{FtDmA|HyA|Au@xBqBfCeFt@uDV_EMsLLiB|@mCbCqCtD_DlGwB`B}@lP}OdAc@fAElDbA"
+                      }
+                    },
+                    {
+                      "mode": "WALK",
+                      "transitLeg": false,
+                      "start": {
+                        "scheduledTime": "2026-10-20T09:12:46+02:00",
+                        "estimated": null
+                      },
+                      "end": {
+                        "scheduledTime": "2026-10-20T09:22:43+02:00",
+                        "estimated": null
+                      },
+                      "duration": 597.0,
+                      "distance": 580.89,
+                      "headsign": null,
+                      "from": {
+                        "name": "Diagora",
+                        "lat": 43.544148,
+                        "lon": 1.50968,
+                        "stop": {
+                          "gtfsId": "futur:FUT_C_DIAGORA"
+                        }
+                      },
+                      "to": {
+                        "name": "Labège",
+                        "lat": 43.547467,
+                        "lon": 1.512964,
+                        "stop": null
+                      },
+                      "agency": null,
+                      "route": null,
+                      "legGeometry": {
+                        "points": "{uwhGozeHF]iAc@GCo@Y_@OIGWs@??CEAGWNCIQ?IBoA`AM@SCYCEGSKI@Oi@Q]OW??OYMQKSGUA@C@C@EBGKEEAAAAEAECOWmBiEWk@CMBK?CFOFMDIJV"
+                      }
+                    }
+                  ]
+                }
+              },
+              {
+                "node": {
+                  "start": "2026-10-20T08:37:47+02:00",
+                  "end": "2026-10-20T09:26:08+02:00",
+                  "duration": 2901,
+                  "numberOfTransfers": 0,
+                  "walkDistance": 706.75,
+                  "walkTime": 816,
+                  "waitingTime": 0,
+                  "legs": [
+                    {
+                      "mode": "WALK",
+                      "transitLeg": false,
+                      "start": {
+                        "scheduledTime": "2026-10-20T08:37:47+02:00",
+                        "estimated": null
+                      },
+                      "end": {
+                        "scheduledTime": "2026-10-20T08:41:26+02:00",
+                        "estimated": null
+                      },
+                      "duration": 219.0,
+                      "distance": 125.86,
+                      "headsign": null,
+                      "from": {
+                        "name": "Colomiers gare",
+                        "lat": 43.603734,
+                        "lon": 1.334221,
+                        "stop": null
+                      },
+                      "to": {
+                        "name": "Colomiers - Gare",
+                        "lat": 43.604438,
+                        "lon": 1.335278,
+                        "stop": {
+                          "gtfsId": "futur:FUT_C_COLOMIERS_GARE"
+                        }
+                      },
+                      "agency": null,
+                      "route": null,
+                      "legGeometry": {
+                        "points": "ijciGuqcGE?BYIAAOHaA?CACACAA{@u@A?S]CUk@L"
+                      }
+                    },
+                    {
+                      "mode": "SUBWAY",
+                      "transitLeg": true,
+                      "start": {
+                        "scheduledTime": "2026-10-20T08:41:26+02:00",
+                        "estimated": null
+                      },
+                      "end": {
+                        "scheduledTime": "2026-10-20T09:16:11+02:00",
+                        "estimated": null
+                      },
+                      "duration": 2085.0,
+                      "distance": 25175.0,
+                      "headsign": "Labège - Gare",
+                      "from": {
+                        "name": "Colomiers - Gare",
+                        "lat": 43.604438,
+                        "lon": 1.335278,
+                        "stop": {
+                          "gtfsId": "futur:FUT_C_COLOMIERS_GARE"
+                        }
+                      },
+                      "to": {
+                        "name": "Diagora",
+                        "lat": 43.544148,
+                        "lon": 1.50968,
+                        "stop": {
+                          "gtfsId": "futur:FUT_C_DIAGORA"
+                        }
+                      },
+                      "agency": {
+                        "gtfsId": "futur:FUT_TD",
+                        "name": "Lignes futures — simulation Toulouse Demain (non officiel)"
+                      },
+                      "route": {
+                        "gtfsId": "futur:FUT_C",
+                        "shortName": "C",
+                        "longName": "Colomiers - Gare – Labège - Gare (projet, mise en service annoncée fin 2028)",
+                        "color": "5BBF8A",
+                        "textColor": "1C1917"
+                      },
+                      "legGeometry": {
+                        "points": "unciGmxcGaOg{@mJwv@qAsK[qFh@oe@Jga@c@}Do@oBaDiFmCuDgFaF}AoDa@wEc@gg@m@{GyAgG{B}EyCkDsDuBiV{JoDkDgCkF}@sEScFPwMTqJpDwa@@}Fm@uPjAoZpD{y@IwE_AmFwA{FwC{FgCkCcDuAaFy@cPQgPiCkQIsEMeBo@{AmAiAgBgJaReAcDe@}DFgCX{BhBqEhC}CzEqEpMwGfBgBzF{H|CkC|FaDvH}B`JeCjEi@lEXrItC`CFvAQpBaA`BcBnAeCfAiDv@eCd@uCHcDMeDc@}Cu@mCmDmGa@cBWcDF}C\\yCzBaGxB_FnAwA|CwAfDUtQdEzBdBhEtGfBlChAfAvEvBlAJ|X}@bBHfBd@|A|@pEfFhAv@fDv@vCMtWiBhCwA`CiEfBoGt@kF|A{y@JaLQgMLwF`@oFxAoIdE_QtDqQdCqLpA{DpAmBzAqAbB}@fB_@`FCnq@zG|CZbE`AjT|HtBJrEa@xGu@~BcAnWk\\nAcDjBaKtEkHrCyGtDgJ|@sAt@g@|@WrOWzAm@tI{FtDmA|HyA|Au@xBqBfCeFt@uDV_EMsLLiB|@mCbCqCtD_DlGwB`B}@lP}OdAc@fAElDbA"
+                      }
+                    },
+                    {
+                      "mode": "WALK",
+                      "transitLeg": false,
+                      "start": {
+                        "scheduledTime": "2026-10-20T09:16:11+02:00",
+                        "estimated": null
+                      },
+                      "end": {
+                        "scheduledTime": "2026-10-20T09:26:08+02:00",
+                        "estimated": null
+                      },
+                      "duration": 597.0,
+                      "distance": 580.89,
+                      "headsign": null,
+                      "from": {
+                        "name": "Diagora",
+                        "lat": 43.544148,
+                        "lon": 1.50968,
+                        "stop": {
+                          "gtfsId": "futur:FUT_C_DIAGORA"
+                        }
+                      },
+                      "to": {
+                        "name": "Labège",
+                        "lat": 43.547467,
+                        "lon": 1.512964,
+                        "stop": null
+                      },
+                      "agency": null,
+                      "route": null,
+                      "legGeometry": {
+                        "points": "{uwhGozeHF]iAc@GCo@Y_@OIGWs@??CEAGWNCIQ?IBoA`AM@SCYCEGSKI@Oi@Q]OW??OYMQKSGUA@C@C@EBGKEEAAAAEAECOWmBiEWk@CMBK?CFOFMDIJV"
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": "colomiers-diagora",
+      "label": "Gare de Colomiers → Diagora (Labège)",
+      "scenario": "actuel",
+      "variables": {
+        "origin": {
+          "label": "Gare de Colomiers",
+          "location": {
+            "coordinate": {
+              "latitude": 43.603734,
+              "longitude": 1.334221
+            }
+          }
+        },
+        "destination": {
+          "label": "Diagora (Labège)",
+          "location": {
+            "coordinate": {
+              "latitude": 43.544148,
+              "longitude": 1.50968
+            }
+          }
+        },
+        "dateTime": {
+          "earliestDeparture": "2026-10-20T08:30:00+02:00"
+        },
+        "modes": {
+          "direct": [
+            "WALK"
+          ],
+          "transit": {
+            "access": [
+              "WALK"
+            ],
+            "egress": [
+              "WALK"
+            ],
+            "transfer": [
+              "WALK"
+            ],
+            "transit": [
+              {
+                "mode": "BUS"
+              },
+              {
+                "mode": "TRAM"
+              },
+              {
+                "mode": "SUBWAY"
+              },
+              {
+                "mode": "RAIL"
+              },
+              {
+                "mode": "GONDOLA"
+              }
+            ]
+          }
+        },
+        "preferences": {
+          "transit": {
+            "filters": [
+              {
+                "exclude": [
+                  {
+                    "agencies": [
+                      "futur:FUT_TD"
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      },
+      "response": {
+        "data": {
+          "planConnection": {
+            "searchDateTime": "2026-10-20T08:30:00+02:00",
+            "routingErrors": [],
+            "edges": [
+              {
+                "node": {
+                  "start": "2026-10-20T08:43:00+02:00",
+                  "end": "2026-10-20T09:35:57+02:00",
+                  "duration": 3177,
+                  "numberOfTransfers": 1,
+                  "walkDistance": 580.89,
+                  "walkTime": 477,
+                  "waitingTime": 780,
+                  "legs": [
+                    {
+                      "mode": "RAIL",
+                      "transitLeg": true,
+                      "start": {
+                        "scheduledTime": "2026-10-20T08:43:00+02:00",
+                        "estimated": null
+                      },
+                      "end": {
+                        "scheduledTime": "2026-10-20T09:06:00+02:00",
+                        "estimated": null
+                      },
+                      "duration": 1380.0,
+                      "distance": 15162.0,
+                      "headsign": "870404",
+                      "from": {
+                        "name": "Colomiers",
+                        "lat": 43.603734,
+                        "lon": 1.334221,
+                        "stop": {
+                          "gtfsId": "sncf:StopPoint:OCETrain TER-87611467"
+                        }
+                      },
+                      "to": {
+                        "name": "Toulouse Matabiau",
+                        "lat": 43.611206,
+                        "lon": 1.453616,
+                        "stop": {
+                          "gtfsId": "sncf:StopPoint:OCETrain TER-87611004"
+                        }
+                      },
+                      "agency": {
+                        "gtfsId": "sncf:1187",
+                        "name": "SNCF VOYAGEURS"
+                      },
+                      "route": {
+                        "gtfsId": "sncf:FR:Line::DDEF5935-0332-4ED5-B499-5C664AF7CF05:",
+                        "shortName": "C6",
+                        "longName": "Toulouse Matabiau - Auch",
+                        "color": "0749FF",
+                        "textColor": "FFFFFF"
+                      },
+                      "legGeometry": {
+                        "points": "ijciG{qcG`k@epHnO_pE~aCiR}f@{}DieEyT"
+                      }
+                    },
+                    {
+                      "mode": "RAIL",
+                      "transitLeg": true,
+                      "start": {
+                        "scheduledTime": "2026-10-20T09:19:00+02:00",
+                        "estimated": null
+                      },
+                      "end": {
+                        "scheduledTime": "2026-10-20T09:28:00+02:00",
+                        "estimated": null
+                      },
+                      "duration": 540.0,
+                      "distance": 8622.0,
+                      "headsign": "876253",
+                      "from": {
+                        "name": "Toulouse Matabiau",
+                        "lat": 43.611206,
+                        "lon": 1.453616,
+                        "stop": {
+                          "gtfsId": "sncf:StopPoint:OCETrain TER-87611004"
+                        }
+                      },
+                      "to": {
+                        "name": "Labège Innopole",
+                        "lat": 43.547467,
+                        "lon": 1.512964,
+                        "stop": {
+                          "gtfsId": "sncf:StopPoint:OCETrain TER-87612002"
+                        }
+                      },
+                      "agency": {
+                        "gtfsId": "sncf:1187",
+                        "name": "SNCF VOYAGEURS"
+                      },
+                      "route": {
+                        "gtfsId": "sncf:FR:Line::E5FF5D61-7D3C-4DDA-9663-3C36510681CF:",
+                        "shortName": "K3",
+                        "longName": "Toulouse Matabiau - Port Bou Frontiere",
+                        "color": "BF005F",
+                        "textColor": "FFFFFF"
+                      },
+                      "legGeometry": {
+                        "points": "_ydiGa|zGliFeeD|bDwkE"
+                      }
+                    },
+                    {
+                      "mode": "WALK",
+                      "transitLeg": false,
+                      "start": {
+                        "scheduledTime": "2026-10-20T09:28:00+02:00",
+                        "estimated": null
+                      },
+                      "end": {
+                        "scheduledTime": "2026-10-20T09:35:57+02:00",
+                        "estimated": null
+                      },
+                      "duration": 477.0,
+                      "distance": 580.89,
+                      "headsign": null,
+                      "from": {
+                        "name": "Labège Innopole",
+                        "lat": 43.547467,
+                        "lon": 1.512964,
+                        "stop": {
+                          "gtfsId": "sncf:StopPoint:OCETrain TER-87612002"
+                        }
+                      },
+                      "to": {
+                        "name": "Diagora (Labège)",
+                        "lat": 43.544148,
+                        "lon": 1.50968,
+                        "stop": null
+                      },
+                      "agency": null,
+                      "route": null,
+                      "legGeometry": {
+                        "points": "sjxhG_ofHWDKWEHGLGN?BCJBLVj@lBhENVDBD@@@@@DDFJDCBABA@AFTJRLPNX??NVP\\Nh@HARJDFXBRBLAnAaAHCP?BHVO@FBD??Vr@HF^Nn@XFBhAb@"
+                      }
+                    }
+                  ]
+                }
+              },
+              {
+                "node": {
+                  "start": "2026-10-20T09:15:00+02:00",
+                  "end": "2026-10-20T10:13:35+02:00",
+                  "duration": 3515,
+                  "numberOfTransfers": 2,
+                  "walkDistance": 455.54999999999995,
+                  "walkTime": 486,
+                  "waitingTime": 963,
+                  "legs": [
+                    {
+                      "mode": "RAIL",
+                      "transitLeg": true,
+                      "start": {
+                        "scheduledTime": "2026-10-20T09:15:00+02:00",
+                        "estimated": null
+                      },
+                      "end": {
+                        "scheduledTime": "2026-10-20T09:28:00+02:00",
+                        "estimated": null
+                      },
+                      "duration": 780.0,
+                      "distance": 11616.0,
+                      "headsign": "870304",
+                      "from": {
+                        "name": "Colomiers",
+                        "lat": 43.603734,
+                        "lon": 1.334221,
+                        "stop": {
+                          "gtfsId": "sncf:StopPoint:OCETrain TER-87611467"
+                        }
+                      },
+                      "to": {
+                        "name": "Saint-Agne",
+                        "lat": 43.579477,
+                        "lon": 1.45012,
+                        "stop": {
+                          "gtfsId": "sncf:StopPoint:OCETrain TER-87611301"
+                        }
+                      },
+                      "agency": {
+                        "gtfsId": "sncf:1187",
+                        "name": "SNCF VOYAGEURS"
+                      },
+                      "route": {
+                        "gtfsId": "sncf:FR:Line::DDEF5935-0332-4ED5-B499-5C664AF7CF05:",
+                        "shortName": "C6",
+                        "longName": "Toulouse Matabiau - Auch",
+                        "color": "0749FF",
+                        "textColor": "FFFFFF"
+                      },
+                      "legGeometry": {
+                        "points": "ijciG{qcGp{@eaO~aCiR}f@{}D"
+                      }
+                    },
+                    {
+                      "mode": "WALK",
+                      "transitLeg": false,
+                      "start": {
+                        "scheduledTime": "2026-10-20T09:28:00+02:00",
+                        "estimated": null
+                      },
+                      "end": {
+                        "scheduledTime": "2026-10-20T09:32:27+02:00",
+                        "estimated": null
+                      },
+                      "duration": 267.0,
+                      "distance": 216.21,
+                      "headsign": null,
+                      "from": {
+                        "name": "Saint-Agne",
+                        "lat": 43.579477,
+                        "lon": 1.45012,
+                        "stop": {
+                          "gtfsId": "sncf:StopPoint:OCETrain TER-87611301"
+                        }
+                      },
+                      "to": {
+                        "name": "Saint Agne SNCF",
+                        "lat": 43.5799003,
+                        "lon": 1.4498336,
+                        "stop": {
+                          "gtfsId": "tisseo:stop_point:SP_685"
+                        }
+                      },
+                      "agency": null,
+                      "route": null,
+                      "legGeometry": {
+                        "points": "ur~hGgfzG??@DB@DBDJHLWHq@RKCWFMBe@JGFGAK@?GBICWAGG@EMEDKYBCHVBCJIGO??ED"
+                      }
+                    },
+                    {
+                      "mode": "SUBWAY",
+                      "transitLeg": true,
+                      "start": {
+                        "scheduledTime": "2026-10-20T09:34:50+02:00",
+                        "estimated": null
+                      },
+                      "end": {
+                        "scheduledTime": "2026-10-20T09:42:16+02:00",
+                        "estimated": null
+                      },
+                      "duration": 446.0,
+                      "distance": 4346.0,
+                      "headsign": "Ramonville",
+                      "from": {
+                        "name": "Saint Agne SNCF",
+                        "lat": 43.5799003,
+                        "lon": 1.4498336,
+                        "stop": {
+                          "gtfsId": "tisseo:stop_point:SP_685"
+                        }
+                      },
+                      "to": {
+                        "name": "Ramonville",
+                        "lat": 43.5557497,
+                        "lon": 1.4763858,
+                        "stop": {
+                          "gtfsId": "tisseo:stop_point:SP_645"
+                        }
+                      },
+                      "agency": {
+                        "gtfsId": "tisseo:network:1",
+                        "name": "Tisséo"
+                      },
+                      "route": {
+                        "gtfsId": "tisseo:line:69",
+                        "shortName": "B",
+                        "longName": "Borderouge / Ramonville",
+                        "color": "ffdd00",
+                        "textColor": "000000"
+                      },
+                      "legGeometry": {
+                        "points": "su~hGidzGSw@I[EQIWEUI_@EQKg@CMESCSEQEUIe@E[E]EWE_@CWEYE]C_@E_@C]E]AWEg@Ci@C]Co@AS?GA_@?i@?i@?g@Bk@Bg@@S@UD]@KDe@@EFe@Hc@@GHa@Jc@Lc@La@@ENa@Na@Ne@FSPc@N_@JQFOLWLWHOJSFKHQNWBG??JUJSTc@FOXm@\\q@Zo@N[JORa@FMBER[RWV[VYTUXU\\UTMXQZMZM\\K\\GZG\\E\\A\\A^?Z@\\D\\DZF\\Hv@VXHPBLBVBZBX@\\?ZAZCZCXGZI\\KTKXMXOVQVSLKHITUBC\\a@\\a@RSRSb@a@b@]XSf@[^Sd@SPI\\MZKZKb@Kb@IZEtAQnBWxAQb@G\\ERC`AKd@GXE\\AR?^?T@d@DTBPDTFLBXJNH\\NXNTPNLf@^`At@ZTx@f@b@TTL`@P|@Xd@L`@HTDZDb@D`@Bd@BP?V?ZAb@ATCb@ENC^EZGd@MNEVI`@ORIA?t@]TOTMROVORSROTURQTUHKJMHIHKFGVYf@q@V]RYZe@Zc@\\k@R[Ta@NYFKR_@Tc@Xm@Zq@Zs@N]Tm@L]JWNe@Rk@FSJYHYJ]FSNi@BMDKFUH]DUJa@DODQ@KBKBKFYJg@F_@F[Fa@DUFa@BQDU@MDSD[Fk@Da@Fg@D_@B[Fo@B]Be@Dc@@QBa@@g@@a@@S?U?[?_@@KAQ?e@?OA[A_@AOA[AMASAOAMAMAKAKAIAMAIAMAG"
+                      }
+                    },
+                    {
+                      "mode": "WALK",
+                      "transitLeg": false,
+                      "start": {
+                        "scheduledTime": "2026-10-20T09:42:16+02:00",
+                        "estimated": null
+                      },
+                      "end": {
+                        "scheduledTime": "2026-10-20T09:44:20+02:00",
+                        "estimated": null
+                      },
+                      "duration": 124.0,
+                      "distance": 112.43,
+                      "headsign": null,
+                      "from": {
+                        "name": "Ramonville",
+                        "lat": 43.5557497,
+                        "lon": 1.4763858,
+                        "stop": {
+                          "gtfsId": "tisseo:stop_point:SP_645"
+                        }
+                      },
+                      "to": {
+                        "name": "Ramonville",
+                        "lat": 43.5557845,
+                        "lon": 1.4774914,
+                        "stop": {
+                          "gtfsId": "tisseo:stop_point:SP_2853"
+                        }
+                      },
+                      "agency": null,
+                      "route": null,
+                      "legGeometry": {
+                        "points": "i~yhGkj_H?q@BAE_@?EA?K@CWAOTGAEEI?M?UGM?SD?"
+                      }
+                    },
+                    {
+                      "mode": "BUS",
+                      "transitLeg": true,
+                      "start": {
+                        "scheduledTime": "2026-10-20T09:58:00+02:00",
+                        "estimated": null
+                      },
+                      "end": {
+                        "scheduledTime": "2026-10-20T10:12:00+02:00",
+                        "estimated": null
+                      },
+                      "duration": 840.0,
+                      "distance": 5400.0,
+                      "headsign": "Labège Couder",
+                      "from": {
+                        "name": "Ramonville",
+                        "lat": 43.5557845,
+                        "lon": 1.4774914,
+                        "stop": {
+                          "gtfsId": "tisseo:stop_point:SP_2853"
+                        }
+                      },
+                      "to": {
+                        "name": "Tolosane",
+                        "lat": 43.5451163,
+                        "lon": 1.5105163,
+                        "stop": {
+                          "gtfsId": "tisseo:stop_point:SP_203"
+                        }
+                      },
+                      "agency": {
+                        "gtfsId": "tisseo:network:1",
+                        "name": "Tisséo"
+                      },
+                      "route": {
+                        "gtfsId": "tisseo:line:51",
+                        "shortName": "79",
+                        "longName": "Ramonville / Labège Couder ou Saint-Orens Lycée",
+                        "color": "0098d4",
+                        "textColor": "ffffff"
+                      },
+                      "legGeometry": {
+                        "points": "q~yhGiq_HHtAPpB@Ld@GpBYPLp@EFHNBJCDCHK@M?UESIMQAKuAGw@G{@Go@OyAc@_EQsAAKU}AKw@EUAKCOUmAUwAMw@SgAI]Ic@CK[_BKc@_AaEqAgFK_@[oAg@cCWkA?]Ca@EWGa@Ig@C_@@k@HIFMFOBOBS?SCQEQGOIKIIMGMCOm@G_@ImACYC]C[C[Ew@GcACoALOFODODO@O?a@CMEOGMEEGKIGKCKAM@C{AAu@?k@@s@@S@SBUDc@Fc@DWLk@Nc@HWJYN[LUDIT[T[JC`@WLGJCJALDJBFHFNBJ@PAPCLGLGJKJKLUJqBz@YJSFU@[@Q?OAOEECGEGEIKGIw@aAGIGIIMGMEMCIDEDGBK?IAIAECE\\]JKPQJUFW@[A[Gc@YoBAOSeBkAiJm@{Ck@mC[uAAYBKJO|@Wx@Y|@p@\\Jj@@`K}E^Kb@SVSh@k@h@m@Z[d@k@XYj@o@X[b@e@j@o@LCd@^^`@`AtBHNhGnMFHHDJAFEbAiAvA~CJTP^l@nAv@w@HGdAiAt@_AJGZ[DFDBD@FADCDI@MAOEIEEGAS]Yo@I_@Iq@Ae@@e@Hg@BABI@I?IAKAE?e@@_@Bi@Do@LeAJg@FQTc@Zc@b@e@VY\\YHIv@s@bA}@H@FAFCFEBI@MAKCKEGDQBU?MAg@CeA?S@[BQBIBGDIFMRWNSR[LQPUNQLMPORMFEJGx@_@RKVOVQZYDFDBD@D?FADCBEBG\\ANCPIlA{@h@_@DC"
+                      }
+                    },
+                    {
+                      "mode": "WALK",
+                      "transitLeg": false,
+                      "start": {
+                        "scheduledTime": "2026-10-20T10:12:00+02:00",
+                        "estimated": null
+                      },
+                      "end": {
+                        "scheduledTime": "2026-10-20T10:13:35+02:00",
+                        "estimated": null
+                      },
+                      "duration": 95.0,
+                      "distance": 126.91,
+                      "headsign": null,
+                      "from": {
+                        "name": "Tolosane",
+                        "lat": 43.5451163,
+                        "lon": 1.5105163,
+                        "stop": {
+                          "gtfsId": "tisseo:stop_point:SP_203"
+                        }
+                      },
+                      "to": {
+                        "name": "Diagora (Labège)",
+                        "lat": 43.544148,
+                        "lon": 1.50968,
+                        "stop": null
+                      },
+                      "agency": null,
+                      "route": null,
+                      "legGeometry": {
+                        "points": "}{whGu_fHDEVr@HF^Nn@XFBhAb@"
+                      }
+                    }
+                  ]
+                }
+              },
+              {
+                "node": {
+                  "start": "2026-10-20T09:15:00+02:00",
+                  "end": "2026-10-20T10:30:57+02:00",
+                  "duration": 4557,
+                  "numberOfTransfers": 1,
+                  "walkDistance": 580.89,
+                  "walkTime": 477,
+                  "waitingTime": 2280,
+                  "legs": [
+                    {
+                      "mode": "RAIL",
+                      "transitLeg": true,
+                      "start": {
+                        "scheduledTime": "2026-10-20T09:15:00+02:00",
+                        "estimated": null
+                      },
+                      "end": {
+                        "scheduledTime": "2026-10-20T09:36:00+02:00",
+                        "estimated": null
+                      },
+                      "duration": 1260.0,
+                      "distance": 15156.0,
+                      "headsign": "870304",
+                      "from": {
+                        "name": "Colomiers",
+                        "lat": 43.603734,
+                        "lon": 1.334221,
+                        "stop": {
+                          "gtfsId": "sncf:StopPoint:OCETrain TER-87611467"
+                        }
+                      },
+                      "to": {
+                        "name": "Toulouse Matabiau",
+                        "lat": 43.611206,
+                        "lon": 1.453616,
+                        "stop": {
+                          "gtfsId": "sncf:StopPoint:OCETrain TER-87611004"
+                        }
+                      },
+                      "agency": {
+                        "gtfsId": "sncf:1187",
+                        "name": "SNCF VOYAGEURS"
+                      },
+                      "route": {
+                        "gtfsId": "sncf:FR:Line::DDEF5935-0332-4ED5-B499-5C664AF7CF05:",
+                        "shortName": "C6",
+                        "longName": "Toulouse Matabiau - Auch",
+                        "color": "0749FF",
+                        "textColor": "FFFFFF"
+                      },
+                      "legGeometry": {
+                        "points": "ijciG{qcGp{@eaO~aCiR}f@{}DieEyT"
+                      }
+                    },
+                    {
+                      "mode": "RAIL",
+                      "transitLeg": true,
+                      "start": {
+                        "scheduledTime": "2026-10-20T10:14:00+02:00",
+                        "estimated": null
+                      },
+                      "end": {
+                        "scheduledTime": "2026-10-20T10:23:00+02:00",
+                        "estimated": null
+                      },
+                      "duration": 540.0,
+                      "distance": 8622.0,
+                      "headsign": "876219",
+                      "from": {
+                        "name": "Toulouse Matabiau",
+                        "lat": 43.611206,
+                        "lon": 1.453616,
+                        "stop": {
+                          "gtfsId": "sncf:StopPoint:OCETrain TER-87611004"
+                        }
+                      },
+                      "to": {
+                        "name": "Labège Innopole",
+                        "lat": 43.547467,
+                        "lon": 1.512964,
+                        "stop": {
+                          "gtfsId": "sncf:StopPoint:OCETrain TER-87612002"
+                        }
+                      },
+                      "agency": {
+                        "gtfsId": "sncf:1187",
+                        "name": "SNCF VOYAGEURS"
+                      },
+                      "route": {
+                        "gtfsId": "sncf:FR:Line::52D5BA37-0A0E-43ED-AB0D-DAF12888D586:",
+                        "shortName": "C3",
+                        "longName": "Toulouse Matabiau - Narbonne",
+                        "color": "0749FF",
+                        "textColor": "FFFFFF"
+                      },
+                      "legGeometry": {
+                        "points": "_ydiGa|zGliFeeD|bDwkE"
+                      }
+                    },
+                    {
+                      "mode": "WALK",
+                      "transitLeg": false,
+                      "start": {
+                        "scheduledTime": "2026-10-20T10:23:00+02:00",
+                        "estimated": null
+                      },
+                      "end": {
+                        "scheduledTime": "2026-10-20T10:30:57+02:00",
+                        "estimated": null
+                      },
+                      "duration": 477.0,
+                      "distance": 580.89,
+                      "headsign": null,
+                      "from": {
+                        "name": "Labège Innopole",
+                        "lat": 43.547467,
+                        "lon": 1.512964,
+                        "stop": {
+                          "gtfsId": "sncf:StopPoint:OCETrain TER-87612002"
+                        }
+                      },
+                      "to": {
+                        "name": "Diagora (Labège)",
+                        "lat": 43.544148,
+                        "lon": 1.50968,
+                        "stop": null
+                      },
+                      "agency": null,
+                      "route": null,
+                      "legGeometry": {
+                        "points": "sjxhG_ofHWDKWEHGLGN?BCJBLVj@lBhENVDBD@@@@@DDFJDCBABA@AFTJRLPNX??NVP\\Nh@HARJDFXBRBLAnAaAHCP?BHVO@FBD??Vr@HF^Nn@XFBhAb@"
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": "colomiers-diagora",
+      "label": "Gare de Colomiers → Diagora (Labège)",
+      "scenario": "2028",
+      "variables": {
+        "origin": {
+          "label": "Gare de Colomiers",
+          "location": {
+            "coordinate": {
+              "latitude": 43.603734,
+              "longitude": 1.334221
+            }
+          }
+        },
+        "destination": {
+          "label": "Diagora (Labège)",
+          "location": {
+            "coordinate": {
+              "latitude": 43.544148,
+              "longitude": 1.50968
+            }
+          }
+        },
+        "dateTime": {
+          "earliestDeparture": "2026-10-20T08:30:00+02:00"
+        },
+        "modes": {
+          "direct": [
+            "WALK"
+          ],
+          "transit": {
+            "access": [
+              "WALK"
+            ],
+            "egress": [
+              "WALK"
+            ],
+            "transfer": [
+              "WALK"
+            ],
+            "transit": [
+              {
+                "mode": "BUS"
+              },
+              {
+                "mode": "TRAM"
+              },
+              {
+                "mode": "SUBWAY"
+              },
+              {
+                "mode": "RAIL"
+              },
+              {
+                "mode": "GONDOLA"
+              }
+            ]
+          }
+        },
+        "preferences": {
+          "transit": {
+            "filters": [
+              {
+                "exclude": [
+                  {
+                    "routes": [
+                      "tisseo:line:69"
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      },
+      "response": {
+        "data": {
+          "planConnection": {
+            "searchDateTime": "2026-10-20T08:30:00+02:00",
+            "routingErrors": [],
+            "edges": [
+              {
+                "node": {
+                  "start": "2026-10-20T08:30:57+02:00",
+                  "end": "2026-10-20T09:09:21+02:00",
+                  "duration": 2304,
+                  "numberOfTransfers": 0,
+                  "walkDistance": 125.86,
+                  "walkTime": 219,
+                  "waitingTime": 0,
+                  "legs": [
+                    {
+                      "mode": "WALK",
+                      "transitLeg": false,
+                      "start": {
+                        "scheduledTime": "2026-10-20T08:30:57+02:00",
+                        "estimated": null
+                      },
+                      "end": {
+                        "scheduledTime": "2026-10-20T08:34:36+02:00",
+                        "estimated": null
+                      },
+                      "duration": 219.0,
+                      "distance": 125.86,
+                      "headsign": null,
+                      "from": {
+                        "name": "Gare de Colomiers",
+                        "lat": 43.603734,
+                        "lon": 1.334221,
+                        "stop": null
+                      },
+                      "to": {
+                        "name": "Colomiers - Gare",
+                        "lat": 43.604438,
+                        "lon": 1.335278,
+                        "stop": {
+                          "gtfsId": "futur:FUT_C_COLOMIERS_GARE"
+                        }
+                      },
+                      "agency": null,
+                      "route": null,
+                      "legGeometry": {
+                        "points": "ijciGuqcGE?BYIAAOHaA?CACACAA{@u@A?S]CUk@L"
+                      }
+                    },
+                    {
+                      "mode": "SUBWAY",
+                      "transitLeg": true,
+                      "start": {
+                        "scheduledTime": "2026-10-20T08:34:36+02:00",
+                        "estimated": null
+                      },
+                      "end": {
+                        "scheduledTime": "2026-10-20T09:09:21+02:00",
+                        "estimated": null
+                      },
+                      "duration": 2085.0,
+                      "distance": 25175.0,
+                      "headsign": "Labège - Gare",
+                      "from": {
+                        "name": "Colomiers - Gare",
+                        "lat": 43.604438,
+                        "lon": 1.335278,
+                        "stop": {
+                          "gtfsId": "futur:FUT_C_COLOMIERS_GARE"
+                        }
+                      },
+                      "to": {
+                        "name": "Diagora",
+                        "lat": 43.544148,
+                        "lon": 1.50968,
+                        "stop": {
+                          "gtfsId": "futur:FUT_C_DIAGORA"
+                        }
+                      },
+                      "agency": {
+                        "gtfsId": "futur:FUT_TD",
+                        "name": "Lignes futures — simulation Toulouse Demain (non officiel)"
+                      },
+                      "route": {
+                        "gtfsId": "futur:FUT_C",
+                        "shortName": "C",
+                        "longName": "Colomiers - Gare – Labège - Gare (projet, mise en service annoncée fin 2028)",
+                        "color": "5BBF8A",
+                        "textColor": "1C1917"
+                      },
+                      "legGeometry": {
+                        "points": "unciGmxcGaOg{@mJwv@qAsK[qFh@oe@Jga@c@}Do@oBaDiFmCuDgFaF}AoDa@wEc@gg@m@{GyAgG{B}EyCkDsDuBiV{JoDkDgCkF}@sEScFPwMTqJpDwa@@}Fm@uPjAoZpD{y@IwE_AmFwA{FwC{FgCkCcDuAaFy@cPQgPiCkQIsEMeBo@{AmAiAgBgJaReAcDe@}DFgCX{BhBqEhC}CzEqEpMwGfBgBzF{H|CkC|FaDvH}B`JeCjEi@lEXrItC`CFvAQpBaA`BcBnAeCfAiDv@eCd@uCHcDMeDc@}Cu@mCmDmGa@cBWcDF}C\\yCzBaGxB_FnAwA|CwAfDUtQdEzBdBhEtGfBlChAfAvEvBlAJ|X}@bBHfBd@|A|@pEfFhAv@fDv@vCMtWiBhCwA`CiEfBoGt@kF|A{y@JaLQgMLwF`@oFxAoIdE_QtDqQdCqLpA{DpAmBzAqAbB}@fB_@`FCnq@zG|CZbE`AjT|HtBJrEa@xGu@~BcAnWk\\nAcDjBaKtEkHrCyGtDgJ|@sAt@g@|@WrOWzAm@tI{FtDmA|HyA|Au@xBqBfCeFt@uDV_EMsLLiB|@mCbCqCtD_DlGwB`B}@lP}OdAc@fAElDbA"
+                      }
+                    }
+                  ]
+                }
+              },
+              {
+                "node": {
+                  "start": "2026-10-20T08:34:22+02:00",
+                  "end": "2026-10-20T09:12:46+02:00",
+                  "duration": 2304,
+                  "numberOfTransfers": 0,
+                  "walkDistance": 125.86,
+                  "walkTime": 219,
+                  "waitingTime": 0,
+                  "legs": [
+                    {
+                      "mode": "WALK",
+                      "transitLeg": false,
+                      "start": {
+                        "scheduledTime": "2026-10-20T08:34:22+02:00",
+                        "estimated": null
+                      },
+                      "end": {
+                        "scheduledTime": "2026-10-20T08:38:01+02:00",
+                        "estimated": null
+                      },
+                      "duration": 219.0,
+                      "distance": 125.86,
+                      "headsign": null,
+                      "from": {
+                        "name": "Gare de Colomiers",
+                        "lat": 43.603734,
+                        "lon": 1.334221,
+                        "stop": null
+                      },
+                      "to": {
+                        "name": "Colomiers - Gare",
+                        "lat": 43.604438,
+                        "lon": 1.335278,
+                        "stop": {
+                          "gtfsId": "futur:FUT_C_COLOMIERS_GARE"
+                        }
+                      },
+                      "agency": null,
+                      "route": null,
+                      "legGeometry": {
+                        "points": "ijciGuqcGE?BYIAAOHaA?CACACAA{@u@A?S]CUk@L"
+                      }
+                    },
+                    {
+                      "mode": "SUBWAY",
+                      "transitLeg": true,
+                      "start": {
+                        "scheduledTime": "2026-10-20T08:38:01+02:00",
+                        "estimated": null
+                      },
+                      "end": {
+                        "scheduledTime": "2026-10-20T09:12:46+02:00",
+                        "estimated": null
+                      },
+                      "duration": 2085.0,
+                      "distance": 25175.0,
+                      "headsign": "Labège - Gare",
+                      "from": {
+                        "name": "Colomiers - Gare",
+                        "lat": 43.604438,
+                        "lon": 1.335278,
+                        "stop": {
+                          "gtfsId": "futur:FUT_C_COLOMIERS_GARE"
+                        }
+                      },
+                      "to": {
+                        "name": "Diagora",
+                        "lat": 43.544148,
+                        "lon": 1.50968,
+                        "stop": {
+                          "gtfsId": "futur:FUT_C_DIAGORA"
+                        }
+                      },
+                      "agency": {
+                        "gtfsId": "futur:FUT_TD",
+                        "name": "Lignes futures — simulation Toulouse Demain (non officiel)"
+                      },
+                      "route": {
+                        "gtfsId": "futur:FUT_C",
+                        "shortName": "C",
+                        "longName": "Colomiers - Gare – Labège - Gare (projet, mise en service annoncée fin 2028)",
+                        "color": "5BBF8A",
+                        "textColor": "1C1917"
+                      },
+                      "legGeometry": {
+                        "points": "unciGmxcGaOg{@mJwv@qAsK[qFh@oe@Jga@c@}Do@oBaDiFmCuDgFaF}AoDa@wEc@gg@m@{GyAgG{B}EyCkDsDuBiV{JoDkDgCkF}@sEScFPwMTqJpDwa@@}Fm@uPjAoZpD{y@IwE_AmFwA{FwC{FgCkCcDuAaFy@cPQgPiCkQIsEMeBo@{AmAiAgBgJaReAcDe@}DFgCX{BhBqEhC}CzEqEpMwGfBgBzF{H|CkC|FaDvH}B`JeCjEi@lEXrItC`CFvAQpBaA`BcBnAeCfAiDv@eCd@uCHcDMeDc@}Cu@mCmDmGa@cBWcDF}C\\yCzBaGxB_FnAwA|CwAfDUtQdEzBdBhEtGfBlChAfAvEvBlAJ|X}@bBHfBd@|A|@pEfFhAv@fDv@vCMtWiBhCwA`CiEfBoGt@kF|A{y@JaLQgMLwF`@oFxAoIdE_QtDqQdCqLpA{DpAmBzAqAbB}@fB_@`FCnq@zG|CZbE`AjT|HtBJrEa@xGu@~BcAnWk\\nAcDjBaKtEkHrCyGtDgJ|@sAt@g@|@WrOWzAm@tI{FtDmA|HyA|Au@xBqBfCeFt@uDV_EMsLLiB|@mCbCqCtD_DlGwB`B}@lP}OdAc@fAElDbA"
+                      }
+                    }
+                  ]
+                }
+              },
+              {
+                "node": {
+                  "start": "2026-10-20T08:37:47+02:00",
+                  "end": "2026-10-20T09:16:11+02:00",
+                  "duration": 2304,
+                  "numberOfTransfers": 0,
+                  "walkDistance": 125.86,
+                  "walkTime": 219,
+                  "waitingTime": 0,
+                  "legs": [
+                    {
+                      "mode": "WALK",
+                      "transitLeg": false,
+                      "start": {
+                        "scheduledTime": "2026-10-20T08:37:47+02:00",
+                        "estimated": null
+                      },
+                      "end": {
+                        "scheduledTime": "2026-10-20T08:41:26+02:00",
+                        "estimated": null
+                      },
+                      "duration": 219.0,
+                      "distance": 125.86,
+                      "headsign": null,
+                      "from": {
+                        "name": "Gare de Colomiers",
+                        "lat": 43.603734,
+                        "lon": 1.334221,
+                        "stop": null
+                      },
+                      "to": {
+                        "name": "Colomiers - Gare",
+                        "lat": 43.604438,
+                        "lon": 1.335278,
+                        "stop": {
+                          "gtfsId": "futur:FUT_C_COLOMIERS_GARE"
+                        }
+                      },
+                      "agency": null,
+                      "route": null,
+                      "legGeometry": {
+                        "points": "ijciGuqcGE?BYIAAOHaA?CACACAA{@u@A?S]CUk@L"
+                      }
+                    },
+                    {
+                      "mode": "SUBWAY",
+                      "transitLeg": true,
+                      "start": {
+                        "scheduledTime": "2026-10-20T08:41:26+02:00",
+                        "estimated": null
+                      },
+                      "end": {
+                        "scheduledTime": "2026-10-20T09:16:11+02:00",
+                        "estimated": null
+                      },
+                      "duration": 2085.0,
+                      "distance": 25175.0,
+                      "headsign": "Labège - Gare",
+                      "from": {
+                        "name": "Colomiers - Gare",
+                        "lat": 43.604438,
+                        "lon": 1.335278,
+                        "stop": {
+                          "gtfsId": "futur:FUT_C_COLOMIERS_GARE"
+                        }
+                      },
+                      "to": {
+                        "name": "Diagora",
+                        "lat": 43.544148,
+                        "lon": 1.50968,
+                        "stop": {
+                          "gtfsId": "futur:FUT_C_DIAGORA"
+                        }
+                      },
+                      "agency": {
+                        "gtfsId": "futur:FUT_TD",
+                        "name": "Lignes futures — simulation Toulouse Demain (non officiel)"
+                      },
+                      "route": {
+                        "gtfsId": "futur:FUT_C",
+                        "shortName": "C",
+                        "longName": "Colomiers - Gare – Labège - Gare (projet, mise en service annoncée fin 2028)",
+                        "color": "5BBF8A",
+                        "textColor": "1C1917"
+                      },
+                      "legGeometry": {
+                        "points": "unciGmxcGaOg{@mJwv@qAsK[qFh@oe@Jga@c@}Do@oBaDiFmCuDgFaF}AoDa@wEc@gg@m@{GyAgG{B}EyCkDsDuBiV{JoDkDgCkF}@sEScFPwMTqJpDwa@@}Fm@uPjAoZpD{y@IwE_AmFwA{FwC{FgCkCcDuAaFy@cPQgPiCkQIsEMeBo@{AmAiAgBgJaReAcDe@}DFgCX{BhBqEhC}CzEqEpMwGfBgBzF{H|CkC|FaDvH}B`JeCjEi@lEXrItC`CFvAQpBaA`BcBnAeCfAiDv@eCd@uCHcDMeDc@}Cu@mCmDmGa@cBWcDF}C\\yCzBaGxB_FnAwA|CwAfDUtQdEzBdBhEtGfBlChAfAvEvBlAJ|X}@bBHfBd@|A|@pEfFhAv@fDv@vCMtWiBhCwA`CiEfBoGt@kF|A{y@JaLQgMLwF`@oFxAoIdE_QtDqQdCqLpA{DpAmBzAqAbB}@fB_@`FCnq@zG|CZbE`AjT|HtBJrEa@xGu@~BcAnWk\\nAcDjBaKtEkHrCyGtDgJ|@sAt@g@|@WrOWzAm@tI{FtDmA|HyA|Au@xBqBfCeFt@uDV_EMsLLiB|@mCbCqCtD_DlGwB`B}@lP}OdAc@fAElDbA"
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      }
+    }
+  ],
+  "scenario_filters": {
+    "_explication": "Filtres à envoyer dans preferences.transit.filters de planConnection, par scénario, et modes à envoyer pour un trajet en transports en commun.",
+    "request": {
+      "direct": [
+        "WALK"
+      ],
+      "access": [
+        "WALK"
+      ],
+      "egress": [
+        "WALK"
+      ],
+      "transfer": [
+        "WALK"
+      ],
+      "transit_modes": [
+        "BUS",
+        "TRAM",
+        "SUBWAY",
+        "RAIL",
+        "GONDOLA"
+      ]
+    },
+    "scenarios": {
+      "actuel": {
+        "label": "Réseau actuel",
+        "excluded_agencies": [
+          "futur:FUT_TD"
+        ],
+        "excluded_routes": [],
+        "filters": [
+          {
+            "exclude": [
+              {
+                "agencies": [
+                  "futur:FUT_TD"
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "2028": {
+        "label": "Réseau 2028",
+        "excluded_agencies": [],
+        "excluded_routes": [
+          "tisseo:line:69"
+        ],
+        "filters": [
+          {
+            "exclude": [
+              {
+                "routes": [
+                  "tisseo:line:69"
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    }
+  }
+}
