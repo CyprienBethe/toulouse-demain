@@ -1,5 +1,5 @@
 {
-  "recorded_at": "2026-10-14T18:12:33+00:00",
+  "recorded_at": "2026-10-14T18:18:28+00:00",
   "query": "\nquery Plan($origin: PlanLabeledLocationInput!, $destination: PlanLabeledLocationInput!,\n           $dateTime: PlanDateTimeInput!, $modes: PlanModesInput, $preferences: PlanPreferencesInput) {\n  planConnection(origin: $origin, destination: $destination, dateTime: $dateTime,\n                 modes: $modes, preferences: $preferences, first: 3) {\n    searchDateTime\n    routingErrors { code description }\n    edges {\n      node {\n        start\n        end\n        duration\n        numberOfTransfers\n        walkDistance\n        walkTime\n        waitingTime\n        legs {\n          mode\n          transitLeg\n          start { scheduledTime estimated { time delay } }\n          end { scheduledTime estimated { time delay } }\n          duration\n          distance\n          headsign\n          from { name lat lon stop { gtfsId } }\n          to { name lat lon stop { gtfsId } }\n          agency { gtfsId name }\n          route { gtfsId shortName longName color textColor }\n          legGeometry { points }\n        }\n      }\n    }\n  }\n}\n",
   "requests": [
     {
@@ -86,11 +86,11 @@
               {
                 "node": {
                   "start": "2026-10-20T08:35:22+02:00",
-                  "end": "2026-10-20T09:08:08+02:00",
-                  "duration": 1966,
+                  "end": "2026-10-20T09:08:27+02:00",
+                  "duration": 1985,
                   "numberOfTransfers": 0,
-                  "walkDistance": 507.73,
-                  "walkTime": 466,
+                  "walkDistance": 531.08,
+                  "walkTime": 485,
                   "waitingTime": 0,
                   "legs": [
                     {
@@ -180,11 +180,11 @@
                         "estimated": null
                       },
                       "end": {
-                        "scheduledTime": "2026-10-20T09:08:08+02:00",
+                        "scheduledTime": "2026-10-20T09:08:27+02:00",
                         "estimated": null
                       },
-                      "duration": 8.0,
-                      "distance": 9.8,
+                      "duration": 27.0,
+                      "distance": 33.15,
                       "headsign": null,
                       "from": {
                         "name": "Aéroport",
@@ -203,7 +203,7 @@
                       "agency": null,
                       "route": null,
                       "legGeometry": {
-                        "points": "yuhiGinkGMQ"
+                        "points": "sthiGsmkGUK][??"
                       }
                     }
                   ]
@@ -212,11 +212,11 @@
               {
                 "node": {
                   "start": "2026-10-20T08:50:22+02:00",
-                  "end": "2026-10-20T09:22:08+02:00",
-                  "duration": 1906,
+                  "end": "2026-10-20T09:22:27+02:00",
+                  "duration": 1925,
                   "numberOfTransfers": 0,
-                  "walkDistance": 507.73,
-                  "walkTime": 466,
+                  "walkDistance": 531.08,
+                  "walkTime": 485,
                   "waitingTime": 0,
                   "legs": [
                     {
@@ -306,11 +306,11 @@
                         "estimated": null
                       },
                       "end": {
-                        "scheduledTime": "2026-10-20T09:22:08+02:00",
+                        "scheduledTime": "2026-10-20T09:22:27+02:00",
                         "estimated": null
                       },
-                      "duration": 8.0,
-                      "distance": 9.8,
+                      "duration": 27.0,
+                      "distance": 33.15,
                       "headsign": null,
                       "from": {
                         "name": "Aéroport",
@@ -329,7 +329,7 @@
                       "agency": null,
                       "route": null,
                       "legGeometry": {
-                        "points": "yuhiGinkGMQ"
+                        "points": "sthiGsmkGUK][??"
                       }
                     }
                   ]
@@ -338,11 +338,11 @@
               {
                 "node": {
                   "start": "2026-10-20T09:05:22+02:00",
-                  "end": "2026-10-20T09:31:08+02:00",
-                  "duration": 1546,
+                  "end": "2026-10-20T09:31:27+02:00",
+                  "duration": 1565,
                   "numberOfTransfers": 0,
-                  "walkDistance": 507.73,
-                  "walkTime": 466,
+                  "walkDistance": 531.08,
+                  "walkTime": 485,
                   "waitingTime": 0,
                   "legs": [
                     {
@@ -432,11 +432,11 @@
                         "estimated": null
                       },
                       "end": {
-                        "scheduledTime": "2026-10-20T09:31:08+02:00",
+                        "scheduledTime": "2026-10-20T09:31:27+02:00",
                         "estimated": null
                       },
-                      "duration": 8.0,
-                      "distance": 9.8,
+                      "duration": 27.0,
+                      "distance": 33.15,
                       "headsign": null,
                       "from": {
                         "name": "Aéroport",
@@ -455,7 +455,7 @@
                       "agency": null,
                       "route": null,
                       "legGeometry": {
-                        "points": "yuhiGinkGMQ"
+                        "points": "sthiGsmkGUK][??"
                       }
                     }
                   ]
@@ -550,11 +550,11 @@
               {
                 "node": {
                   "start": "2026-10-20T08:35:22+02:00",
-                  "end": "2026-10-20T09:08:08+02:00",
-                  "duration": 1966,
+                  "end": "2026-10-20T09:08:27+02:00",
+                  "duration": 1985,
                   "numberOfTransfers": 0,
-                  "walkDistance": 507.73,
-                  "walkTime": 466,
+                  "walkDistance": 531.08,
+                  "walkTime": 485,
                   "waitingTime": 0,
                   "legs": [
                     {
@@ -644,11 +644,11 @@
                         "estimated": null
                       },
                       "end": {
-                        "scheduledTime": "2026-10-20T09:08:08+02:00",
+                        "scheduledTime": "2026-10-20T09:08:27+02:00",
                         "estimated": null
                       },
-                      "duration": 8.0,
-                      "distance": 9.8,
+                      "duration": 27.0,
+                      "distance": 33.15,
                       "headsign": null,
                       "from": {
                         "name": "Aéroport",
@@ -667,7 +667,7 @@
                       "agency": null,
                       "route": null,
                       "legGeometry": {
-                        "points": "yuhiGinkGMQ"
+                        "points": "sthiGsmkGUK][??"
                       }
                     }
                   ]
@@ -676,11 +676,11 @@
               {
                 "node": {
                   "start": "2026-10-20T08:50:22+02:00",
-                  "end": "2026-10-20T09:22:08+02:00",
-                  "duration": 1906,
+                  "end": "2026-10-20T09:22:27+02:00",
+                  "duration": 1925,
                   "numberOfTransfers": 0,
-                  "walkDistance": 507.73,
-                  "walkTime": 466,
+                  "walkDistance": 531.08,
+                  "walkTime": 485,
                   "waitingTime": 0,
                   "legs": [
                     {
@@ -770,11 +770,11 @@
                         "estimated": null
                       },
                       "end": {
-                        "scheduledTime": "2026-10-20T09:22:08+02:00",
+                        "scheduledTime": "2026-10-20T09:22:27+02:00",
                         "estimated": null
                       },
-                      "duration": 8.0,
-                      "distance": 9.8,
+                      "duration": 27.0,
+                      "distance": 33.15,
                       "headsign": null,
                       "from": {
                         "name": "Aéroport",
@@ -793,7 +793,7 @@
                       "agency": null,
                       "route": null,
                       "legGeometry": {
-                        "points": "yuhiGinkGMQ"
+                        "points": "sthiGsmkGUK][??"
                       }
                     }
                   ]
@@ -802,11 +802,11 @@
               {
                 "node": {
                   "start": "2026-10-20T09:05:22+02:00",
-                  "end": "2026-10-20T09:31:08+02:00",
-                  "duration": 1546,
+                  "end": "2026-10-20T09:31:27+02:00",
+                  "duration": 1565,
                   "numberOfTransfers": 0,
-                  "walkDistance": 507.73,
-                  "walkTime": 466,
+                  "walkDistance": 531.08,
+                  "walkTime": 485,
                   "waitingTime": 0,
                   "legs": [
                     {
@@ -896,11 +896,11 @@
                         "estimated": null
                       },
                       "end": {
-                        "scheduledTime": "2026-10-20T09:31:08+02:00",
+                        "scheduledTime": "2026-10-20T09:31:27+02:00",
                         "estimated": null
                       },
-                      "duration": 8.0,
-                      "distance": 9.8,
+                      "duration": 27.0,
+                      "distance": 33.15,
                       "headsign": null,
                       "from": {
                         "name": "Aéroport",
@@ -919,7 +919,7 @@
                       "agency": null,
                       "route": null,
                       "legGeometry": {
-                        "points": "yuhiGinkGMQ"
+                        "points": "sthiGsmkGUK][??"
                       }
                     }
                   ]
