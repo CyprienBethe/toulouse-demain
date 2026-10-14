@@ -1,0 +1,204 @@
+"""Shared fixtures for the futur GTFS tests.
+
+All coordinates generated here are SYNTHETIC test values on an artificial straight line.
+They are not station positions and must never be copied into data/futur/.
+"""
+
+from __future__ import annotations
+
+import csv
+import io
+import math
+import sys
+import zipfile
+from pathlib import Path
+
+import pytest
+import yaml
+
+REPO_ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(REPO_ROOT / "scripts"))
+
+import build_gtfs_futur as bgf  # noqa: E402
+
+PARAMS = REPO_ROOT / "data" / "futur" / "parametres.yaml"
+ORIGIN = (43.60, 1.30)  # synthetic origin of the artificial line
+
+
+def offset(point, east_m: float, north_m: float):
+    lat, lon = point
+    return (
+        lat + north_m / 111_320.0,
+        lon + east_m / (111_320.0 * math.cos(math.radians(lat))),
+    )
+
+
+def real_lines():
+    params = bgf.load_params(PARAMS)
+    return {l["id"]: bgf.load_stations(REPO_ROOT / l["stations"], l["id"]) for l in params["lignes"]}
+
+
+def synthetic_positions():
+    """{(line, order): (lat, lon)}: line C eastwards with 1.2-1.5 km hops, B_EXT southwards to Labège Madron."""
+    lines = real_lines()
+    pos, east = {}, 0.0
+    for st in lines["C"]:
+        pos[("C", st.order)] = offset(ORIGIN, east, 0)
+        east += 1200 + 150 * (st.order % 3)
+    madron = next(s for s in lines["C"] if s.name == "Labège Madron")
+    end = pos[("C", madron.order)]
+    n = len(lines["B_EXT"])
+    for st in lines["B_EXT"]:
+        pos[("B_EXT", st.order)] = offset(end, 0, -1350 * (n - st.order))
+    return pos
+
+
+def write_osm_positions(directory: Path, positions: dict, skip=()):
+    directory.mkdir(parents=True, exist_ok=True)
+    lines = real_lines()
+    with open(directory / "stations_osm.csv", "w", encoding="utf-8", newline="") as fh:
+        writer = csv.DictWriter(fh, fieldnames=["ligne", "ordre", "nom_officiel", "lat", "lon", "precision", "source"])
+        writer.writeheader()
+        for (line_id, order), (lat, lon) in positions.items():
+            name = lines[line_id][order - 1].name
+            if name in skip:
+                continue
+            writer.writerow(
+                {
+                    "ligne": line_id,
+                    "ordre": order,
+                    "nom_officiel": name,
+                    "lat": f"{lat:.6f}",
+                    "lon": f"{lon:.6f}",
+                    "precision": "station exacte (TEST : position synthétique)",
+                    "source": "test",
+                }
+            )
+    return directory
+
+
+def gtfs_tables(path: Path) -> dict[str, list[dict]]:
+    with zipfile.ZipFile(path) as zf:
+        return {
+            name: list(csv.DictReader(io.TextIOWrapper(zf.open(name), encoding="utf-8-sig")))
+            for name in zf.namelist()
+        }
+
+
+def departures(windows, first, last):
+    """Departure times following [(start_s, end_s, headway_s)] windows."""
+    out, t = [], first
+    while t <= last:
+        out.append(t)
+        headway = next(h for s, e, h in windows if s <= t < e)
+        t += headway
+    return out
+
+
+def make_tisseo_zip(path: Path, positions: dict, extra_stops=(), night_next_day=False):
+    """Synthetic Tisséo-like GTFS: metro B Ramonville-Borderouge with known headways, metro A, a bus stop.
+
+    night_next_day: adds Thursday/Friday/Saturday night trips (00:20 to 02:20) coded on the next
+    date's service with times below 24:00, as some feeds do.
+    """
+    lines = real_lines()
+    by_name = {st.name: positions[(lid, st.order)] for lid, sts in lines.items() for st in sts}
+    ramonville = by_name["Ramonville"]
+    la_vache = offset(by_name["La Vache Gare - Le Grand marché"], 80, 0)
+    verdier = offset(by_name["François Verdier"], 0, 60)
+    marengo = offset(by_name["Matabiau Gare"], -120, 0)
+    borderouge = offset(ORIGIN, 0, 8000)
+    stops = [
+        ("SA_RAM", "Ramonville", ramonville, "1", ""),
+        ("SP_RAM", "Ramonville", ramonville, "0", "SA_RAM"),
+        ("SA_LVA", "La Vache", la_vache, "1", ""),
+        ("SP_LVA", "La Vache", la_vache, "0", "SA_LVA"),
+        ("SA_FV", "François Verdier", verdier, "1", ""),
+        ("SP_FV", "François Verdier", verdier, "0", "SA_FV"),
+        ("SA_MAR", "Marengo-SNCF", marengo, "1", ""),
+        ("SP_MAR", "Marengo-SNCF", marengo, "0", "SA_MAR"),
+        ("BUS_MAR", "Marengo SNCF", offset(marengo, 500, 0), "0", ""),
+        ("SA_BOR", "Borderouge", borderouge, "1", ""),
+        ("SP_BOR", "Borderouge", borderouge, "0", "SA_BOR"),
+        *extra_stops,
+    ]
+    h = 3600
+    week = [(0, 7 * h, 240), (7 * h, 9 * h, 120), (9 * h, 16.5 * h, 240), (16.5 * h, 19 * h, 120),
+            (19 * h, 20.5 * h, 240), (20.5 * h, 30 * h, 360)]
+    sat = [(0, 20.5 * h, 240), (20.5 * h, 30 * h, 360)]
+    sun = [(0, 30 * h, 360)]
+    trips, stop_times = [], []
+    plans = [("WEEK", week, int(5.25 * h), 24 * h), ("SAT", sat, int(5.25 * h), 24 * h),
+             ("SUN", sun, int(5.25 * h), 24 * h)]
+    if night_next_day:
+        plans.append(("NIGHT", [(0, 4 * h, 3600)], int(h / 3), int(2.4 * h)))
+    for service, windows, first, last in plans:
+        for direction, (a, b) in enumerate((("SP_RAM", "SP_BOR"), ("SP_BOR", "SP_RAM"))):
+            for k, t in enumerate(departures(windows, first, last)):
+                trip_id = f"B_{service}_{direction}_{k}"
+                trips.append({"route_id": "LB", "service_id": service, "trip_id": trip_id, "direction_id": direction})
+                for seq, (stop, dt_) in enumerate(((a, 0), (b, 1500)), start=1):
+                    stamp = bgf.fmt_time(int(t + dt_))
+                    stop_times.append(
+                        {"trip_id": trip_id, "arrival_time": stamp, "departure_time": stamp, "stop_id": stop,
+                         "stop_sequence": seq}
+                    )
+    trips.append({"route_id": "LA", "service_id": "WEEK", "trip_id": "A_1", "direction_id": 0})
+    stop_times += [
+        {"trip_id": "A_1", "arrival_time": "08:00:00", "departure_time": "08:00:00", "stop_id": "SP_MAR", "stop_sequence": 1},
+        {"trip_id": "A_1", "arrival_time": "08:05:00", "departure_time": "08:05:00", "stop_id": "SP_BOR", "stop_sequence": 2},
+    ]
+    files = {
+        "agency.txt": [{"agency_id": "TISSEO", "agency_name": "Tisséo (test)", "agency_url": "https://example.org",
+                        "agency_timezone": "Europe/Paris"}],
+        "stops.txt": [
+            {"stop_id": sid, "stop_name": name, "stop_lat": f"{p[0]:.6f}", "stop_lon": f"{p[1]:.6f}",
+             "location_type": lt, "parent_station": parent}
+            for sid, name, p, lt, parent in stops
+        ],
+        "routes.txt": [
+            {"route_id": "LA", "agency_id": "TISSEO", "route_short_name": "A", "route_type": 1},
+            {"route_id": "LB", "agency_id": "TISSEO", "route_short_name": "B", "route_type": 1},
+            {"route_id": "BUS", "agency_id": "TISSEO", "route_short_name": "14", "route_type": 3},
+        ],
+        "trips.txt": trips,
+        "stop_times.txt": stop_times,
+        "calendar.txt": [
+            {"service_id": s, "monday": m[0], "tuesday": m[1], "wednesday": m[2], "thursday": m[3], "friday": m[4],
+             "saturday": m[5], "sunday": m[6], "start_date": "20261012", "end_date": "20261115"}
+            for s, m in (("WEEK", "1111100"), ("SAT", "0000010"), ("SUN", "0000001"), ("NIGHT", "0000111"))
+        ],
+        # 11 November (Wednesday, public holiday): Sunday service.
+        "calendar_dates.txt": [
+            {"service_id": "WEEK", "date": "20261111", "exception_type": 2},
+            {"service_id": "SUN", "date": "20261111", "exception_type": 1},
+        ],
+    }
+    with zipfile.ZipFile(path, "w") as zf:
+        for name, rows in files.items():
+            buf = io.StringIO()
+            writer = csv.DictWriter(buf, fieldnames=list(rows[0].keys()), lineterminator="\n")
+            writer.writeheader()
+            writer.writerows(rows)
+            zf.writestr(name, buf.getvalue())
+    return path
+
+
+@pytest.fixture
+def positions():
+    return synthetic_positions()
+
+
+@pytest.fixture
+def params_copy(tmp_path):
+    """Writable copy of the real parameters, with absolute CSV paths."""
+    def _make(mutate=None):
+        params = yaml.safe_load(PARAMS.read_text(encoding="utf-8"))
+        for line in params["lignes"]:
+            line["stations"] = str(REPO_ROOT / line["stations"])
+        if mutate:
+            mutate(params)
+        path = tmp_path / "parametres.yaml"
+        path.write_text(yaml.safe_dump(params, allow_unicode=True, sort_keys=False), encoding="utf-8")
+        return path
+    return _make
