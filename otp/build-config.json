@@ -1,0 +1,29 @@
+{
+  "configVersion": "sprint-0",
+  "transitServiceStart": "-P3D",
+  "transitServiceEnd": "P35D",
+  "osm": [
+    {
+      "source": "osm/zone.osm.pbf",
+      "osmTagMapping": "default",
+      "timeZone": "Europe/Paris"
+    }
+  ],
+  "transitFeeds": [
+    {
+      "type": "gtfs",
+      "feedId": "tisseo",
+      "source": "gtfs/tisseo.gtfs.zip"
+    },
+    {
+      "type": "gtfs",
+      "feedId": "sncf",
+      "source": "gtfs/sncf.gtfs.zip"
+    },
+    {
+      "type": "gtfs",
+      "feedId": "futur",
+      "source": "gtfs/futur.gtfs.zip"
+    }
+  ]
+}

@@ -1,0 +1,63 @@
+{
+  "_explication": "Trajets de référence calculés en CI dans chaque scénario. Les points de départ et d'arrivée ne sont pas saisis à la main : le script cherche les arrêts dont le nom correspond au motif (nom en minuscules, sans accents ni ponctuation) dans le GTFS indiqué, et prend le centre de tous les arrêts trouvés. Le premier candidat qui trouve au moins un arrêt est utilisé ; le rapport affiche l'arrêt retenu.",
+  "departure": {
+    "weekday": "tuesday",
+    "time": "08:30",
+    "timezone": "Europe/Paris",
+    "_explication": "Prochain mardi à 8 h 30 (heure de pointe d'un jour ouvré), toujours dans les 3 semaines couvertes par le GTFS Tisséo."
+  },
+  "trips": [
+    {
+      "id": "capitole-aeroport",
+      "label": "Capitole → Aéroport Toulouse-Blagnac",
+      "mode": "transit",
+      "scenarios": ["actuel", "2028"],
+      "from": [{"feed": "tisseo", "pattern": "^capitole$"}],
+      "to": [{"feed": "tisseo", "pattern": "^aeroport\\b"}]
+    },
+    {
+      "id": "matabiau-ramonville",
+      "label": "Gare Matabiau → Ramonville",
+      "mode": "transit",
+      "scenarios": ["actuel", "2028"],
+      "from": [
+        {"feed": "sncf", "pattern": "matabiau"},
+        {"feed": "tisseo", "pattern": "^marengo sncf$"}
+      ],
+      "to": [{"feed": "tisseo", "pattern": "^ramonville$"}]
+    },
+    {
+      "id": "colomiers-labege",
+      "label": "Colomiers gare → Labège",
+      "mode": "transit",
+      "scenarios": ["actuel", "2028"],
+      "from": [
+        {"feed": "sncf", "pattern": "^colomiers$"},
+        {"feed": "tisseo", "pattern": "^colomiers gare"}
+      ],
+      "to": [
+        {"feed": "sncf", "pattern": "labege innopole"},
+        {"feed": "tisseo", "pattern": "^labege"}
+      ]
+    },
+    {
+      "id": "capitole-matabiau-marche",
+      "label": "Capitole → Gare Matabiau, marche seule",
+      "mode": "walk",
+      "scenarios": ["actuel"],
+      "from": [{"feed": "tisseo", "pattern": "^capitole$"}],
+      "to": [
+        {"feed": "sncf", "pattern": "matabiau"},
+        {"feed": "tisseo", "pattern": "^marengo sncf$"}
+      ]
+    },
+    {
+      "id": "capitole-aeroport-velo",
+      "label": "Capitole → Aéroport Toulouse-Blagnac, vélo",
+      "mode": "bicycle",
+      "scenarios": ["actuel"],
+      "from": [{"feed": "tisseo", "pattern": "^capitole$"}],
+      "to": [{"feed": "tisseo", "pattern": "^aeroport\\b"}]
+    }
+  ]
+}

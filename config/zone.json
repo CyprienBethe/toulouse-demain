@@ -1,0 +1,7 @@
+{
+  "_explication": "La zone de calcul est le rectangle qui englobe tous les arrêts du GTFS Tisséo, élargi de buffer_km de chaque côté. Elle sert à découper OpenStreetMap et à filtrer le GTFS SNCF. Aucune coordonnée n'est saisie à la main : elles viennent du GTFS Tisséo.",
+  "buffer_km": 10,
+  "_buffer_km": "Hypothèse : 10 km de marge pour garder les gares TER proches du périmètre Tisséo et les rues autour des arrêts en limite. À ajuster après lecture du rapport (nombre de gares SNCF gardées).",
+  "max_span_km": 150,
+  "_max_span_km": "Garde-fou : si le rectangle dépasse cette taille, un arrêt est probablement mal géolocalisé et le script s'arrête au lieu de construire un graphe énorme."
+}

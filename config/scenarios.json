@@ -1,0 +1,16 @@
+{
+  "_explication": "Un seul graphe OTP contient les trois flux (tisseo, sncf, futur). Un scénario est un filtre appliqué à chaque requête : toutes les agences des flux listés dans exclude_feeds sont exclues, ainsi que les lignes listées dans exclude_routes (format feedId:route_id). Le front-end applique exactement les mêmes règles.",
+  "scenarios": {
+    "actuel": {
+      "label": "Réseau actuel",
+      "exclude_feeds": ["futur"],
+      "exclude_routes": []
+    },
+    "2028": {
+      "label": "Réseau 2028",
+      "exclude_feeds": [],
+      "exclude_routes": [],
+      "_exclude_routes": "À compléter avec le data engineer si le flux futur contient une ligne B complète qui remplace la ligne B Tisséo (par exemple [\"tisseo:<route_id de la ligne B>\"])."
+    }
+  }
+}

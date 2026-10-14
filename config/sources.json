@@ -1,0 +1,26 @@
+{
+  "_explication": "Sources brutes téléchargées par scripts/download_sources.py. Chaque fichier est enregistré dans build/raw/<file>.",
+  "sources": {
+    "tisseo": {
+      "url": "https://www.data.gouv.fr/api/1/datasets/r/64318177-f5b5-4144-a6be-2d0f22d26c77",
+      "file": "tisseo.gtfs.zip",
+      "page": "https://www.data.gouv.fr/datasets/tisseo-reseau-transport-urbain-toulousain",
+      "licence": "ODbL",
+      "attribution": "Tisséo"
+    },
+    "sncf": {
+      "url": "https://eu.ftp.opendatasoft.com/sncf/plandata/Export_OpenData_SNCF_GTFS_NewTripId.zip",
+      "file": "sncf-national.gtfs.zip",
+      "page": "https://www.data.gouv.fr/datasets/horaires-sncf",
+      "licence": "ODbL",
+      "attribution": "SNCF"
+    },
+    "osm": {
+      "url": "https://download.geofabrik.de/europe/france/midi-pyrenees-latest.osm.pbf",
+      "file": "midi-pyrenees-latest.osm.pbf",
+      "page": "https://download.geofabrik.de/europe/france.html",
+      "licence": "ODbL",
+      "attribution": "© les contributeurs d'OpenStreetMap"
+    }
+  }
+}

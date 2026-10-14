@@ -1,0 +1,11 @@
+# Generated pipeline outputs (downloads, filtered feeds, OTP graph, reports)
+build/
+
+# Server-side secrets and data (see deploy/.env.example)
+deploy/.env
+deploy/data/
+
+# Python
+__pycache__/
+*.pyc
+.venv/

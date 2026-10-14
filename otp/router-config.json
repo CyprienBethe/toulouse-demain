@@ -1,0 +1,6 @@
+{
+  "configVersion": "sprint-0",
+  "server": {
+    "apiProcessingTimeout": "10s"
+  }
+}

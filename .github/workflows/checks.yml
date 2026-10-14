@@ -1,0 +1,64 @@
+# Fast checks on every pull request: workflow and shell linting, Python
+# syntax, JSON files, Docker Compose file, and the Caddyfile validated by
+# the very Caddy image that runs on the server (with the rate_limit module).
+name: Vérifications rapides
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  lint:
+    name: Lint des workflows, scripts et JSON
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97  # v7.0.0
+        with:
+          python-version: "3.12"
+      - name: actionlint
+        run: |
+          curl -fsSL -o actionlint.tgz \
+            https://github.com/rhysd/actionlint/releases/download/v1.7.12/actionlint_1.7.12_linux_amd64.tar.gz
+          echo "8aca8db96f1b94770f1b0d72b6dddcb1ebb8123cb3712530b08cc387b349a3d8  actionlint.tgz" | sha256sum --check
+          tar xzf actionlint.tgz actionlint
+          ./actionlint -color
+      - name: shellcheck
+        run: |
+          pip install -q "shellcheck-py==0.11.0.1"
+          shellcheck scripts/*.sh deploy/*.sh
+      - name: Syntaxe Python et JSON
+        run: |
+          python -m py_compile scripts/*.py
+          for f in config/*.json otp/*.json; do python -m json.tool "$f" > /dev/null && echo "ok $f"; done
+
+  deploy:
+    name: Configuration du serveur (Compose et Caddy)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: deploy
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          persist-credentials: false
+      - name: docker compose config
+        run: |
+          cp .env.example .env
+          docker compose config --quiet
+      - name: Construire l'image Caddy et valider le Caddyfile
+        run: |
+          docker compose build caddy
+          docker compose run --rm --no-deps caddy caddy list-modules | grep -x "http.handlers.rate_limit"
+          docker compose run --rm --no-deps caddy caddy validate --config /etc/caddy/Caddyfile --adapter caddyfile
