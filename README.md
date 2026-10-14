@@ -15,7 +15,7 @@ Site web gratuit de calcul d'itinéraires sur le réseau Tisséo (114 communes) 
                              4. construire le graphe OpenTripPlanner  ──────▶ OpenTripPlanner (un seul graphe)
                              5. tester des trajets de référence      release   ▲
                              6. publier le rapport et le graphe                │  requêtes GraphQL
-                                                                     Site statique (GitHub Pages, carte MapLibre)
+                                                                     Site statique, à venir au sprint 1 (GitHub Pages, MapLibre)
 ```
 
 - **Moteur** : [OpenTripPlanner](https://www.opentripplanner.org/) 2.10.0. Un seul graphe contient trois flux GTFS : `tisseo`, `sncf` et `futur`. Le scénario « actuel » exclut simplement les lignes du flux `futur` à chaque requête. Les raisons de ces choix sont dans [docs/adr/0001-moteur-et-hebergement.md](docs/adr/0001-moteur-et-hebergement.md).
@@ -28,13 +28,13 @@ Site web gratuit de calcul d'itinéraires sur le réseau Tisséo (114 communes) 
 | --- | --- |
 | `config/` | Sources de données, zone, scénarios, trajets de référence (JSON) |
 | `otp/` | Configuration d'OpenTripPlanner : construction (`build-config.json`), routage (`router-config.json`), fonctionnalités (`otp-config.json`) |
-| `scripts/` | Pipeline de données : `download_sources.py`, `compute_zone.py`, `clip_osm.sh`, `filter_gtfs_sncf.py`, `run_otp.py`, `reference_trips.py`, `write_report.py`, `publish_report.sh`, `package_graph.sh` ; `build_gtfs_futur.py` (GTFS des lignes futures, par le data engineer) |
+| `scripts/` | Pipeline de données : `download_sources.py`, `compute_zone.py`, `clip_osm.sh`, `filter_gtfs_sncf.py`, `run_otp.py`, `reference_trips.py`, `write_report.py`, `publish_report.sh`, `package_graph.sh` ; `build_gtfs_futur.py` et `extract_futur_osm.py` (GTFS des lignes futures, par le data engineer) ; tests du pipeline dans `scripts/tests/` |
 | `data/futur/` | Données sources des lignes futures (stations, hypothèses) |
 | `.github/workflows/` | `build-graph.yml` (construction et test du graphe), `checks.yml` (vérifications rapides) |
 | `deploy/` | Serveur : `docker-compose.yml`, `Caddyfile`, `caddy/Dockerfile`, `.env.example`, `update-graph.sh`, `duckdns-update.sh` |
 | `docs/` | Décisions d'architecture (`adr/`), parcours et maquettes (`ux/`), équipe (`equipe/`) |
 
-Les scripts du pipeline n'utilisent que la bibliothèque standard de Python (3.12) et `osmium-tool` : aucune dépendance Python externe.
+Dépendances : Python 3.12 et `osmium-tool`. Les scripts du pipeline de l'architecte n'utilisent que la bibliothèque standard ; les scripts du GTFS futur ont des dépendances externes, aux versions épinglées dans `scripts/requirements.txt` (le workflow les installe dans un environnement virtuel). Tests du pipeline : `python -m unittest discover -s scripts/tests`.
 
 ## Lancer la construction du graphe
 
@@ -44,7 +44,7 @@ Tout le travail sur les données tourne dans GitHub Actions (le dépôt est publ
 - à la demande : onglet **Actions** → **Construire le graphe** → **Run workflow** ;
 - sur chaque pull request qui modifie `otp/`, `config/`, `scripts/` ou `data/futur/`.
 
-Sur la branche principale, le graphe testé est publié en **release** GitHub (`graph-AAAAMMJJ-N`) ; les 4 dernières sont conservées.
+Sur la branche principale, le graphe testé est publié en **release** GitHub (`graph-AAAAMMJJ-N`) ; les 4 dernières sont conservées. Si le GTFS futur ne peut pas être construit, le graphe du réseau actuel est quand même testé et publié (« succès partiel » dans le rapport). La release contient aussi, pour le front-end, `scenario-filters.json` (filtres exacts à envoyer pour chaque scénario) et `scenario-2028.json` (lignes Tisséo remplacées en 2028).
 
 En local (Linux, Docker et `osmium-tool` installés), les étapes sont celles du workflow, dans le même ordre ; les fichiers produits vont dans `build/` (ignoré par git).
 

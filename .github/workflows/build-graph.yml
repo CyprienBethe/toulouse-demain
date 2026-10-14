@@ -140,10 +140,24 @@ jobs:
 
       - name: Calculer les trajets de référence
         id: trips
+        env:
+          FUTUR_OUTCOME: ${{ steps.futur.outcome }}
         run: |
+          options=()
+          if [[ "$FUTUR_OUTCOME" == "success" ]]; then
+            # Tisséo lines replaced in 2028 by a line of the future feed (file written by
+            # build_gtfs_futur.py; a warning is reported if it is missing).
+            options+=(--scenario-file "2028=build/gtfs/scenario-2028.json")
+          else
+            # The future feed could not be built: the missing feed is only a warning,
+            # so that the graph of the current network is still tested and published.
+            options+=(--allow-missing-feed futur)
+          fi
           python scripts/reference_trips.py --otp-url http://127.0.0.1:8080 \
             --gtfs-dir build/otp/gtfs --trips config/reference-trips.json \
-            --scenarios config/scenarios.json --output build/report/trips.json 2>&1 | tee build/report/logs/trips.log
+            --scenarios config/scenarios.json --output build/report/trips.json \
+            --filters-output build/report/scenario-filters.json \
+            "${options[@]}" 2>&1 | tee build/report/logs/trips.log
 
       - name: Arrêter le serveur OTP
         if: always() && steps.serve.outcome != 'skipped'
@@ -175,8 +189,15 @@ jobs:
           && (github.event_name == 'schedule' || inputs.publish_release)
         env:
           GH_TOKEN: ${{ github.token }}
+          FUTUR_OUTCOME: ${{ steps.futur.outcome }}
         run: |
-          bash scripts/package_graph.sh build/otp "$OTP_IMAGE" build/report/report.md build/release
+          # Files for the front-end, next to the graph: the resolved scenario filters,
+          # and the Tisséo lines replaced in 2028 (only if the future feed was built).
+          extra=(build/report/scenario-filters.json)
+          if [[ "$FUTUR_OUTCOME" == "success" && -f build/gtfs/scenario-2028.json ]]; then
+            extra+=(build/gtfs/scenario-2028.json)
+          fi
+          bash scripts/package_graph.sh build/otp "$OTP_IMAGE" build/report/report.md build/release "${extra[@]}"
           tag="graph-$(date -u +%Y%m%d)-${GITHUB_RUN_NUMBER}"
           gh release create "$tag" build/release/* --repo "$GITHUB_REPOSITORY" --latest \
             --title "Graphe OTP du $(date -u +%d/%m/%Y)" \

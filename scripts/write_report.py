@@ -131,7 +131,19 @@ def main() -> int:
     serve = load(d / "otp-serve.json") or {}
     trips = load(d / "trips.json")
     futur = futur_summary(args.futur)
-    success = bool(outcomes) and all(v == "success" for v in outcomes.values())
+    # The future feed is optional: when it fails, the current network is still
+    # tested and published ("partial success").
+    success = bool(outcomes) and all(v == "success" for k, v in outcomes.items() if k != "futur")
+    futur_ok = outcomes.get("futur", "success") == "success"
+    warnings = (trips or {}).get("warnings") or []
+    if not success:
+        status = "ÉCHEC"
+    elif not futur_ok:
+        status = "SUCCÈS PARTIEL (réseau actuel seulement, GTFS futur en échec)"
+    elif warnings:
+        status = "SUCCÈS AVEC AVERTISSEMENTS"
+    else:
+        status = "SUCCÈS"
 
     env = os.environ
     run_url = None
@@ -139,7 +151,7 @@ def main() -> int:
         run_url = f"{env.get('GITHUB_SERVER_URL')}/{env.get('GITHUB_REPOSITORY')}/actions/runs/{env['GITHUB_RUN_ID']}"
     now = dt.datetime.now(dt.timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
 
-    md = [MARKER, f"## Rapport de construction du graphe : {'SUCCÈS' if success else 'ÉCHEC'}", ""]
+    md = [MARKER, f"## Rapport de construction du graphe : {status}", ""]
     md += [
         f"- Date : {now}",
         f"- Événement : `{env.get('GITHUB_EVENT_NAME', 'local')}`, branche `{env.get('GITHUB_REF_NAME', '?')}`, "
@@ -155,7 +167,10 @@ def main() -> int:
         pass
     md += ["", "### Étapes", "", "| Étape | Résultat |", "| --- | --- |"]
     for step, label in STEP_LABELS.items():
-        md.append(f"| {label} | {OUTCOME_LABELS.get(outcomes.get(step, 'skipped'), outcomes.get(step))} |")
+        outcome = OUTCOME_LABELS.get(outcomes.get(step, "skipped"), outcomes.get(step))
+        if step == "futur" and outcomes.get(step) == "failure":
+            outcome += " (toléré : graphe construit sans le flux futur)"
+        md.append(f"| {label} | {outcome} |")
 
     md += ["", "### Données", "", "| Source | Taille | SHA-256 (début) | Last-Modified |", "| --- | --- | --- | --- |"]
     for name, info in sources.items():
@@ -207,6 +222,13 @@ def main() -> int:
                 gain = "identique" if delta == 0 else f"{abs(delta)} min {'plus court' if delta < 0 else 'plus long'} en 2028"
             md.append(f"| {trip['label']} | {str(a['minutes']) + ' min' if a else '—'} | "
                       f"{str(b['minutes']) + ' min' if b else '—'} | {gain} |")
+        md.append("")
+        for name, scenario in trips.get("scenarios", {}).items():
+            md.append(f"- Scénario {name} : {len(scenario.get('excluded_agencies', []))} agence(s) exclue(s), "
+                      f"lignes exclues : {', '.join(scenario.get('excluded_routes') or []) or 'aucune'}")
+        if trips.get("modes_in_graph"):
+            md.append(f"- Modes présents dans le graphe : {', '.join(trips['modes_in_graph'])} ; "
+                      f"modes demandés : {', '.join(trips.get('request', {}).get('transit_modes', []))}")
         md += ["", "<details><summary>Détail des trajets</summary>", ""]
         for trip in trips["trips"]:
             md.append(f"**{trip['label']}** ({trip['mode']})")
@@ -228,6 +250,8 @@ def main() -> int:
         md.append("</details>")
         if trips["failures"]:
             md += ["", "### Contrôles en échec", ""] + [f"- {f}" for f in trips["failures"]]
+        if warnings:
+            md += ["", "### Avertissements", ""] + [f"- {w}" for w in warnings]
 
     failed_logs = [s for s, o in outcomes.items() if o == "failure"]
     if failed_logs:
@@ -243,7 +267,8 @@ def main() -> int:
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(text, encoding="utf-8")
     args.json.write_text(json.dumps({
-        "success": success, "date": now, "run_url": run_url, "outcomes": outcomes,
+        "success": success, "complete": success and futur_ok, "status": status,
+        "warnings": warnings, "date": now, "run_url": run_url, "outcomes": outcomes,
         "sources": sources, "zone": zone, "osm": osm, "sncf_kept": (sncf or {}).get("kept"),
         "futur": futur, "otp_build": build, "otp_serve": serve, "trips": trips,
     }, indent=2, ensure_ascii=False), encoding="utf-8")

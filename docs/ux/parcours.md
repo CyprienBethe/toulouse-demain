@@ -74,12 +74,16 @@ Une même convention partout : **les tirets signalent ce qui n'existe pas encore
 6. **Carte** : jamais indispensable. Tout ce qu'elle montre (tracé, arrêts) existe aussi en texte dans la liste et le détail. Attribution OpenStreetMap, Tisséo et SNCF toujours visible.
 7. **Mouvement** : pas d'animation obligatoire ; on respecte `prefers-reduced-motion`.
 
-## 6. Questions ouvertes pour la validation
+## 6. Décisions de Cyprien (14 octobre 2026)
 
-- Temps gagné : écart entre les durées (maquette : 11 min) ou entre les heures d'arrivée pour un même départ (maquette : 20 min, attente comprise) ?
-- Couleurs des lignes : celles du GTFS (familières) ou une palette propre au site ?
-- Scénario par défaut à l'ouverture : Aujourd'hui, ou le dernier choisi ?
-- Comparateur : écran à part (maquette actuelle) ou bascule intégrée à la liste de résultats ?
+| Question | Décision |
+| --- | --- |
+| Temps gagné | **Écart des durées** porte à porte ; les heures d'arrivée restent affichées à côté |
+| Couleurs des lignes | **Celles du GTFS Tisséo** (`route_color`), corrigées si le contraste du texte passe sous 4,5:1 |
+| Scénario à l'ouverture | **Le dernier choisi** ; « Aujourd'hui » à la toute première visite |
+| Maquettes | **À revoir** : une nouvelle version suit les retours de Cyprien |
+
+Reste ouvert : comparateur en écran à part (maquette actuelle) ou bascule intégrée à la liste de résultats.
 
 ## Ce qu'il faut retenir
 

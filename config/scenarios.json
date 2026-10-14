@@ -1,5 +1,13 @@
 {
-  "_explication": "Un seul graphe OTP contient les trois flux (tisseo, sncf, futur). Un scénario est un filtre appliqué à chaque requête : toutes les agences des flux listés dans exclude_feeds sont exclues, ainsi que les lignes listées dans exclude_routes (format feedId:route_id). Le front-end applique exactement les mêmes règles.",
+  "_explication": "Un seul graphe OTP contient les trois flux (tisseo, sncf, futur). Un scénario est un filtre appliqué à chaque requête : toutes les agences des flux listés dans exclude_feeds sont exclues, ainsi que les lignes listées dans exclude_routes (format feedId:route_id). Le front-end applique exactement les mêmes règles ; leur version résolue (identifiants réels) est publiée avec chaque graphe dans scenario-filters.json.",
+  "request": {
+    "_explication": "Modes envoyés à planConnection (API GTFS GraphQL d'OTP 2.10.0) pour un trajet en transports en commun. Ne jamais envoyer modes: null : OTP 2.10.0 plante (NullPointerException sur modesArgs). Accès, sortie et correspondances à pied ; suggestion à pied seul autorisée si elle est meilleure. transit_modes doit couvrir tous les modes présents dans le graphe : le CI le vérifie à chaque construction.",
+    "direct": ["WALK"],
+    "access": ["WALK"],
+    "egress": ["WALK"],
+    "transfer": ["WALK"],
+    "transit_modes": ["BUS", "TRAM", "SUBWAY", "RAIL", "GONDOLA"]
+  },
   "scenarios": {
     "actuel": {
       "label": "Réseau actuel",
@@ -10,7 +18,7 @@
       "label": "Réseau 2028",
       "exclude_feeds": [],
       "exclude_routes": [],
-      "_exclude_routes": "À compléter avec le data engineer si le flux futur contient une ligne B complète qui remplace la ligne B Tisséo (par exemple [\"tisseo:<route_id de la ligne B>\"])."
+      "_exclude_routes": "Complété en CI par build/gtfs/scenario-2028.json (produit par le script du data engineer) : les lignes Tisséo remplacées par une ligne du flux futur, par exemple la ligne B actuelle, recopiée et prolongée dans le flux futur."
     }
   }
 }

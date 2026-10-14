@@ -18,14 +18,19 @@ we never invent a coordinate.
 
 With the Tisséo GTFS: service dates follow its calendar (public holidays run as Sundays), headway
 ratios and service hours are measured on its metro line B, and a proximity report lists the
-nearest existing stops. Without it: a standalone 21-day calendar and the default parameters.
+nearest existing stops. Line B is copied (same stops, times and shapes) as route "B" of this
+feed, and enough of its trains run on to Labège Madron to give the extension headway; scenario
+2028 then excludes the Tisséo line B (scenario-2028.json). Without it: a standalone 21-day
+calendar, the default parameters and a Ramonville – Labège Madron shuttle.
 
-Output: a GTFS zip (data derived under ODbL) and a Markdown report next to it.
+Output, in the folder of --output: the GTFS zip (data derived under ODbL), scenario-2028.json
+and a Markdown report.
 """
 
 from __future__ import annotations
 
 import argparse
+import bisect
 import csv
 import dataclasses
 import datetime as dt
@@ -37,7 +42,7 @@ import statistics
 import sys
 import unicodedata
 import zipfile
-from collections import defaultdict
+from collections import Counter, defaultdict
 from pathlib import Path
 
 import yaml
@@ -55,6 +60,8 @@ MIN_HOP_M = 300
 MAX_HOP_M = 4000
 # Departures before 04:00 belong to the previous night (some feeds code them 00:30, not 24:30).
 NIGHT_CUT_S = 4 * 3600
+# Line B extension: a gap longer than this between two trains starts a new grid of extended trains.
+RUN_GAP_S = 30 * 60
 
 
 class BuildError(Exception):
@@ -276,7 +283,9 @@ class TisseoGtfs:
             "stops": {s["stop_id"] for s in self.stops},
             "routes": {r["route_id"] for r in self.routes},
             "trips": {t["trip_id"] for t in self.trips},
-            "services": {t["service_id"] for t in self.trips},
+            "services": {t["service_id"] for t in self.trips}
+            | {r["service_id"] for r in self.rows("calendar.txt")}
+            | {r["service_id"] for r in self.rows("calendar_dates.txt")},
             "shapes": {t.get("shape_id", "") for t in self.trips} - {""},
         }
         metro_routes = {r["route_id"] for r in self.routes if r.get("route_type", "").strip() == "1"}
@@ -286,22 +295,46 @@ class TisseoGtfs:
             if r["route_id"] in metro_routes and r.get("route_short_name", "").strip().upper() == ref_line.upper()
         }
         metro_trips = {t["trip_id"] for t in self.trips if t["route_id"] in metro_routes}
-        self.ref_trips = {t["trip_id"]: t["service_id"] for t in self.trips if t["route_id"] in self.ref_routes}
-        # One pass over stop_times: stops served by the metro, first departure of each reference trip.
+        self.ref_route_rows = [r for r in self.routes if r["route_id"] in self.ref_routes]
+        self.ref_trip_rows = [t for t in self.trips if t["route_id"] in self.ref_routes]
+        self.ref_trips = {t["trip_id"]: t["service_id"] for t in self.ref_trip_rows}
+        # One pass over stop_times: stops served by the metro, all stop times of the reference line.
         self.metro_stop_ids: set[str] = set()
-        first: dict[str, tuple[int, int, str]] = {}
+        self.ref_stop_times: dict[str, list[dict]] = defaultdict(list)
         for st in self.rows("stop_times.txt"):
             trip_id = st["trip_id"]
             if trip_id in metro_trips:
                 self.metro_stop_ids.add(st["stop_id"])
             if trip_id in self.ref_trips:
-                seq = int(st["stop_sequence"])
-                if trip_id not in first or seq < first[trip_id][0]:
-                    dep = st.get("departure_time") or st.get("arrival_time")
-                    if dep:
-                        first[trip_id] = (seq, parse_hhmm(dep), st["stop_id"])
-        self.ref_first = {trip: (dep, stop) for trip, (_, dep, stop) in first.items()}
+                self.ref_stop_times[trip_id].append(
+                    {
+                        "stop_id": st["stop_id"],
+                        "seq": int(st["stop_sequence"]),
+                        "arrival_time": (st.get("arrival_time") or "").strip(),
+                        "departure_time": (st.get("departure_time") or "").strip(),
+                    }
+                )
+        self.ref_first: dict[str, tuple[int, str]] = {}
+        for trip_id, rows in self.ref_stop_times.items():
+            rows.sort(key=lambda r: r["seq"])
+            dep = rows[0]["departure_time"] or rows[0]["arrival_time"]
+            if dep:
+                self.ref_first[trip_id] = (parse_hhmm(dep), rows[0]["stop_id"])
         self.services_by_date = self._services_by_date()
+
+    def shapes_for(self, shape_ids: set[str]) -> dict[str, list[tuple[float, float]]]:
+        points: dict[str, list[tuple[int, float, float]]] = defaultdict(list)
+        for row in self.rows("shapes.txt"):
+            if row["shape_id"] in shape_ids:
+                points[row["shape_id"]].append(
+                    (int(row["shape_pt_sequence"]), float(row["shape_pt_lat"]), float(row["shape_pt_lon"]))
+                )
+        return {sid: [(lat, lon) for _, lat, lon in sorted(pts)] for sid, pts in points.items()}
+
+    def calendar_rows(self, service_ids: set[str]) -> tuple[list[dict], list[dict]]:
+        calendar = [r for r in self.rows("calendar.txt") if r["service_id"] in service_ids]
+        dates = [r for r in self.rows("calendar_dates.txt") if r["service_id"] in service_ids]
+        return calendar, dates
 
     def _services_by_date(self) -> dict[dt.date, set[str]]:
         by_date: dict[dt.date, set[str]] = defaultdict(set)
@@ -571,6 +604,267 @@ def build_calendar(params, tisseo: TisseoGtfs | None, start: dt.date):
     return first, last, assigned
 
 
+# --------------------------------------------------------------------------- line B through trains
+
+
+def select_slots(items: list[tuple[int, str]], headway_at) -> set[str]:
+    """Trains to extend: for a regular grid of slots, the train closest to each slot.
+
+    items: (time at the junction station, trip id), sorted. The grid restarts after a gap longer
+    than RUN_GAP_S, so that night trains do not shift the selection of the day.
+    When trains are rarer than the target headway, every train is selected.
+    """
+    selected: set[str] = set()
+    runs: list[list[tuple[int, str]]] = []
+    for item in items:
+        if runs and item[0] - runs[-1][-1][0] <= RUN_GAP_S:
+            runs[-1].append(item)
+        else:
+            runs.append([item])
+    for run in runs:
+        times = [t for t, _ in run]
+        slot = times[0]
+        while slot <= times[-1]:
+            k = bisect.bisect_left(times, slot)
+            best = min((i for i in (k - 1, k) if 0 <= i < len(times)), key=lambda i: (abs(times[i] - slot), times[i]))
+            selected.add(run[best][1])
+            slot += max(60, headway_at(slot))
+    return selected
+
+
+def build_b_direct(params, line, tisseo: TisseoGtfs, tables, platform_id, coefficients, assigned, agency_id) -> dict:
+    """Copy every trip of Tisséo line B, and extend the trains needed for the extension headway.
+
+    Trains arriving at the junction (Ramonville) continue to the new stations; trains leaving it
+    start from the new terminus. Copied stops, times and shapes are those of Tisséo.
+    """
+    prefix = params["flux"]["prefixe_id"]
+    tis = f"{prefix}TIS_"
+    cfg = line["prolongement_tisseo"]
+    dwell = int(params["temps_arret_s"])
+    stations = line["stations"]
+    junction = normalize_name(cfg["raccordement"])
+    if normalize_name(stations[0].name) != junction:
+        raise BuildError(f"ligne {line['id']} : la première station doit être le raccordement {cfg['raccordement']}")
+    junction_ids = {s["stop_id"] for s in tisseo.stops if normalize_name(s.get("stop_name", "")) == junction}
+    idx0, arr0, dep0, _ = line["schedule"][0]
+    idx1, arr1, dep1, _ = line["schedule"][1]
+    profile_of = {s["id"]: s["profil"] for s in params["services"]}
+    default = {WEEKDAYS_FR.index(d): s["id"] for s in params["services"] for d in s["jours"]}
+
+    # Trains at the junction: arriving there (to extend after) or leaving from there (to extend before).
+    inbound, outbound = {}, {}
+    for trip in tisseo.ref_trip_rows:
+        rows = tisseo.ref_stop_times.get(trip["trip_id"], [])
+        if len(rows) < 2:
+            continue
+        last, first = rows[-1], rows[0]
+        if last["stop_id"] in junction_ids and (last["arrival_time"] or last["departure_time"]):
+            inbound[trip["trip_id"]] = parse_hhmm(last["arrival_time"] or last["departure_time"])
+        elif first["stop_id"] in junction_ids and (first["departure_time"] or first["arrival_time"]):
+            outbound[trip["trip_id"]] = parse_hhmm(first["departure_time"] or first["arrival_time"])
+
+    # Days with the same set of line B services share one selection.
+    b_services = set(tisseo.ref_trips.values())
+    sig_dates: dict[frozenset, list[dt.date]] = defaultdict(list)
+    for day, services in sorted(tisseo.services_by_date.items()):
+        sig = frozenset(services & b_services)
+        if sig:
+            sig_dates[sig].append(day)
+    selected_by_sig, profile_by_sig = {}, {}
+    for sig, dates in sig_dates.items():
+        profile = Counter(profile_of[assigned.get(d) or default[d.weekday()]] for d in dates).most_common(1)[0][0]
+        windows = params["profils"][profile]
+
+        def headway_at(t, windows=windows):
+            return int(round(line["intervalle_pointe_s"] * coefficients[period_at(windows, t)]))
+
+        sel = set()
+        for group in (inbound, outbound):
+            sel |= select_slots(sorted((t, tid) for tid, t in group.items() if tisseo.ref_trips[tid] in sig), headway_at)
+        selected_by_sig[sig], profile_by_sig[sig] = sel, profile
+
+    # One copy per trip, two (with their own dates) when the choice differs between days.
+    variants, split_services = [], {}
+    for trip in tisseo.ref_trip_rows:
+        tid, svc = trip["trip_id"], trip["service_id"]
+        ext_dates, plain_dates = [], []
+        for sig, dates in sig_dates.items():
+            if svc in sig:
+                (ext_dates if tid in selected_by_sig[sig] else plain_dates).extend(dates)
+        if not ext_dates and not plain_dates:
+            continue  # never runs
+        if not plain_dates or not ext_dates:
+            variants.append((trip, bool(ext_dates), f"{tis}{svc}"))
+            continue
+        for ext, dates in ((True, ext_dates), (False, plain_dates)):
+            key = (svc, tuple(sorted(dates)))
+            if key not in split_services:
+                digest = hashlib.sha256(",".join(d.isoformat() for d in key[1]).encode()).hexdigest()[:6]
+                split_services[key] = f"{tis}{svc}_{digest}"
+            variants.append((trip, ext, split_services[key]))
+
+    # Route, stops, shapes
+    route = tisseo.ref_route_rows[0]
+    route_id = f"{prefix}B"
+    tables["routes.txt"].append(
+        {
+            "route_id": route_id,
+            "agency_id": agency_id,
+            "route_short_name": route.get("route_short_name") or line["nom_court"],
+            "route_long_name": f"{route.get('route_long_name') or 'Ligne B'} – prolongée jusqu'à {stations[-1].name} (projet)",
+            "route_desc": "Ligne B du GTFS Tisséo recopiée et prolongée : horaires simulés sur le prolongement",
+            "route_type": "1",
+            "route_color": (route.get("route_color") or line.get("couleur", "")).upper(),
+            "route_text_color": (route.get("route_text_color") or line.get("couleur_texte", "")).upper(),
+        }
+    )
+    stop_by_id = {s["stop_id"]: s for s in tisseo.stops}
+    used = {r["stop_id"] for t, _, _ in variants for r in tisseo.ref_stop_times[t["trip_id"]]}
+    used |= {stop_by_id[s].get("parent_station") for s in used if s in stop_by_id and stop_by_id[s].get("parent_station")}
+    for sid in sorted(used):
+        stop = stop_by_id[sid]
+        parent = stop.get("parent_station", "")
+        tables["stops.txt"].append(
+            {
+                "stop_id": f"{tis}{sid}",
+                "stop_name": stop["stop_name"],
+                "stop_lat": f"{float(stop['stop_lat']):.6f}",
+                "stop_lon": f"{float(stop['stop_lon']):.6f}",
+                "location_type": (stop.get("location_type") or "0").strip() or "0",
+                "parent_station": f"{tis}{parent}" if parent else "",
+                "stop_desc": "Arrêt de la ligne B recopié du GTFS Tisséo (ODbL)",
+            }
+        )
+    extension = [p for h, poly in enumerate(line["polylines"]) for p in (poly if h == 0 else poly[1:])]
+
+    def write_shape(shape_id, points):
+        cum, prev = 0.0, None
+        for seq, p in enumerate(points, start=1):
+            if prev is not None:
+                cum += haversine_m(*prev, *p)
+            tables["shapes.txt"].append(
+                {"shape_id": shape_id, "shape_pt_lat": f"{p[0]:.6f}", "shape_pt_lon": f"{p[1]:.6f}",
+                 "shape_pt_sequence": str(seq), "shape_dist_traveled": f"{cum:.1f}"}
+            )
+            prev = p
+
+    base_shapes = tisseo.shapes_for({t.get("shape_id", "") for t, _, _ in variants} - {""})
+    written_shapes = set()
+
+    def shape_for(trip, ext_kind):
+        sid = trip.get("shape_id", "")
+        if sid not in base_shapes:
+            return ""
+        out_id = f"{tis}{sid}" + {"": "", "in": "_P", "out": "_PD"}[ext_kind]
+        if out_id not in written_shapes:
+            points = base_shapes[sid]
+            if ext_kind == "in":
+                points = points + extension
+            elif ext_kind == "out":
+                points = extension[::-1] + points
+            write_shape(out_id, points)
+            written_shapes.add(out_id)
+        return out_id
+
+    # Trips and stop times
+    counts = Counter()
+    used_original_services = set()
+    for trip, ext, service_id in variants:
+        tid = trip["trip_id"]
+        kind = ("in" if tid in inbound else "out" if tid in outbound else "") if ext else ""
+        rows = [
+            {
+                "trip_id": f"{tis}{tid}" + ("_P" if kind else ""),
+                "arrival_time": r["arrival_time"],
+                "departure_time": r["departure_time"],
+                "stop_id": f"{tis}{r['stop_id']}",
+                "timepoint": "1" if r["arrival_time"] and r["departure_time"] else "0",
+                "shape_dist_traveled": "",
+            }
+            for r in tisseo.ref_stop_times[tid]
+        ]
+        headsign = trip.get("trip_headsign", "")
+        if kind == "in":
+            last = rows[-1]
+            arrival = parse_hhmm(last["arrival_time"] or last["departure_time"])
+            leave = max(parse_hhmm(last["departure_time"] or last["arrival_time"]), arrival + dwell)
+            last["arrival_time"], last["departure_time"] = fmt_time(arrival), fmt_time(leave)
+            for k in range(1, len(idx0)):
+                st = stations[idx0[k]]
+                rows.append({"trip_id": rows[0]["trip_id"], "arrival_time": fmt_time(leave + arr0[k]),
+                             "departure_time": fmt_time(leave + dep0[k]),
+                             "stop_id": platform_id[(line["id"], st.order)], "timepoint": "0", "shape_dist_traveled": ""})
+            headsign = stations[idx0[-1]].name
+        elif kind == "out":
+            first = rows[0]
+            leave = parse_hhmm(first["departure_time"] or first["arrival_time"])
+            start = leave - dwell - arr1[-1]
+            if start < 0:
+                kind = ""
+            else:
+                first["arrival_time"], first["departure_time"] = fmt_time(leave - dwell), fmt_time(leave)
+                before = [
+                    {"trip_id": rows[0]["trip_id"], "arrival_time": fmt_time(start + arr1[k]),
+                     "departure_time": fmt_time(start + dep1[k]),
+                     "stop_id": platform_id[(line["id"], stations[idx1[k]].order)], "timepoint": "0",
+                     "shape_dist_traveled": ""}
+                    for k in range(len(idx1) - 1)
+                ]
+                rows = before + rows
+        for seq, row in enumerate(rows, start=1):
+            row["stop_sequence"] = str(seq)
+        tables["trips.txt"].append(
+            {
+                "route_id": route_id,
+                "service_id": service_id,
+                "trip_id": rows[0]["trip_id"],
+                "trip_headsign": headsign,
+                "direction_id": trip.get("direction_id", ""),
+                "shape_id": shape_for(trip, kind),
+            }
+        )
+        tables["stop_times.txt"] += rows
+        if kind:
+            counts[f"prolongées {'vers' if kind == 'in' else 'depuis'} {stations[-1].name}"] += 1
+        else:
+            counts["non prolongées"] += 1
+        if service_id == f"{tis}{trip['service_id']}":
+            used_original_services.add(trip["service_id"])
+
+    # Calendars: Tisséo's own services, plus explicit dates for the split ones.
+    calendar, calendar_dates = tisseo.calendar_rows(used_original_services)
+    for row in calendar:
+        tables["calendar.txt"].append(
+            {"service_id": f"{tis}{row['service_id']}", **{d: row.get(d, "0") for d in GTFS_WEEKDAYS},
+             "start_date": row["start_date"], "end_date": row["end_date"]}
+        )
+    for row in calendar_dates:
+        tables["calendar_dates.txt"].append(
+            {"service_id": f"{tis}{row['service_id']}", "date": row["date"], "exception_type": row["exception_type"]}
+        )
+    for (_, dates), service_id in split_services.items():
+        for day in dates:
+            tables["calendar_dates.txt"].append({"service_id": service_id, "date": gtfs_date(day), "exception_type": "1"})
+
+    # Achieved headway on the extension, on the busiest set of days, for the report.
+    main_sig = max(sig_dates, key=lambda s: len(sig_dates[s]))
+    windows = params["profils"][profile_by_sig[main_sig]]
+    arrivals = sorted(inbound[t] for t in selected_by_sig[main_sig] if t in inbound)
+    gaps: dict[str, list[int]] = defaultdict(list)
+    for a, b in zip(arrivals, arrivals[1:]):
+        if b - a <= RUN_GAP_S:
+            gaps[period_at(windows, a)].append(b - a)
+    return {
+        "exclude_routes": [f"tisseo:{rid}" for rid in sorted(tisseo.ref_routes)],
+        "copied_trips": len({t["trip_id"] for t, _, _ in variants}),
+        "counts": dict(counts),
+        "split_services": len(split_services),
+        "main_days": f"{len(sig_dates[main_sig])} jour(s), profil {profile_by_sig[main_sig]}",
+        "achieved": {p: statistics.mean(v) for p, v in gaps.items()},
+    }
+
+
 # --------------------------------------------------------------------------- feed assembly
 
 
@@ -597,6 +891,18 @@ def build_feed(params, lines, tisseo: TisseoGtfs | None, start: dt.date, osm_use
             origin = f"mesuré sur la ligne B Tisséo le {day}"
         amplitude[svc["id"]] = (first, last, origin)
 
+    # Line B through trains (Cyprien's decision, 14/10/2026) need the Tisséo GTFS and its line B.
+    direct = None
+    for line in lines:
+        if line.get("prolongement_tisseo") and tisseo is not None:
+            if tisseo.ref_trip_rows and line["prolongement_tisseo"]["ligne"].upper() == str(
+                params.get("calibration_tisseo", {}).get("ligne_reference", "B")
+            ).upper():
+                direct = line
+            else:
+                notes.append(f"Ligne {line['nom_court']} du GTFS Tisséo introuvable : prolongement simulé en navette.")
+    cal_start, cal_end, assigned = build_calendar(params, tisseo, start)
+
     tables: dict[str, list[dict]] = defaultdict(list)
     agency_id = f"{prefix}TD"
     tables["agency.txt"].append(
@@ -609,10 +915,17 @@ def build_feed(params, lines, tisseo: TisseoGtfs | None, start: dt.date, osm_use
         }
     )
 
+    def own_stations(line):
+        """Stations served by stops of this feed (the junction of the B extension is a copied Tisséo stop)."""
+        if line is direct:
+            junction = normalize_name(line["prolongement_tisseo"]["raccordement"])
+            return [st for st in line["stations"] if normalize_name(st.name) != junction]
+        return line["stations"]
+
     # Stops: one parent station per name (shared by lines), one platform per line.
     parents: dict[str, dict] = {}
     for line in lines:
-        for st in line["stations"]:
+        for st in own_stations(line):
             key = normalize_name(st.name)
             parents.setdefault(key, {"name": st.name, "points": []})["points"].append((st.lat, st.lon))
     for key, info in parents.items():
@@ -632,7 +945,7 @@ def build_feed(params, lines, tisseo: TisseoGtfs | None, start: dt.date, osm_use
         )
     platform_id = {}
     for line in lines:
-        for st in line["stations"]:
+        for st in own_stations(line):
             sid = f"{prefix}{line['id']}_{slug(st.name)}"
             platform_id[(line["id"], st.order)] = sid
             tables["stops.txt"].append(
@@ -647,21 +960,22 @@ def build_feed(params, lines, tisseo: TisseoGtfs | None, start: dt.date, osm_use
                 }
             )
 
-    services_used = set()
+    direct_info = None
     for line in lines:
         route_id = f"{prefix}{line['id']}"
-        tables["routes.txt"].append(
-            {
-                "route_id": route_id,
-                "agency_id": agency_id,
-                "route_short_name": line["nom_court"],
-                "route_long_name": line["nom_long"],
-                "route_desc": "Ligne en projet : horaires simulés, voir les hypothèses du projet Toulouse Demain",
-                "route_type": "1",
-                "route_color": line.get("couleur", ""),
-                "route_text_color": line.get("couleur_texte", ""),
-            }
-        )
+        if line is not direct:
+            tables["routes.txt"].append(
+                {
+                    "route_id": route_id,
+                    "agency_id": agency_id,
+                    "route_short_name": line["nom_court"],
+                    "route_long_name": line["nom_long"],
+                    "route_desc": "Ligne en projet : horaires simulés, voir les hypothèses du projet Toulouse Demain",
+                    "route_type": "1",
+                    "route_color": line.get("couleur", ""),
+                    "route_text_color": line.get("couleur_texte", ""),
+                }
+            )
         stations = line["stations"]
         polylines = line["polylines"]
         hop_lengths = [polyline_length_m(p) for p in polylines]
@@ -680,6 +994,8 @@ def build_feed(params, lines, tisseo: TisseoGtfs | None, start: dt.date, osm_use
         for direction, (idx, lengths, cps, polys) in directions.items():
             arr, dep, run = compute_offsets(lengths, cps, dwell)
             line["schedule"][direction] = (idx, arr, dep, lengths)
+            if line is direct:
+                continue
             shape_id = f"{prefix}SH_{line['id']}_{direction}"
             cum = 0.0
             seq = 0
@@ -732,12 +1048,13 @@ def build_feed(params, lines, tisseo: TisseoGtfs | None, start: dt.date, osm_use
                                 "shape_dist_traveled": f"{dist_at_stop[s]:.1f}",
                             }
                         )
-                    services_used.add(svc["id"])
                     headway = line["intervalle_pointe_s"] * coefficients[period_at(windows, t)]
                     t += max(60, int(round(headway)))
 
+        if line is direct:
+            direct_info = build_b_direct(params, line, tisseo, tables, platform_id, coefficients, assigned, agency_id)
+
     # Calendar
-    cal_start, cal_end, assigned = build_calendar(params, tisseo, start)
     default = {WEEKDAYS_FR.index(d): s["id"] for s in params["services"] for d in s["jours"]}
     for svc in params["services"]:
         row = {"service_id": f"{prefix}{svc['id']}"}
@@ -828,6 +1145,7 @@ def build_feed(params, lines, tisseo: TisseoGtfs | None, start: dt.date, osm_use
         "calibration": calib,
         "calendar": (cal_start, cal_end, exceptions),
         "dwell": dwell,
+        "direct": direct_info,
     }
     return tables, context
 
@@ -839,11 +1157,12 @@ def check_collisions(tables, tisseo: TisseoGtfs) -> None:
         "routes": ("routes.txt", "route_id"),
         "trips": ("trips.txt", "trip_id"),
         "services": ("calendar.txt", "service_id"),
+        "service_dates": ("calendar_dates.txt", "service_id"),
         "shapes": ("shapes.txt", "shape_id"),
     }
     for kind, (table, column) in pairs.items():
         ours = {row[column] for row in tables[table]}
-        clash = ours & tisseo.ids[kind]
+        clash = ours & tisseo.ids["services" if kind == "service_dates" else kind]
         if clash:
             raise BuildError(f"identifiants en collision avec Tisséo ({kind}) : {sorted(clash)[:5]}")
 
@@ -905,6 +1224,19 @@ def write_report(path: Path, params, lines, context, tisseo: TisseoGtfs | None, 
         out.append(f"  - {day.isoformat()} : {normal} → {actual or 'aucun service'}")
     out.append(f"- Temps d'arrêt en station : {context['dwell']} s")
     out.append("")
+    direct = context.get("direct")
+    if direct:
+        out.append("## Ligne B en rames directes (recopiée du GTFS Tisséo et prolongée)")
+        out.append("")
+        out.append(f"- Courses Tisséo recopiées : {direct['copied_trips']}")
+        for label, n in sorted(direct["counts"].items()):
+            out.append(f"- Courses {label} : {n}")
+        out.append(f"- Services Tisséo dédoublés (choix différent selon les jours) : {direct['split_services']}")
+        out.append(f"- Scénario 2028 : exclut {', '.join(direct['exclude_routes'])} (scenario-2028.json)")
+        out.append(f"- Intervalle obtenu sur le prolongement, jours les plus fréquents ({direct['main_days']}) :")
+        for period, value in sorted(direct["achieved"].items()):
+            out.append(f"  - {period} : {fmt_minsec(value)} en moyenne")
+        out.append("")
     for line in lines:
         out.append(f"## Ligne {line['nom_court']} ({line['id']})")
         out.append("")
@@ -1014,6 +1346,9 @@ def run(args) -> int:
 
     output = Path(args.output)
     write_zip(tables, output)
+    # Routes of the current network replaced by the futur feed in scenario 2028 (read by the CI).
+    excluded = context["direct"]["exclude_routes"] if context.get("direct") else []
+    (output.parent / "scenario-2028.json").write_text(json.dumps({"exclude_routes": excluded}) + "\n", encoding="utf-8")
     report = output.with_name(output.name.split(".")[0] + "-rapport.md")
     warnings = write_report(report, params, lines, context, tisseo, osm_dir, tables)
     print(f"GTFS futur écrit : {output} ({len(tables['trips.txt'])} courses, {len(tables['stops.txt'])} arrêts)")

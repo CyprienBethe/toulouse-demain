@@ -42,12 +42,18 @@ lignes:
   - id: "B_EXT"
     nom_court: "B"
     nom_long: "B prolongée Ramonville – Labège Madron (projet, ouverture annoncée en septembre 2027)"
+    # Avec le GTFS Tisséo : rames directes de la ligne B (décision de Cyprien, 14/10/2026) [§4.5].
+    # Toutes les courses B Tisséo sont recopiées ; assez de rames continuent après Ramonville pour
+    # obtenir intervalle_pointe_s × coefficient sur le prolongement. Sans GTFS Tisséo : navette.
+    prolongement_tisseo:
+      ligne: "B"                           # route_short_name de la ligne Tisséo recopiée
+      raccordement: "Ramonville"           # terminus actuel = première station du CSV
     couleur: "F2C230"                      # couleur provisoire de la charte UX (docs/ux/parcours.md)
     couleur_texte: "1C1917"
     stations: "data/futur/stations_ligne_b_prolongee.csv"
     points_de_calage:
       - {station: "Ramonville", minutes: 0}
-      - {station: "Labège Madron", minutes: 3.5}  # FAIT : Ramonville – INP 3 min 30 minimum (Tisséo, 2022)
+      - {station: "Labège Madron", minutes: 3.5}  # FAIT : « entre 3 et 3 min 30 » (Tisséo) : haut de la fourchette
     intervalle_pointe_s: 300               # FAIT : 5 min en heure de pointe (Tisséo, 2022) [§4.1]
 
 # Intervalle d'une période = intervalle de pointe × coefficient.

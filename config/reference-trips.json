@@ -38,6 +38,20 @@
       "to": [
         {"feed": "sncf", "pattern": "labege innopole"},
         {"feed": "tisseo", "pattern": "^labege"}
+      ],
+      "checks": [
+        {
+          "scenario": "2028",
+          "fastest_uses": {"feed": "futur", "line": "C"},
+          "severity": "warning",
+          "_explication": "En 2028, le trajet le plus rapide doit emprunter la ligne C (sinon avertissement : le GTFS futur ou les correspondances sont à revoir)."
+        },
+        {
+          "scenario": "actuel",
+          "never_uses_feed": "futur",
+          "severity": "failure",
+          "_explication": "Le réseau actuel ne doit jamais emprunter le flux futur (sinon échec : le filtre de scénario ne marche pas)."
+        }
       ]
     },
     {

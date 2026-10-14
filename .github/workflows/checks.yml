@@ -41,6 +41,15 @@ jobs:
         run: |
           python -m py_compile scripts/*.py
           for f in config/*.json otp/*.json; do python -m json.tool "$f" > /dev/null && echo "ok $f"; done
+      - name: Tests du pipeline (requêtes validées contre le schéma OTP 2.10.0)
+        env:
+          OTP_SCHEMA: otp-schema.graphqls
+        run: |
+          pip install -q "graphql-core==3.3.0"
+          curl -fsSL -o otp-schema.graphqls \
+            https://raw.githubusercontent.com/opentripplanner/OpenTripPlanner/v2.10.0/application/src/main/resources/org/opentripplanner/apis/gtfs/schema.graphqls
+          echo "ee5c42d5fd6346b6062d057030f8cb2062517b31e93add66ca5a92cae247aac4  otp-schema.graphqls" | sha256sum --check
+          python -m unittest discover -s scripts/tests -v
 
   deploy:
     name: Configuration du serveur (Compose et Caddy)

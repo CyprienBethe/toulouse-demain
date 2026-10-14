@@ -56,6 +56,7 @@ def check_feed(tables: dict[str, list[dict]], prefix: str = "FUT_") -> list[str]
     routes = unique("routes.txt", "route_id")
     trips = unique("trips.txt", "trip_id")
     services = unique("calendar.txt", "service_id")
+    services |= {d["service_id"] for d in tables.get("calendar_dates.txt", []) if d["exception_type"] == "1"}
     stop_rows = {s["stop_id"]: s for s in tables["stops.txt"]}
 
     for s in tables["stops.txt"]:

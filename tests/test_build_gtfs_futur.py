@@ -5,6 +5,7 @@ Positions are synthetic (see conftest.py): the tests check the logic, not the re
 
 from __future__ import annotations
 
+import json
 import os
 import shutil
 import subprocess
@@ -13,7 +14,7 @@ from collections import Counter
 
 import pytest
 
-from conftest import REPO_ROOT, gtfs_tables, make_tisseo_zip, real_lines, write_osm_positions
+from conftest import REPO_ROOT, active_services, gtfs_tables, make_tisseo_zip, real_lines, write_osm_positions
 from gtfs_checks import check_feed, seconds
 
 import build_gtfs_futur as bgf
@@ -169,6 +170,12 @@ def test_distances_are_plausible(standalone):
         assert all(bgf.MIN_HOP_M <= h <= bgf.MAX_HOP_M for h in hops), hops
 
 
+def test_standalone_keeps_shuttle_and_excludes_nothing(standalone):
+    out, tables = standalone
+    assert {r["route_id"] for r in tables["routes.txt"]} == {"FUT_C", "FUT_B_EXT"}
+    assert json.loads((out.parent / "scenario-2028.json").read_text()) == {"exclude_routes": []}
+
+
 def test_report_written(standalone):
     out, _ = standalone
     report = (out.parent / "futur-rapport.md").read_text(encoding="utf-8")
@@ -226,14 +233,17 @@ def test_calendar_follows_tisseo_and_holidays(with_tisseo):
     for row in tables["calendar.txt"]:
         assert (row["start_date"], row["end_date"]) == ("20261012", "20261115")
     exceptions = {(d["service_id"], d["date"], d["exception_type"]) for d in tables["calendar_dates.txt"]}
-    assert exceptions == {("FUT_LUNMER", "20261111", "2"), ("FUT_DIM", "20261111", "1")}
+    # Line C services, and the copied Tisséo line B services with Tisséo's own exception.
+    assert exceptions == {("FUT_LUNMER", "20261111", "2"), ("FUT_DIM", "20261111", "1"),
+                          ("FUT_TIS_WEEK", "20261111", "2"), ("FUT_TIS_SUN", "20261111", "1")}
 
 
 def test_positions_from_tisseo_anchors(with_tisseo):
     _, tables = with_tisseo
     stops = {s["stop_id"]: s for s in tables["stops.txt"]}
-    ram = stops["FUT_B_EXT_RAMONVILLE"]
-    assert "station exacte" in ram["stop_desc"] and "SA_RAM" in ram["stop_desc"]
+    assert "FUT_B_EXT_RAMONVILLE" not in stops  # through trains: Ramonville is the copied Tisséo stop
+    ram = stops["FUT_TIS_SA_RAM"]
+    assert ram["stop_name"] == "Ramonville" and "GTFS Tisséo" in ram["stop_desc"]
     mat = stops["FUT_C_MATABIAU_GARE"]
     assert "approximative" in mat["stop_desc"]
     assert "SA_MAR" in mat["stop_desc"]  # the metro station, not the bus stop of the same name
@@ -264,6 +274,118 @@ def test_night_trips_coded_on_next_day(tmp_path, positions):
         assert bgf.parse_hhmm(last) - 900 < max(starts) <= bgf.parse_hhmm(last)
 
 
+# ----------------------------------------------------------------------------- line B through trains
+
+
+def tisseo_b_times(tisseo_zip):
+    by_trip = {}
+    for st in gtfs_tables(tisseo_zip)["stop_times.txt"]:
+        if st["trip_id"].startswith("B_"):
+            by_trip.setdefault(st["trip_id"], []).append(st)
+    for rows in by_trip.values():
+        rows.sort(key=lambda r: int(r["stop_sequence"]))
+    return by_trip
+
+
+@pytest.fixture
+def direct(tmp_path, positions):
+    tisseo = make_tisseo_zip(tmp_path / "tisseo.zip", positions)
+    out, tables = build(tmp_path, positions, tisseo=tisseo)
+    return out, tables, tisseo_b_times(tisseo)
+
+
+def test_b_direct_route_and_scenario_file(direct):
+    out, tables, _ = direct
+    routes = {r["route_id"]: r for r in tables["routes.txt"]}
+    assert set(routes) == {"FUT_C", "FUT_B"}  # no shuttle
+    assert routes["FUT_B"]["route_short_name"] == "B"
+    assert json.loads((out.parent / "scenario-2028.json").read_text()) == {"exclude_routes": ["tisseo:LB"]}
+    assert check_feed(tables) == []
+
+
+def test_b_direct_copies_every_trip_with_tisseo_times(direct):
+    _, tables, tisseo = direct
+    by_trip = stop_times_by_trip(tables)
+    stops = {s["stop_id"]: s for s in tables["stops.txt"]}
+    for tid, rows in tisseo.items():
+        copies = [t for t in (f"FUT_TIS_{tid}", f"FUT_TIS_{tid}_P") if t in by_trip]
+        assert len(copies) == 1, tid  # one copy per trip when the choice is the same every day
+        copy = by_trip[copies[0]]
+        tisseo_part = [r for r in copy if r["stop_id"].startswith("FUT_TIS_")]
+        assert [r["stop_id"] for r in tisseo_part] == [f"FUT_TIS_{r['stop_id']}" for r in rows]
+        extended = copies[0].endswith("_P")
+        towards_labege = copy[-1]["stop_id"] == "FUT_B_EXT_LABEGE_MADRON"
+        for k, (mine, theirs) in enumerate(zip(tisseo_part, rows)):
+            # At Ramonville an extended train stops 20 s: only the Tisséo time that still applies is kept.
+            if not (extended and towards_labege and k == len(rows) - 1):
+                assert mine["departure_time"] == theirs["departure_time"]
+            if not (extended and not towards_labege and k == 0):
+                assert mine["arrival_time"] == theirs["arrival_time"]
+    ups = stops["FUT_TIS_SP_UPS"]
+    assert ups["stop_name"] == "Université Paul Sabatier"
+
+
+def test_b_direct_extension_times(direct):
+    _, tables, _ = direct
+    by_trip = stop_times_by_trip(tables)
+    names = {s["stop_id"]: s["stop_name"] for s in tables["stops.txt"]}
+    extended = [t for t in by_trip if t.startswith("FUT_TIS_B_") and t.endswith("_P")]
+    assert extended
+    for tid in extended:
+        rows = by_trip[tid]
+        order = [names[r["stop_id"]] for r in rows]
+        if order[-1] == "Labège Madron":  # towards Labège: Borderouge ... Ramonville, Parc du Canal, Labège Madron
+            assert order[-3:] == ["Ramonville", "Parc du Canal", "Labège Madron"]
+            ram, end = rows[-3], rows[-1]
+            assert seconds(ram["departure_time"]) - seconds(ram["arrival_time"]) == 20
+            assert seconds(end["arrival_time"]) - seconds(ram["departure_time"]) == 210
+        else:  # from Labège: Labège Madron, Parc du Canal, Ramonville ... Borderouge
+            assert order[:3] == ["Labège Madron", "Parc du Canal", "Ramonville"]
+            assert seconds(rows[2]["arrival_time"]) - seconds(rows[0]["departure_time"]) == 210
+    trips = {t["trip_id"]: t for t in tables["trips.txt"]}
+    assert all(trips[t]["shape_id"].startswith("FUT_TIS_SH_B") for t in extended)
+
+
+def extension_gaps(tables, day, start, end):
+    """Gaps between trains arriving at Labège Madron on 'day', for arrivals in [start, end)."""
+    services = active_services(tables, day)
+    by_trip = stop_times_by_trip(tables)
+    trips = {t["trip_id"]: t for t in tables["trips.txt"]}
+    arrivals = sorted(
+        seconds(rows[-1]["arrival_time"]) for tid, rows in by_trip.items()
+        if trips[tid]["route_id"] == "FUT_B" and trips[tid]["service_id"] in services
+        and rows[-1]["stop_id"] == "FUT_B_EXT_LABEGE_MADRON"
+    )
+    sel = [a for a in arrivals if start <= a < end]
+    return [b - a for a, b in zip(sel, sel[1:])]
+
+
+@pytest.mark.parametrize("start,end,target,trunk", [("07:20", "08:45", 300, 120), ("10:00", "16:00", 600, 240),
+                                                   ("21:00", "23:30", 900, 360)])
+def test_b_direct_extension_headway(direct, start, end, target, trunk):
+    """Synthetic line B every 2 / 4 / 6 min; extension 5 min in the peak, then the same ratios."""
+    _, tables, _ = direct
+    gaps = extension_gaps(tables, "20261020", bgf.parse_hhmm(start), bgf.parse_hhmm(end))
+    assert gaps and abs(sum(gaps) / len(gaps) - target) <= 0.1 * target, gaps
+    assert max(gaps) - min(gaps) <= trunk  # never more than one train of line B away from the grid
+
+
+def test_b_direct_split_when_days_differ(tmp_path, positions):
+    """Extra peak trains on 21/10 only: that day gets its own choice, each trip runs once per day."""
+    tisseo_zip = make_tisseo_zip(tmp_path / "tisseo.zip", positions, extra_service_date="20261021")
+    _, tables = build(tmp_path, positions, tisseo=tisseo_zip)
+    assert check_feed(tables) == []
+    trips = {t["trip_id"]: t for t in tables["trips.txt"]}
+    for day in ("20261020", "20261021", "20261111"):
+        services = active_services(tables, day)
+        running = Counter(tid.removesuffix("_P") for tid, t in trips.items()
+                          if t["route_id"] == "FUT_B" and t["service_id"] in services)
+        assert running and max(running.values()) == 1, day
+    gaps = extension_gaps(tables, "20261021", bgf.parse_hhmm("07:10"), bgf.parse_hhmm("08:50"))
+    assert abs(sum(gaps) / len(gaps) - 300) <= 30, gaps
+    assert any(len(t["service_id"].split("_")) > 3 for t in trips.values() if t["route_id"] == "FUT_B")
+
+
 def test_ids_do_not_collide_with_tisseo(tmp_path, positions):
     clash = (("FUT_STA_BLAGNAC", "Blagnac test", positions[("C", 4)], "0", ""),)
     tisseo = make_tisseo_zip(tmp_path / "tisseo.zip", positions, extra_stops=clash)
@@ -284,3 +406,4 @@ def test_command_line_contract(tmp_path, positions):
     )
     assert result.returncode == 0, result.stderr
     assert out.exists()
+    assert (out.parent / "scenario-2028.json").exists()

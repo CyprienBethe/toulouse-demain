@@ -85,6 +85,20 @@ def gtfs_tables(path: Path) -> dict[str, list[dict]]:
         }
 
 
+def active_services(tables, day: str) -> set[str]:
+    """Services of a GTFS (as read by gtfs_tables) running on day 'YYYYMMDD'."""
+    import datetime as _dt
+
+    weekday = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"][
+        _dt.datetime.strptime(day, "%Y%m%d").weekday()]
+    active = {c["service_id"] for c in tables.get("calendar.txt", [])
+              if c["start_date"] <= day <= c["end_date"] and c[weekday] == "1"}
+    for d in tables.get("calendar_dates.txt", []):
+        if d["date"] == day:
+            (active.add if d["exception_type"] == "1" else active.discard)(d["service_id"])
+    return active
+
+
 def departures(windows, first, last):
     """Departure times following [(start_s, end_s, headway_s)] windows."""
     out, t = [], first
@@ -95,11 +109,13 @@ def departures(windows, first, last):
     return out
 
 
-def make_tisseo_zip(path: Path, positions: dict, extra_stops=(), night_next_day=False):
-    """Synthetic Tisséo-like GTFS: metro B Ramonville-Borderouge with known headways, metro A, a bus stop.
+def make_tisseo_zip(path: Path, positions: dict, extra_stops=(), night_next_day=False, extra_service_date=None):
+    """Synthetic Tisséo-like GTFS: metro B Borderouge - Université - Ramonville with known headways,
+    shapes, metro A, a bus stop.
 
     night_next_day: adds Thursday/Friday/Saturday night trips (00:20 to 02:20) coded on the next
     date's service with times below 24:00, as some feeds do.
+    extra_service_date: "YYYYMMDD" with extra peak trains (07:01 to 08:59, every 2 min) on that day only.
     """
     lines = real_lines()
     by_name = {st.name: positions[(lid, st.order)] for lid, sts in lines.items() for st in sts}
@@ -108,6 +124,7 @@ def make_tisseo_zip(path: Path, positions: dict, extra_stops=(), night_next_day=
     verdier = offset(by_name["François Verdier"], 0, 60)
     marengo = offset(by_name["Matabiau Gare"], -120, 0)
     borderouge = offset(ORIGIN, 0, 8000)
+    middle = ((ramonville[0] + borderouge[0]) / 2, (ramonville[1] + borderouge[1]) / 2)
     stops = [
         ("SA_RAM", "Ramonville", ramonville, "1", ""),
         ("SP_RAM", "Ramonville", ramonville, "0", "SA_RAM"),
@@ -120,6 +137,7 @@ def make_tisseo_zip(path: Path, positions: dict, extra_stops=(), night_next_day=
         ("BUS_MAR", "Marengo SNCF", offset(marengo, 500, 0), "0", ""),
         ("SA_BOR", "Borderouge", borderouge, "1", ""),
         ("SP_BOR", "Borderouge", borderouge, "0", "SA_BOR"),
+        ("SP_UPS", "Université Paul Sabatier", middle, "0", ""),
         *extra_stops,
     ]
     h = 3600
@@ -132,18 +150,21 @@ def make_tisseo_zip(path: Path, positions: dict, extra_stops=(), night_next_day=
              ("SUN", sun, int(5.25 * h), 24 * h)]
     if night_next_day:
         plans.append(("NIGHT", [(0, 4 * h, 3600)], int(h / 3), int(2.4 * h)))
+    if extra_service_date:
+        plans.append(("EXTRA", [(0, 30 * h, 120)], 7 * h + 60, 9 * h - 60))
     for service, windows, first, last in plans:
         for direction, (a, b) in enumerate((("SP_RAM", "SP_BOR"), ("SP_BOR", "SP_RAM"))):
             for k, t in enumerate(departures(windows, first, last)):
                 trip_id = f"B_{service}_{direction}_{k}"
-                trips.append({"route_id": "LB", "service_id": service, "trip_id": trip_id, "direction_id": direction})
-                for seq, (stop, dt_) in enumerate(((a, 0), (b, 1500)), start=1):
+                trips.append({"route_id": "LB", "service_id": service, "trip_id": trip_id, "direction_id": direction,
+                              "shape_id": f"SH_B{direction}"})
+                for seq, (stop, dt_) in enumerate(((a, 0), ("SP_UPS", 700), (b, 1500)), start=1):
                     stamp = bgf.fmt_time(int(t + dt_))
                     stop_times.append(
                         {"trip_id": trip_id, "arrival_time": stamp, "departure_time": stamp, "stop_id": stop,
                          "stop_sequence": seq}
                     )
-    trips.append({"route_id": "LA", "service_id": "WEEK", "trip_id": "A_1", "direction_id": 0})
+    trips.append({"route_id": "LA", "service_id": "WEEK", "trip_id": "A_1", "direction_id": 0, "shape_id": ""})
     stop_times += [
         {"trip_id": "A_1", "arrival_time": "08:00:00", "departure_time": "08:00:00", "stop_id": "SP_MAR", "stop_sequence": 1},
         {"trip_id": "A_1", "arrival_time": "08:05:00", "departure_time": "08:05:00", "stop_id": "SP_BOR", "stop_sequence": 2},
@@ -172,6 +193,11 @@ def make_tisseo_zip(path: Path, positions: dict, extra_stops=(), night_next_day=
         "calendar_dates.txt": [
             {"service_id": "WEEK", "date": "20261111", "exception_type": 2},
             {"service_id": "SUN", "date": "20261111", "exception_type": 1},
+        ] + ([{"service_id": "EXTRA", "date": extra_service_date, "exception_type": 1}] if extra_service_date else []),
+        "shapes.txt": [
+            {"shape_id": f"SH_B{d}", "shape_pt_lat": f"{p[0]:.6f}", "shape_pt_lon": f"{p[1]:.6f}", "shape_pt_sequence": i}
+            for d, pts in ((0, (ramonville, middle, borderouge)), (1, (borderouge, middle, ramonville)))
+            for i, p in enumerate(pts, start=1)
         ],
     }
     with zipfile.ZipFile(path, "w") as zf:

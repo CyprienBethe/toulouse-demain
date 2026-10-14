@@ -42,6 +42,13 @@ fi
 cat "$tmp"/graph.obj.gz.part* | gunzip > "$tmp/graph.obj"
 cp "$tmp/router-config.json" "$tmp/otp-config.json" "$data_dir/"
 cp "$tmp/report.md" "$data_dir/last-build-report.md"
+# Scenario files published for the front-end (kept next to the graph for reference).
+rm -f "$data_dir"/scenario-*.json
+for file in "$tmp"/scenario-*.json; do
+  if [[ -e "$file" ]]; then
+    cp "$file" "$data_dir/"
+  fi
+done
 mv "$tmp/graph.obj" "$data_dir/graph.obj.new"
 mv -f "$data_dir/graph.obj.new" "$data_dir/graph.obj"
 
