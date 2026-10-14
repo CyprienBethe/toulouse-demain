@@ -1,0 +1,121 @@
+# Paramètres du GTFS « futur » (scénario Réseau 2028) — Toulouse Demain
+#
+# Chaque valeur est justifiée dans docs/hypotheses-reseau-2028.md (numéro de section entre crochets).
+#   FAIT       = chiffre public, source citée
+#   HYPOTHÈSE  = estimation de l'équipe, avec son raisonnement, à arbitrer par Cyprien
+#
+# Le GTFS produit est un ensemble de données dérivées sous ODbL (positions OpenStreetMap,
+# calendrier et arrêts Tisséo).
+#
+# Heures au format GTFS « HH:MM » : au-delà de 24:00, on est après minuit le même jour de service
+# (25:30 = 1 h 30 du matin la nuit suivante).
+
+flux:
+  prefixe_id: "FUT_"                       # tous les identifiants commencent par ce préfixe [§6]
+  nom_editeur: "Toulouse Demain (simulation non officielle)"
+  url_editeur: "https://github.com/CyprienBethe/toulouse-demain"
+  langue: "fr"
+  fuseau: "Europe/Paris"
+  licence: "ODbL-1.0"
+  licence_url: "https://opendatacommons.org/licenses/odbl/1-0/"
+  agence:
+    nom: "Lignes futures — simulation Toulouse Demain (non officiel)"
+    url: "https://github.com/CyprienBethe/toulouse-demain"
+  jours_autonomes: 21                      # sans GTFS Tisséo : calendrier sur 3 semaines [§5]
+
+temps_arret_s: 20                          # HYPOTHÈSE : arrêt en station [§3.1]
+
+lignes:
+  - id: "C"
+    nom_court: "C"
+    nom_long: "Colomiers - Gare – Labège - Gare (projet, mise en service annoncée fin 2028)"
+    couleur: "5BBF8A"                      # couleur provisoire de la charte UX (docs/ux/parcours.md)
+    couleur_texte: "1C1917"
+    stations: "data/futur/stations_ligne_c.csv"
+    # Temps cumulés d'arrivée, depuis le départ du premier terminus [§3.2]
+    points_de_calage:
+      - {station: "Colomiers - Gare", minutes: 0}
+      - {station: "Matabiau Gare", minutes: 17}   # HYPOTHÈSE déduite : 37 − 20 (deux chiffres officiels)
+      - {station: "Labège - Gare", minutes: 37}   # FAIT : Toulouse Métropole, Colomiers Gare – Labège 37 min
+    intervalle_pointe_s: 205               # FAIT : 3 min 25 à la mise en service (Tisséo, 2022) [§4.1]
+
+  - id: "B_EXT"
+    nom_court: "B"
+    nom_long: "B prolongée Ramonville – Labège Madron (projet, ouverture annoncée en septembre 2027)"
+    # Avec le GTFS Tisséo : rames directes de la ligne B (décision de Cyprien, 14/10/2026) [§4.5].
+    # Toutes les courses B Tisséo sont recopiées ; assez de rames continuent après Ramonville pour
+    # obtenir intervalle_pointe_s × coefficient sur le prolongement. Sans GTFS Tisséo : navette.
+    prolongement_tisseo:
+      ligne: "B"                           # route_short_name de la ligne Tisséo recopiée
+      raccordement: "Ramonville"           # terminus actuel = première station du CSV
+    couleur: "F2C230"                      # couleur provisoire de la charte UX (docs/ux/parcours.md)
+    couleur_texte: "1C1917"
+    stations: "data/futur/stations_ligne_b_prolongee.csv"
+    points_de_calage:
+      - {station: "Ramonville", minutes: 0}
+      - {station: "Labège Madron", minutes: 3.5}  # FAIT : « entre 3 et 3 min 30 » (Tisséo) : haut de la fourchette
+    intervalle_pointe_s: 300               # FAIT : 5 min en heure de pointe (Tisséo, 2022) [§4.1]
+
+# Intervalle d'une période = intervalle de pointe × coefficient.
+# HYPOTHÈSE provisoire, remplacée automatiquement par la calibration sur la ligne B
+# du GTFS Tisséo quand il est fourni (voir calibration_tisseo) [§4.2].
+coefficients_intervalle:
+  pointe: 1.0
+  creuse: 1.5
+  soiree: 2.0
+  samedi: 1.5
+  dimanche: 2.0
+
+# Découpage de la journée en périodes — HYPOTHÈSE [§4.3]
+profils:
+  semaine:
+    - ["00:00", "07:00", "creuse"]
+    - ["07:00", "09:00", "pointe"]
+    - ["09:00", "16:30", "creuse"]
+    - ["16:30", "19:00", "pointe"]
+    - ["19:00", "20:30", "creuse"]
+    - ["20:30", "30:00", "soiree"]
+  samedi:
+    - ["00:00", "20:30", "samedi"]
+    - ["20:30", "30:00", "soiree"]
+  dimanche:
+    - ["00:00", "20:30", "dimanche"]
+    - ["20:30", "30:00", "soiree"]
+
+# Types de jour. Amplitude = premier et dernier départ des terminus [§4.4].
+# premier_depart : HYPOTHÈSE provisoire ; dernier_depart : FAIT (presse, 2020), possiblement daté.
+# Les deux sont remplacés par la mesure sur la ligne B du GTFS Tisséo quand il est fourni.
+services:
+  - id: "LUNMER"
+    jours: ["lundi", "mardi", "mercredi"]
+    profil: "semaine"
+    premier_depart: "05:15"
+    dernier_depart: "24:00"
+  - id: "JEUVEN"
+    jours: ["jeudi", "vendredi"]
+    profil: "semaine"
+    premier_depart: "05:15"
+    dernier_depart: "27:00"
+  - id: "SAM"
+    jours: ["samedi"]
+    profil: "samedi"
+    premier_depart: "05:15"
+    dernier_depart: "27:00"
+  - id: "DIM"
+    jours: ["dimanche"]
+    profil: "dimanche"
+    premier_depart: "05:15"
+    dernier_depart: "24:00"
+    jours_feries: true                     # les jours fériés détectés dans le GTFS Tisséo roulent comme un dimanche
+
+calibration_tisseo:
+  actif: true
+  ligne_reference: "B"                     # route_short_name de la ligne de référence (route_type 1 = métro)
+
+# Correspondance entre deux lignes du GTFS futur (même flux : transfers.txt) [§6]
+correspondances_internes:
+  - {station: "Labège Madron", lignes: ["C", "B_EXT"], temps_min_s: 120}   # HYPOTHÈSE
+
+# Rapport de proximité avec les arrêts Tisséo existants [§6]
+correspondances_tisseo:
+  rayon_m: 400

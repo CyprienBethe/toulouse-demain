@@ -1,0 +1,7 @@
+{
+  "configVersion": "sprint-0",
+  "otpFeatures": {
+    "ActuatorAPI": true,
+    "TransmodelGraphQlApi": false
+  }
+}

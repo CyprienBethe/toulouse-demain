@@ -1,0 +1,81 @@
+# Caddy: public HTTPS gateway in front of OpenTripPlanner.
+#
+# - HTTPS is automatic: Caddy gets and renews a Let's Encrypt certificate for
+#   API_DOMAIN (ports 80 and 443 must be open).
+# - Only two paths are public: the GraphQL API (POST /otp/gtfs/v1) and a
+#   health check (GET /health). Everything else answers 404 (OTP debug UI,
+#   metrics...).
+# - CORS: only the site at SITE_ORIGIN may call the API from a browser.
+# - Rate limiting per client IP and globally (values in .env).
+# - No access log: no IP address is stored.
+
+{$API_DOMAIN} {
+	header {
+		Strict-Transport-Security "max-age=31536000"
+		X-Content-Type-Options "nosniff"
+		Referrer-Policy "no-referrer"
+		-Server
+	}
+
+	@from_site header Origin {$SITE_ORIGIN}
+
+	# CORS preflight, sent by the browser before each POST with a JSON body.
+	@preflight {
+		method OPTIONS
+		path /otp/gtfs/v1
+		header Origin {$SITE_ORIGIN}
+	}
+	handle @preflight {
+		header {
+			Access-Control-Allow-Origin "{$SITE_ORIGIN}"
+			Access-Control-Allow-Methods "POST, OPTIONS"
+			Access-Control-Allow-Headers "Content-Type"
+			Access-Control-Max-Age "86400"
+			Vary "Origin"
+		}
+		respond 204
+	}
+
+	@api {
+		method POST
+		path /otp/gtfs/v1
+	}
+	handle @api {
+		rate_limit {
+			zone per_client {
+				key {remote_host}
+				events {$RATE_LIMIT_EVENTS}
+				window {$RATE_LIMIT_WINDOW}
+			}
+			zone global {
+				key static
+				events {$GLOBAL_RATE_LIMIT_EVENTS}
+				window {$RATE_LIMIT_WINDOW}
+			}
+		}
+		request_body {
+			max_size 32KB
+		}
+		header @from_site {
+			Access-Control-Allow-Origin "{$SITE_ORIGIN}"
+			Vary "Origin"
+		}
+		reverse_proxy otp:8080 {
+			# Drop any CORS header set by OTP: Caddy decides alone.
+			header_down -Access-Control-Allow-Origin
+			header_down -Access-Control-Allow-Credentials
+			header_down -Access-Control-Allow-Methods
+			header_down -Access-Control-Allow-Headers
+		}
+	}
+
+	# 200 when the graph is loaded, 404 while OTP is starting.
+	handle /health {
+		rewrite * /otp/actuators/health
+		reverse_proxy otp:8080
+	}
+
+	handle {
+		respond "Not found" 404
+	}
+}

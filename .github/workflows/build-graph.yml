@@ -1,0 +1,220 @@
+# Build the OpenTripPlanner graph, test it, publish a report (and the graph).
+#
+# 1. download the sources (Tisséo GTFS, SNCF GTFS, OpenStreetMap);
+# 2. compute the zone, clip OSM, filter the SNCF GTFS to the zone;
+# 3. build the future-lines GTFS with the data engineer's script;
+# 4. build the graph with OTP, measuring time and memory;
+# 5. start OTP in the runner and compute the reference trips in each scenario;
+# 6. publish the graph as a GitHub Release (scheduled or manual runs on the
+#    default branch only), then the report: PR comment + branch `rapports`.
+name: Construire le graphe
+
+on:
+  schedule:
+    - cron: "17 3 * * 1"  # every Monday at 03:17 UTC
+  workflow_dispatch:
+    inputs:
+      publish_release:
+        description: "Publier le graphe en release (branche par défaut uniquement)"
+        type: boolean
+        default: true
+  pull_request:
+    paths:
+      - "otp/**"
+      - "config/**"
+      - "scripts/**"
+      - "data/futur/**"
+      - ".github/workflows/build-graph.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: build-graph-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  # Must be the same tag as in deploy/docker-compose.yml (checked below).
+  OTP_IMAGE: docker.io/opentripplanner/opentripplanner:2.10.0
+  # JVM heap for the build (runner: 16 GB of RAM) and for the test server.
+  BUILD_XMX: 12g
+  SERVE_XMX: 6g
+
+defaults:
+  run:
+    shell: bash  # bash -eo pipefail: a failure inside a pipe fails the step
+
+jobs:
+  build:
+    name: Construire et tester le graphe
+    runs-on: ubuntu-24.04
+    timeout-minutes: 150
+    permissions:
+      contents: write  # branch `rapports` and GitHub Release
+      pull-requests: write  # report comment on the pull request
+    steps:
+      - name: Récupérer le dépôt
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Installer Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97  # v7.0.0
+        with:
+          python-version: "3.12"
+
+      - name: Préparer les outils
+        run: |
+          grep -qF "image: ${OTP_IMAGE}" deploy/docker-compose.yml \
+            || { echo "OTP_IMAGE differs from deploy/docker-compose.yml"; exit 1; }
+          mkdir -p build/report/logs build/otp/gtfs build/otp/osm build/gtfs
+          echo "start=$(date +%s)" > build/report/timing.env
+          sudo apt-get update -q
+          sudo apt-get install -y -q osmium-tool
+          osmium --version | head -n 1
+          docker pull -q "$OTP_IMAGE"
+
+      - name: Télécharger les sources
+        id: download
+        run: |
+          python scripts/download_sources.py --config config/sources.json \
+            --output-dir build/raw --report build/report/sources.json 2>&1 | tee build/report/logs/download.log
+
+      - name: Calculer la zone et préparer le dossier OTP
+        id: zone
+        run: |
+          {
+            python scripts/compute_zone.py --gtfs build/raw/tisseo.gtfs.zip \
+              --config config/zone.json --output build/zone.json
+            cp otp/build-config.json otp/router-config.json otp/otp-config.json build/otp/
+            cp build/raw/tisseo.gtfs.zip build/otp/gtfs/tisseo.gtfs.zip
+          } 2>&1 | tee build/report/logs/zone.log
+
+      - name: Découper OpenStreetMap à la zone
+        id: osm
+        run: |
+          bash scripts/clip_osm.sh build/raw/midi-pyrenees-latest.osm.pbf build/zone.json \
+            build/otp/osm/zone.osm.pbf build/report/osm-clip.json 2>&1 | tee build/report/logs/osm.log
+
+      - name: Filtrer le GTFS SNCF à la zone
+        id: sncf
+        run: |
+          python scripts/filter_gtfs_sncf.py --input build/raw/sncf-national.gtfs.zip \
+            --zone build/zone.json --output build/otp/gtfs/sncf.gtfs.zip \
+            --report build/report/sncf-filter.json 2>&1 | tee build/report/logs/sncf.log
+
+      - name: Construire le GTFS futur (script du data engineer)
+        id: futur
+        # Missing station positions must not block the current network: the
+        # graph is then built without the "futur" feed and the report says so.
+        continue-on-error: true
+        run: |
+          {
+            python -m venv build/venv-futur
+            build/venv-futur/bin/pip install -q -r scripts/requirements.txt
+            # Station positions and track come from OpenStreetMap.
+            build/venv-futur/bin/python scripts/extract_futur_osm.py \
+              --osm build/otp/osm/zone.osm.pbf --output-dir build/futur-osm
+            # Attach the extraction to the report, so it can be read from the
+            # `rapports` branch even if the next command fails.
+            mkdir -p build/report/attachments
+            cp build/futur-osm/stations_osm.csv build/futur-osm/traces_osm.geojson \
+              build/report/attachments/
+            build/venv-futur/bin/python scripts/build_gtfs_futur.py \
+              --tisseo-gtfs build/raw/tisseo.gtfs.zip --osm-dir build/futur-osm \
+              --output build/gtfs/futur.gtfs.zip
+            cp build/gtfs/futur.gtfs.zip build/otp/gtfs/futur.gtfs.zip
+          } 2>&1 | tee build/report/logs/futur.log
+
+      - name: Construire le graphe OTP
+        id: build
+        run: |
+          python scripts/run_otp.py build --image "$OTP_IMAGE" --base-dir build/otp \
+            --xmx "$BUILD_XMX" --report build/report/otp-build.json --log build/report/logs/otp-build.log
+
+      - name: Démarrer le serveur OTP
+        id: serve
+        run: |
+          python scripts/run_otp.py serve --image "$OTP_IMAGE" --base-dir build/otp \
+            --xmx "$SERVE_XMX" --report build/report/otp-serve.json --log build/report/logs/otp-serve.log
+
+      - name: Calculer les trajets de référence
+        id: trips
+        env:
+          FUTUR_OUTCOME: ${{ steps.futur.outcome }}
+        run: |
+          options=()
+          if [[ "$FUTUR_OUTCOME" == "success" ]]; then
+            # Tisséo lines replaced in 2028 by a line of the future feed (file written by
+            # build_gtfs_futur.py; a warning is reported if it is missing).
+            options+=(--scenario-file "2028=build/gtfs/scenario-2028.json")
+          else
+            # The future feed could not be built: the missing feed is only a warning,
+            # so that the graph of the current network is still tested and published.
+            options+=(--allow-missing-feed futur)
+          fi
+          python scripts/reference_trips.py --otp-url http://127.0.0.1:8080 \
+            --gtfs-dir build/otp/gtfs --trips config/reference-trips.json \
+            --scenarios config/scenarios.json --output build/report/trips.json \
+            --filters-output build/report/scenario-filters.json \
+            "${options[@]}" 2>&1 | tee build/report/logs/trips.log
+
+      - name: Arrêter le serveur OTP
+        if: always() && steps.serve.outcome != 'skipped'
+        run: |
+          python scripts/run_otp.py stop --base-dir build/otp \
+            --report build/report/otp-serve.json --log build/report/logs/otp-serve.log
+
+      - name: Écrire le rapport
+        if: always()
+        run: |
+          python scripts/write_report.py --report-dir build/report --zone build/zone.json \
+            --futur build/gtfs/futur.gtfs.zip \
+            --outcome "download=${{ steps.download.outcome }}" \
+            --outcome "zone=${{ steps.zone.outcome }}" \
+            --outcome "osm=${{ steps.osm.outcome }}" \
+            --outcome "sncf=${{ steps.sncf.outcome }}" \
+            --outcome "futur=${{ steps.futur.outcome }}" \
+            --outcome "build=${{ steps.build.outcome }}" \
+            --outcome "serve=${{ steps.serve.outcome }}" \
+            --outcome "trips=${{ steps.trips.outcome }}" \
+            --output build/report/report.md --json build/report/report.json
+          cat build/report/report.md >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Publier le graphe (GitHub Release)
+        id: release
+        if: >-
+          success() && github.event_name != 'pull_request'
+          && github.ref_name == github.event.repository.default_branch
+          && (github.event_name == 'schedule' || inputs.publish_release)
+        env:
+          GH_TOKEN: ${{ github.token }}
+          FUTUR_OUTCOME: ${{ steps.futur.outcome }}
+        run: |
+          # Files for the front-end, next to the graph: the resolved scenario filters,
+          # and the Tisséo lines replaced in 2028 (only if the future feed was built).
+          extra=(build/report/scenario-filters.json)
+          if [[ "$FUTUR_OUTCOME" == "success" && -f build/gtfs/scenario-2028.json ]]; then
+            extra+=(build/gtfs/scenario-2028.json)
+          fi
+          bash scripts/package_graph.sh build/otp "$OTP_IMAGE" build/report/report.md build/release "${extra[@]}"
+          tag="graph-$(date -u +%Y%m%d)-${GITHUB_RUN_NUMBER}"
+          gh release create "$tag" build/release/* --repo "$GITHUB_REPOSITORY" --latest \
+            --title "Graphe OTP du $(date -u +%d/%m/%Y)" \
+            --notes "Graphe construit automatiquement par le workflow build-graph.yml. Voir report.md."
+          printf '\n- Graphe publié : release « %s »\n' "$tag" | tee -a build/report/report.md >> "$GITHUB_STEP_SUMMARY"
+          # Keep only the 4 most recent graph releases.
+          gh release list --repo "$GITHUB_REPOSITORY" --limit 100 --json tagName,createdAt \
+            --jq '[.[] | select(.tagName | startswith("graph-"))] | sort_by(.createdAt) | reverse | .[4:] | .[].tagName' \
+            | while read -r old; do gh release delete "$old" --repo "$GITHUB_REPOSITORY" --yes --cleanup-tag; done
+
+      - name: Publier le rapport (commentaire de PR et branche rapports)
+        # Fork pull requests get a read-only token: nothing can be published.
+        if: >-
+          always() && (github.event_name != 'pull_request'
+          || github.event.pull_request.head.repo.full_name == github.repository)
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          REPORT_BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
+        run: bash scripts/publish_report.sh build/report/report.md build/report/report.json build/report/attachments

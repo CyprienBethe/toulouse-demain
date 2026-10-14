@@ -1,0 +1,12 @@
+# Dépendances Python des scripts de données (versions épinglées).
+# Installation : python -m pip install -r scripts/requirements.txt
+
+# build_gtfs_futur.py : lecture de data/futur/parametres.yaml
+PyYAML==6.0.3
+
+# extract_futur_osm.py : lecture de l'extrait OpenStreetMap (.osm.pbf)
+osmium==4.3.1
+
+# Tests (tests/) : pytest, et gtfs-kit pour relire le GTFS produit avec une bibliothèque indépendante
+pytest==9.1.1
+gtfs-kit==13.0.1
