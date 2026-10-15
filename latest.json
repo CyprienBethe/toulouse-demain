@@ -1,16 +1,24 @@
 {
   "success": true,
-  "complete": true,
-  "status": "SUCCÈS",
-  "warnings": [],
-  "date": "2026-10-15 20:27 UTC",
-  "run_url": "https://github.com/CyprienBethe/toulouse-demain/actions/runs/38801486541",
+  "complete": false,
+  "status": "SUCCÈS PARTIEL (réseau actuel seulement, GTFS futur en échec)",
+  "warnings": [
+    "scénario actuel : le flux futur est absent du graphe (toléré : les deux scénarios sont alors identiques)",
+    "capitole-aeroport / 2028 : contrôle ignoré, le flux futur est absent du graphe",
+    "capitole-aeroport / 2028 : le trajet le plus rapide n'emprunte pas la ligne Aéroport (futur)",
+    "colomiers-labege / 2028 : le trajet le plus rapide n'emprunte pas la ligne C (futur)",
+    "colomiers-diagora / 2028 : le trajet le plus rapide n'emprunte pas la ligne C (futur)",
+    "launaguet-matabiau / 2028 : contrôle ignoré, le flux futur est absent du graphe",
+    "matabiau-labege-la-cadene / 2028 : contrôle ignoré, le flux futur est absent du graphe"
+  ],
+  "date": "2026-10-15 21:22 UTC",
+  "run_url": "https://github.com/CyprienBethe/toulouse-demain/actions/runs/38809009148",
   "outcomes": {
     "download": "success",
     "zone": "success",
     "osm": "success",
     "sncf": "success",
-    "futur": "success",
+    "futur": "failure",
     "build": "success",
     "serve": "success",
     "trips": "success"
@@ -34,7 +42,7 @@
       "bytes": 5520576,
       "sha256": "5599d956aa87ac6e0437c29fb25daa9948560c05a0b32e4fd3f8a7e610c17c49",
       "last_modified": "Thu, 15 Oct 2026 20:00:05 GMT",
-      "seconds": 1.6,
+      "seconds": 1.7,
       "attempts": 1,
       "page": "https://www.data.gouv.fr/datasets/horaires-sncf"
     },
@@ -45,7 +53,7 @@
       "bytes": 362953335,
       "sha256": "8d68b6c8b88cf74fc6f3c12ced729498dc6d2856bdefbc63f61a0f883420c5b9",
       "last_modified": "Thu, 15 Oct 2026 01:51:47 GMT",
-      "seconds": 23.5,
+      "seconds": 23.4,
       "attempts": 1,
       "page": "https://download.geofabrik.de/europe/france.html"
     }
@@ -73,7 +81,7 @@
     "input_bytes": 362953335,
     "output_bytes": 82606397,
     "bbox": "1.02706,43.30141,1.81453,43.83973",
-    "seconds": 10,
+    "seconds": 7,
     "osmium_version": "osmium version 1.16.0"
   },
   "sncf_kept": {
@@ -85,16 +93,7 @@
     "agencies": 2
   },
   "futur": {
-    "present": true,
-    "bytes": 2880073,
-    "agency.txt": 1,
-    "routes.txt": 2,
-    "routes": [
-      "C",
-      "B"
-    ],
-    "stops.txt": 105,
-    "trips.txt": 13950
+    "present": false
   },
   "otp_build": {
     "image": "docker.io/opentripplanner/opentripplanner:2.10.0",
@@ -103,26 +102,25 @@
     "exit_code": 0,
     "oom_killed": false,
     "timed_out": false,
-    "duration_seconds": 146,
-    "peak_container_memory_bytes": 4485019598,
-    "max_live_heap_after_gc_mib": 1556,
-    "graph_bytes": 88086543
+    "duration_seconds": 86,
+    "peak_container_memory_bytes": 4423816314,
+    "max_live_heap_after_gc_mib": 1393,
+    "graph_bytes": 83477090
   },
   "otp_serve": {
     "image": "docker.io/opentripplanner/opentripplanner:2.10.0",
     "xmx": "6g",
     "ready": true,
-    "startup_seconds": 11,
-    "peak_container_memory_during_startup_bytes": 1178968522,
-    "container_memory_when_ready_bytes": 1182189748,
-    "container_memory_after_queries_bytes": 1245540515,
-    "max_live_heap_after_gc_mib": 808
+    "startup_seconds": 6,
+    "peak_container_memory_during_startup_bytes": 1087700467,
+    "container_memory_when_ready_bytes": 1089847951,
+    "container_memory_after_queries_bytes": 1156419944,
+    "max_live_heap_after_gc_mib": 690
   },
   "trips": {
     "departure": "2026-10-20T08:30:00+02:00",
     "feeds": {
       "tisseo": 1,
-      "futur": 1,
       "sncf": 2
     },
     "modes_in_graph": [
@@ -156,39 +154,15 @@
     "scenarios": {
       "actuel": {
         "label": "Réseau actuel",
-        "excluded_agencies": [
-          "futur:FUT_TD"
-        ],
+        "excluded_agencies": [],
         "excluded_routes": [],
-        "filters": [
-          {
-            "exclude": [
-              {
-                "agencies": [
-                  "futur:FUT_TD"
-                ]
-              }
-            ]
-          }
-        ]
+        "filters": []
       },
       "2028": {
         "label": "Réseau 2028",
         "excluded_agencies": [],
-        "excluded_routes": [
-          "tisseo:line:69"
-        ],
-        "filters": [
-          {
-            "exclude": [
-              {
-                "routes": [
-                  "tisseo:line:69"
-                ]
-              }
-            ]
-          }
-        ]
+        "excluded_routes": [],
+        "filters": []
       }
     },
     "trips": [
@@ -198,15 +172,15 @@
         "mode": "transit",
         "results": {
           "actuel": {
-            "response_ms": 711,
+            "response_ms": 451,
             "routing_errors": [],
             "itineraries": [
               {
                 "start": "2026-10-20T08:35:22+02:00",
-                "end": "2026-10-20T09:08:08+02:00",
+                "end": "2026-10-20T09:08:27+02:00",
                 "minutes": 33,
                 "transfers": 0,
-                "walk_meters": 508,
+                "walk_meters": 531,
                 "legs": [
                   {
                     "mode": "WALK",
@@ -242,10 +216,10 @@
               },
               {
                 "start": "2026-10-20T08:50:22+02:00",
-                "end": "2026-10-20T09:22:08+02:00",
+                "end": "2026-10-20T09:22:27+02:00",
                 "minutes": 32,
                 "transfers": 0,
-                "walk_meters": 508,
+                "walk_meters": 531,
                 "legs": [
                   {
                     "mode": "WALK",
@@ -281,10 +255,10 @@
               },
               {
                 "start": "2026-10-20T09:05:22+02:00",
-                "end": "2026-10-20T09:31:08+02:00",
+                "end": "2026-10-20T09:31:27+02:00",
                 "minutes": 26,
                 "transfers": 0,
-                "walk_meters": 508,
+                "walk_meters": 531,
                 "legs": [
                   {
                     "mode": "WALK",
@@ -321,15 +295,15 @@
             ]
           },
           "2028": {
-            "response_ms": 254,
+            "response_ms": 166,
             "routing_errors": [],
             "itineraries": [
               {
                 "start": "2026-10-20T08:35:22+02:00",
-                "end": "2026-10-20T09:08:08+02:00",
+                "end": "2026-10-20T09:08:27+02:00",
                 "minutes": 33,
                 "transfers": 0,
-                "walk_meters": 508,
+                "walk_meters": 531,
                 "legs": [
                   {
                     "mode": "WALK",
@@ -365,10 +339,10 @@
               },
               {
                 "start": "2026-10-20T08:50:22+02:00",
-                "end": "2026-10-20T09:22:08+02:00",
+                "end": "2026-10-20T09:22:27+02:00",
                 "minutes": 32,
                 "transfers": 0,
-                "walk_meters": 508,
+                "walk_meters": 531,
                 "legs": [
                   {
                     "mode": "WALK",
@@ -404,10 +378,10 @@
               },
               {
                 "start": "2026-10-20T09:05:22+02:00",
-                "end": "2026-10-20T09:31:08+02:00",
+                "end": "2026-10-20T09:31:27+02:00",
                 "minutes": 26,
                 "transfers": 0,
-                "walk_meters": 508,
+                "walk_meters": 531,
                 "legs": [
                   {
                     "mode": "WALK",
@@ -471,7 +445,7 @@
         "mode": "transit",
         "results": {
           "actuel": {
-            "response_ms": 303,
+            "response_ms": 191,
             "routing_errors": [],
             "itineraries": [
               {
@@ -524,11 +498,11 @@
                 ]
               },
               {
-                "start": "2026-10-20T08:31:06+02:00",
+                "start": "2026-10-20T08:30:26+02:00",
                 "end": "2026-10-20T09:02:15+02:00",
-                "minutes": 31,
+                "minutes": 32,
                 "transfers": 0,
-                "walk_meters": 1025,
+                "walk_meters": 1067,
                 "legs": [
                   {
                     "mode": "WALK",
@@ -604,15 +578,15 @@
             ]
           },
           "2028": {
-            "response_ms": 197,
+            "response_ms": 204,
             "routing_errors": [],
             "itineraries": [
               {
                 "start": "2026-10-20T08:31:00+02:00",
-                "end": "2026-10-20T08:52:13+02:00",
+                "end": "2026-10-20T08:51:52+02:00",
                 "minutes": 21,
                 "transfers": 1,
-                "walk_meters": 187,
+                "walk_meters": 298,
                 "legs": [
                   {
                     "mode": "RAIL",
@@ -635,8 +609,8 @@
                   {
                     "mode": "SUBWAY",
                     "line": "B",
-                    "route": "futur:FUT_B",
-                    "feed": "futur",
+                    "route": "tisseo:line:69",
+                    "feed": "tisseo",
                     "from": "Saint Agne SNCF",
                     "to": "Ramonville",
                     "minutes": 7
@@ -648,20 +622,20 @@
                     "feed": null,
                     "from": "Ramonville",
                     "to": "Ramonville",
-                    "minutes": 3
+                    "minutes": 2
                   }
                 ],
                 "feeds": [
-                  "futur",
-                  "sncf"
+                  "sncf",
+                  "tisseo"
                 ]
               },
               {
-                "start": "2026-10-20T08:30:11+02:00",
-                "end": "2026-10-20T09:02:36+02:00",
+                "start": "2026-10-20T08:30:26+02:00",
+                "end": "2026-10-20T09:02:15+02:00",
                 "minutes": 32,
                 "transfers": 0,
-                "walk_meters": 910,
+                "walk_meters": 1067,
                 "legs": [
                   {
                     "mode": "WALK",
@@ -670,13 +644,13 @@
                     "feed": null,
                     "from": "Gare Matabiau",
                     "to": "Jean Jaurès",
-                    "minutes": 13
+                    "minutes": 14
                   },
                   {
                     "mode": "SUBWAY",
                     "line": "B",
-                    "route": "futur:FUT_B",
-                    "feed": "futur",
+                    "route": "tisseo:line:69",
+                    "feed": "tisseo",
                     "from": "Jean Jaurès",
                     "to": "Ramonville",
                     "minutes": 16
@@ -688,11 +662,11 @@
                     "feed": null,
                     "from": "Ramonville",
                     "to": "Ramonville",
-                    "minutes": 3
+                    "minutes": 2
                   }
                 ],
                 "feeds": [
-                  "futur"
+                  "tisseo"
                 ]
               },
               {
@@ -764,7 +738,7 @@
         "mode": "transit",
         "results": {
           "actuel": {
-            "response_ms": 393,
+            "response_ms": 324,
             "routing_errors": [],
             "itineraries": [
               {
@@ -897,124 +871,134 @@
             ]
           },
           "2028": {
-            "response_ms": 351,
+            "response_ms": 260,
             "routing_errors": [],
             "itineraries": [
               {
-                "start": "2026-10-20T08:30:57+02:00",
-                "end": "2026-10-20T09:19:18+02:00",
-                "minutes": 48,
-                "transfers": 0,
-                "walk_meters": 707,
+                "start": "2026-10-20T08:43:00+02:00",
+                "end": "2026-10-20T09:28:00+02:00",
+                "minutes": 45,
+                "transfers": 1,
+                "walk_meters": 0,
                 "legs": [
                   {
-                    "mode": "WALK",
-                    "line": null,
-                    "route": null,
-                    "feed": null,
-                    "from": "Colomiers gare",
-                    "to": "Colomiers - Gare",
-                    "minutes": 4
+                    "mode": "RAIL",
+                    "line": "C6",
+                    "route": "sncf:FR:Line::DDEF5935-0332-4ED5-B499-5C664AF7CF05:",
+                    "feed": "sncf",
+                    "from": "Colomiers",
+                    "to": "Toulouse Matabiau",
+                    "minutes": 23
                   },
                   {
-                    "mode": "SUBWAY",
-                    "line": "C",
-                    "route": "futur:FUT_C",
-                    "feed": "futur",
-                    "from": "Colomiers - Gare",
-                    "to": "Diagora",
-                    "minutes": 35
-                  },
-                  {
-                    "mode": "WALK",
-                    "line": null,
-                    "route": null,
-                    "feed": null,
-                    "from": "Diagora",
-                    "to": "Labège",
-                    "minutes": 10
+                    "mode": "RAIL",
+                    "line": "K3",
+                    "route": "sncf:FR:Line::E5FF5D61-7D3C-4DDA-9663-3C36510681CF:",
+                    "feed": "sncf",
+                    "from": "Toulouse Matabiau",
+                    "to": "Labège Innopole",
+                    "minutes": 9
                   }
                 ],
                 "feeds": [
-                  "futur"
+                  "sncf"
                 ]
               },
               {
-                "start": "2026-10-20T08:34:22+02:00",
-                "end": "2026-10-20T09:22:43+02:00",
-                "minutes": 48,
-                "transfers": 0,
-                "walk_meters": 707,
+                "start": "2026-10-20T09:15:00+02:00",
+                "end": "2026-10-20T10:08:07+02:00",
+                "minutes": 53,
+                "transfers": 2,
+                "walk_meters": 677,
                 "legs": [
+                  {
+                    "mode": "RAIL",
+                    "line": "C6",
+                    "route": "sncf:FR:Line::DDEF5935-0332-4ED5-B499-5C664AF7CF05:",
+                    "feed": "sncf",
+                    "from": "Colomiers",
+                    "to": "Saint-Agne",
+                    "minutes": 13
+                  },
                   {
                     "mode": "WALK",
                     "line": null,
                     "route": null,
                     "feed": null,
-                    "from": "Colomiers gare",
-                    "to": "Colomiers - Gare",
+                    "from": "Saint-Agne",
+                    "to": "Saint Agne SNCF",
                     "minutes": 4
                   },
                   {
                     "mode": "SUBWAY",
-                    "line": "C",
-                    "route": "futur:FUT_C",
-                    "feed": "futur",
-                    "from": "Colomiers - Gare",
-                    "to": "Diagora",
-                    "minutes": 35
+                    "line": "B",
+                    "route": "tisseo:line:69",
+                    "feed": "tisseo",
+                    "from": "Saint Agne SNCF",
+                    "to": "Rangueil",
+                    "minutes": 3
                   },
                   {
                     "mode": "WALK",
                     "line": null,
                     "route": null,
                     "feed": null,
-                    "from": "Diagora",
+                    "from": "Rangueil",
+                    "to": "Rangueil",
+                    "minutes": 4
+                  },
+                  {
+                    "mode": "BUS",
+                    "line": "80",
+                    "route": "tisseo:line:52",
+                    "feed": "tisseo",
+                    "from": "Rangueil",
+                    "to": "Lalande",
+                    "minutes": 19
+                  },
+                  {
+                    "mode": "WALK",
+                    "line": null,
+                    "route": null,
+                    "feed": null,
+                    "from": "Lalande",
                     "to": "Labège",
-                    "minutes": 10
+                    "minutes": 3
                   }
                 ],
                 "feeds": [
-                  "futur"
+                  "sncf",
+                  "tisseo"
                 ]
               },
               {
-                "start": "2026-10-20T08:37:47+02:00",
-                "end": "2026-10-20T09:26:08+02:00",
-                "minutes": 48,
-                "transfers": 0,
-                "walk_meters": 707,
+                "start": "2026-10-20T09:15:00+02:00",
+                "end": "2026-10-20T10:23:00+02:00",
+                "minutes": 68,
+                "transfers": 1,
+                "walk_meters": 0,
                 "legs": [
                   {
-                    "mode": "WALK",
-                    "line": null,
-                    "route": null,
-                    "feed": null,
-                    "from": "Colomiers gare",
-                    "to": "Colomiers - Gare",
-                    "minutes": 4
+                    "mode": "RAIL",
+                    "line": "C6",
+                    "route": "sncf:FR:Line::DDEF5935-0332-4ED5-B499-5C664AF7CF05:",
+                    "feed": "sncf",
+                    "from": "Colomiers",
+                    "to": "Toulouse Matabiau",
+                    "minutes": 21
                   },
                   {
-                    "mode": "SUBWAY",
-                    "line": "C",
-                    "route": "futur:FUT_C",
-                    "feed": "futur",
-                    "from": "Colomiers - Gare",
-                    "to": "Diagora",
-                    "minutes": 35
-                  },
-                  {
-                    "mode": "WALK",
-                    "line": null,
-                    "route": null,
-                    "feed": null,
-                    "from": "Diagora",
-                    "to": "Labège",
-                    "minutes": 10
+                    "mode": "RAIL",
+                    "line": "C3",
+                    "route": "sncf:FR:Line::52D5BA37-0A0E-43ED-AB0D-DAF12888D586:",
+                    "feed": "sncf",
+                    "from": "Toulouse Matabiau",
+                    "to": "Labège Innopole",
+                    "minutes": 9
                   }
                 ],
                 "feeds": [
-                  "futur"
+                  "sncf"
                 ]
               }
             ]
@@ -1047,15 +1031,15 @@
         "mode": "transit",
         "results": {
           "actuel": {
-            "response_ms": 318,
+            "response_ms": 236,
             "routing_errors": [],
             "itineraries": [
               {
                 "start": "2026-10-20T08:43:00+02:00",
-                "end": "2026-10-20T09:35:57+02:00",
-                "minutes": 53,
+                "end": "2026-10-20T09:28:00+02:00",
+                "minutes": 45,
                 "transfers": 1,
-                "walk_meters": 581,
+                "walk_meters": 0,
                 "legs": [
                   {
                     "mode": "RAIL",
@@ -1074,15 +1058,6 @@
                     "from": "Toulouse Matabiau",
                     "to": "Labège Innopole",
                     "minutes": 9
-                  },
-                  {
-                    "mode": "WALK",
-                    "line": null,
-                    "route": null,
-                    "feed": null,
-                    "from": "Labège Innopole",
-                    "to": "Diagora (Labège)",
-                    "minutes": 8
                   }
                 ],
                 "feeds": [
@@ -1091,10 +1066,10 @@
               },
               {
                 "start": "2026-10-20T09:15:00+02:00",
-                "end": "2026-10-20T10:13:35+02:00",
-                "minutes": 59,
+                "end": "2026-10-20T10:08:07+02:00",
+                "minutes": 53,
                 "transfers": 2,
-                "walk_meters": 456,
+                "walk_meters": 677,
                 "legs": [
                   {
                     "mode": "RAIL",
@@ -1120,35 +1095,35 @@
                     "route": "tisseo:line:69",
                     "feed": "tisseo",
                     "from": "Saint Agne SNCF",
-                    "to": "Ramonville",
-                    "minutes": 7
+                    "to": "Rangueil",
+                    "minutes": 3
                   },
                   {
                     "mode": "WALK",
                     "line": null,
                     "route": null,
                     "feed": null,
-                    "from": "Ramonville",
-                    "to": "Ramonville",
-                    "minutes": 2
+                    "from": "Rangueil",
+                    "to": "Rangueil",
+                    "minutes": 4
                   },
                   {
                     "mode": "BUS",
-                    "line": "79",
-                    "route": "tisseo:line:51",
+                    "line": "80",
+                    "route": "tisseo:line:52",
                     "feed": "tisseo",
-                    "from": "Ramonville",
-                    "to": "Tolosane",
-                    "minutes": 14
+                    "from": "Rangueil",
+                    "to": "Lalande",
+                    "minutes": 19
                   },
                   {
                     "mode": "WALK",
                     "line": null,
                     "route": null,
                     "feed": null,
-                    "from": "Tolosane",
+                    "from": "Lalande",
                     "to": "Diagora (Labège)",
-                    "minutes": 2
+                    "minutes": 3
                   }
                 ],
                 "feeds": [
@@ -1158,10 +1133,10 @@
               },
               {
                 "start": "2026-10-20T09:15:00+02:00",
-                "end": "2026-10-20T10:30:57+02:00",
-                "minutes": 76,
+                "end": "2026-10-20T10:23:00+02:00",
+                "minutes": 68,
                 "transfers": 1,
-                "walk_meters": 581,
+                "walk_meters": 0,
                 "legs": [
                   {
                     "mode": "RAIL",
@@ -1180,15 +1155,6 @@
                     "from": "Toulouse Matabiau",
                     "to": "Labège Innopole",
                     "minutes": 9
-                  },
-                  {
-                    "mode": "WALK",
-                    "line": null,
-                    "route": null,
-                    "feed": null,
-                    "from": "Labège Innopole",
-                    "to": "Diagora (Labège)",
-                    "minutes": 8
                   }
                 ],
                 "feeds": [
@@ -1198,97 +1164,134 @@
             ]
           },
           "2028": {
-            "response_ms": 253,
+            "response_ms": 242,
             "routing_errors": [],
             "itineraries": [
               {
-                "start": "2026-10-20T08:30:57+02:00",
-                "end": "2026-10-20T09:09:21+02:00",
-                "minutes": 38,
-                "transfers": 0,
-                "walk_meters": 126,
+                "start": "2026-10-20T08:43:00+02:00",
+                "end": "2026-10-20T09:28:00+02:00",
+                "minutes": 45,
+                "transfers": 1,
+                "walk_meters": 0,
                 "legs": [
                   {
-                    "mode": "WALK",
-                    "line": null,
-                    "route": null,
-                    "feed": null,
-                    "from": "Gare de Colomiers",
-                    "to": "Colomiers - Gare",
-                    "minutes": 4
+                    "mode": "RAIL",
+                    "line": "C6",
+                    "route": "sncf:FR:Line::DDEF5935-0332-4ED5-B499-5C664AF7CF05:",
+                    "feed": "sncf",
+                    "from": "Colomiers",
+                    "to": "Toulouse Matabiau",
+                    "minutes": 23
                   },
                   {
-                    "mode": "SUBWAY",
-                    "line": "C",
-                    "route": "futur:FUT_C",
-                    "feed": "futur",
-                    "from": "Colomiers - Gare",
-                    "to": "Diagora",
-                    "minutes": 35
+                    "mode": "RAIL",
+                    "line": "K3",
+                    "route": "sncf:FR:Line::E5FF5D61-7D3C-4DDA-9663-3C36510681CF:",
+                    "feed": "sncf",
+                    "from": "Toulouse Matabiau",
+                    "to": "Labège Innopole",
+                    "minutes": 9
                   }
                 ],
                 "feeds": [
-                  "futur"
+                  "sncf"
                 ]
               },
               {
-                "start": "2026-10-20T08:34:22+02:00",
-                "end": "2026-10-20T09:12:46+02:00",
-                "minutes": 38,
-                "transfers": 0,
-                "walk_meters": 126,
+                "start": "2026-10-20T09:15:00+02:00",
+                "end": "2026-10-20T10:08:07+02:00",
+                "minutes": 53,
+                "transfers": 2,
+                "walk_meters": 677,
                 "legs": [
+                  {
+                    "mode": "RAIL",
+                    "line": "C6",
+                    "route": "sncf:FR:Line::DDEF5935-0332-4ED5-B499-5C664AF7CF05:",
+                    "feed": "sncf",
+                    "from": "Colomiers",
+                    "to": "Saint-Agne",
+                    "minutes": 13
+                  },
                   {
                     "mode": "WALK",
                     "line": null,
                     "route": null,
                     "feed": null,
-                    "from": "Gare de Colomiers",
-                    "to": "Colomiers - Gare",
+                    "from": "Saint-Agne",
+                    "to": "Saint Agne SNCF",
                     "minutes": 4
                   },
                   {
                     "mode": "SUBWAY",
-                    "line": "C",
-                    "route": "futur:FUT_C",
-                    "feed": "futur",
-                    "from": "Colomiers - Gare",
-                    "to": "Diagora",
-                    "minutes": 35
+                    "line": "B",
+                    "route": "tisseo:line:69",
+                    "feed": "tisseo",
+                    "from": "Saint Agne SNCF",
+                    "to": "Rangueil",
+                    "minutes": 3
+                  },
+                  {
+                    "mode": "WALK",
+                    "line": null,
+                    "route": null,
+                    "feed": null,
+                    "from": "Rangueil",
+                    "to": "Rangueil",
+                    "minutes": 4
+                  },
+                  {
+                    "mode": "BUS",
+                    "line": "80",
+                    "route": "tisseo:line:52",
+                    "feed": "tisseo",
+                    "from": "Rangueil",
+                    "to": "Lalande",
+                    "minutes": 19
+                  },
+                  {
+                    "mode": "WALK",
+                    "line": null,
+                    "route": null,
+                    "feed": null,
+                    "from": "Lalande",
+                    "to": "Diagora (Labège)",
+                    "minutes": 3
                   }
                 ],
                 "feeds": [
-                  "futur"
+                  "sncf",
+                  "tisseo"
                 ]
               },
               {
-                "start": "2026-10-20T08:37:47+02:00",
-                "end": "2026-10-20T09:16:11+02:00",
-                "minutes": 38,
-                "transfers": 0,
-                "walk_meters": 126,
+                "start": "2026-10-20T09:15:00+02:00",
+                "end": "2026-10-20T10:23:00+02:00",
+                "minutes": 68,
+                "transfers": 1,
+                "walk_meters": 0,
                 "legs": [
                   {
-                    "mode": "WALK",
-                    "line": null,
-                    "route": null,
-                    "feed": null,
-                    "from": "Gare de Colomiers",
-                    "to": "Colomiers - Gare",
-                    "minutes": 4
+                    "mode": "RAIL",
+                    "line": "C6",
+                    "route": "sncf:FR:Line::DDEF5935-0332-4ED5-B499-5C664AF7CF05:",
+                    "feed": "sncf",
+                    "from": "Colomiers",
+                    "to": "Toulouse Matabiau",
+                    "minutes": 21
                   },
                   {
-                    "mode": "SUBWAY",
-                    "line": "C",
-                    "route": "futur:FUT_C",
-                    "feed": "futur",
-                    "from": "Colomiers - Gare",
-                    "to": "Diagora",
-                    "minutes": 35
+                    "mode": "RAIL",
+                    "line": "C3",
+                    "route": "sncf:FR:Line::52D5BA37-0A0E-43ED-AB0D-DAF12888D586:",
+                    "feed": "sncf",
+                    "from": "Toulouse Matabiau",
+                    "to": "Labège Innopole",
+                    "minutes": 9
                   }
                 ],
                 "feeds": [
-                  "futur"
+                  "sncf"
                 ]
               }
             ]
@@ -1305,13 +1308,327 @@
           ]
         },
         "to": {
-          "lat": 43.544148,
-          "lon": 1.50968,
-          "feed": "futur",
-          "pattern": "^diagora$",
-          "matched_stops": 2,
+          "lat": 43.547467,
+          "lon": 1.512964,
+          "feed": "sncf",
+          "pattern": "labege innopole",
+          "matched_stops": 3,
           "matched_names": [
-            "Diagora"
+            "Labège Innopole"
+          ]
+        }
+      },
+      {
+        "id": "launaguet-matabiau",
+        "label": "La Vache (halte Route de Launaguet) → Gare Matabiau",
+        "mode": "transit",
+        "results": {
+          "actuel": {
+            "response_ms": 116,
+            "routing_errors": [],
+            "itineraries": [
+              {
+                "start": "2026-10-20T08:30:00+02:00",
+                "end": "2026-10-20T09:21:25+02:00",
+                "minutes": 51,
+                "transfers": 0,
+                "walk_meters": 3958,
+                "legs": [
+                  {
+                    "mode": "WALK",
+                    "line": null,
+                    "route": null,
+                    "feed": null,
+                    "from": "La Vache (halte Route de Launaguet)",
+                    "to": "Gare Matabiau",
+                    "minutes": 51
+                  }
+                ],
+                "feeds": []
+              },
+              {
+                "start": "2026-10-20T08:30:53+02:00",
+                "end": "2026-10-20T08:57:31+02:00",
+                "minutes": 27,
+                "transfers": 0,
+                "walk_meters": 1075,
+                "legs": [
+                  {
+                    "mode": "WALK",
+                    "line": null,
+                    "route": null,
+                    "feed": null,
+                    "from": "La Vache (halte Route de Launaguet)",
+                    "to": "La Vache",
+                    "minutes": 4
+                  },
+                  {
+                    "mode": "SUBWAY",
+                    "line": "B",
+                    "route": "tisseo:line:69",
+                    "feed": "tisseo",
+                    "from": "La Vache",
+                    "to": "Jean Jaurès",
+                    "minutes": 8
+                  },
+                  {
+                    "mode": "WALK",
+                    "line": null,
+                    "route": null,
+                    "feed": null,
+                    "from": "Jean Jaurès",
+                    "to": "Gare Matabiau",
+                    "minutes": 14
+                  }
+                ],
+                "feeds": [
+                  "tisseo"
+                ]
+              },
+              {
+                "start": "2026-10-20T08:32:22+02:00",
+                "end": "2026-10-20T08:59:00+02:00",
+                "minutes": 27,
+                "transfers": 0,
+                "walk_meters": 1075,
+                "legs": [
+                  {
+                    "mode": "WALK",
+                    "line": null,
+                    "route": null,
+                    "feed": null,
+                    "from": "La Vache (halte Route de Launaguet)",
+                    "to": "La Vache",
+                    "minutes": 4
+                  },
+                  {
+                    "mode": "SUBWAY",
+                    "line": "B",
+                    "route": "tisseo:line:69",
+                    "feed": "tisseo",
+                    "from": "La Vache",
+                    "to": "Jean Jaurès",
+                    "minutes": 8
+                  },
+                  {
+                    "mode": "WALK",
+                    "line": null,
+                    "route": null,
+                    "feed": null,
+                    "from": "Jean Jaurès",
+                    "to": "Gare Matabiau",
+                    "minutes": 14
+                  }
+                ],
+                "feeds": [
+                  "tisseo"
+                ]
+              }
+            ]
+          },
+          "2028": {
+            "response_ms": 100,
+            "routing_errors": [],
+            "itineraries": [
+              {
+                "start": "2026-10-20T08:30:00+02:00",
+                "end": "2026-10-20T09:21:25+02:00",
+                "minutes": 51,
+                "transfers": 0,
+                "walk_meters": 3958,
+                "legs": [
+                  {
+                    "mode": "WALK",
+                    "line": null,
+                    "route": null,
+                    "feed": null,
+                    "from": "La Vache (halte Route de Launaguet)",
+                    "to": "Gare Matabiau",
+                    "minutes": 51
+                  }
+                ],
+                "feeds": []
+              },
+              {
+                "start": "2026-10-20T08:30:53+02:00",
+                "end": "2026-10-20T08:57:31+02:00",
+                "minutes": 27,
+                "transfers": 0,
+                "walk_meters": 1075,
+                "legs": [
+                  {
+                    "mode": "WALK",
+                    "line": null,
+                    "route": null,
+                    "feed": null,
+                    "from": "La Vache (halte Route de Launaguet)",
+                    "to": "La Vache",
+                    "minutes": 4
+                  },
+                  {
+                    "mode": "SUBWAY",
+                    "line": "B",
+                    "route": "tisseo:line:69",
+                    "feed": "tisseo",
+                    "from": "La Vache",
+                    "to": "Jean Jaurès",
+                    "minutes": 8
+                  },
+                  {
+                    "mode": "WALK",
+                    "line": null,
+                    "route": null,
+                    "feed": null,
+                    "from": "Jean Jaurès",
+                    "to": "Gare Matabiau",
+                    "minutes": 14
+                  }
+                ],
+                "feeds": [
+                  "tisseo"
+                ]
+              },
+              {
+                "start": "2026-10-20T08:32:22+02:00",
+                "end": "2026-10-20T08:59:00+02:00",
+                "minutes": 27,
+                "transfers": 0,
+                "walk_meters": 1075,
+                "legs": [
+                  {
+                    "mode": "WALK",
+                    "line": null,
+                    "route": null,
+                    "feed": null,
+                    "from": "La Vache (halte Route de Launaguet)",
+                    "to": "La Vache",
+                    "minutes": 4
+                  },
+                  {
+                    "mode": "SUBWAY",
+                    "line": "B",
+                    "route": "tisseo:line:69",
+                    "feed": "tisseo",
+                    "from": "La Vache",
+                    "to": "Jean Jaurès",
+                    "minutes": 8
+                  },
+                  {
+                    "mode": "WALK",
+                    "line": null,
+                    "route": null,
+                    "feed": null,
+                    "from": "Jean Jaurès",
+                    "to": "Gare Matabiau",
+                    "minutes": 14
+                  }
+                ],
+                "feeds": [
+                  "tisseo"
+                ]
+              }
+            ]
+          }
+        },
+        "from": {
+          "lat": 43.633586,
+          "lon": 1.434678,
+          "feed": "tisseo",
+          "pattern": "^la vache$",
+          "matched_stops": 11,
+          "matched_names": [
+            "La Vache"
+          ]
+        },
+        "to": {
+          "lat": 43.611206,
+          "lon": 1.453616,
+          "feed": "sncf",
+          "pattern": "matabiau",
+          "matched_stops": 4,
+          "matched_names": [
+            "Toulouse Matabiau"
+          ]
+        }
+      },
+      {
+        "id": "matabiau-labege-la-cadene",
+        "label": "Gare Matabiau → Labège-La Cadène",
+        "mode": "transit",
+        "results": {
+          "actuel": {
+            "response_ms": 90,
+            "routing_errors": [],
+            "itineraries": [
+              {
+                "start": "2026-10-20T09:19:00+02:00",
+                "end": "2026-10-20T09:28:00+02:00",
+                "minutes": 9,
+                "transfers": 0,
+                "walk_meters": 0,
+                "legs": [
+                  {
+                    "mode": "RAIL",
+                    "line": "K3",
+                    "route": "sncf:FR:Line::E5FF5D61-7D3C-4DDA-9663-3C36510681CF:",
+                    "feed": "sncf",
+                    "from": "Toulouse Matabiau",
+                    "to": "Labège Innopole",
+                    "minutes": 9
+                  }
+                ],
+                "feeds": [
+                  "sncf"
+                ]
+              }
+            ]
+          },
+          "2028": {
+            "response_ms": 75,
+            "routing_errors": [],
+            "itineraries": [
+              {
+                "start": "2026-10-20T09:19:00+02:00",
+                "end": "2026-10-20T09:28:00+02:00",
+                "minutes": 9,
+                "transfers": 0,
+                "walk_meters": 0,
+                "legs": [
+                  {
+                    "mode": "RAIL",
+                    "line": "K3",
+                    "route": "sncf:FR:Line::E5FF5D61-7D3C-4DDA-9663-3C36510681CF:",
+                    "feed": "sncf",
+                    "from": "Toulouse Matabiau",
+                    "to": "Labège Innopole",
+                    "minutes": 9
+                  }
+                ],
+                "feeds": [
+                  "sncf"
+                ]
+              }
+            ]
+          }
+        },
+        "from": {
+          "lat": 43.611206,
+          "lon": 1.453616,
+          "feed": "sncf",
+          "pattern": "matabiau",
+          "matched_stops": 4,
+          "matched_names": [
+            "Toulouse Matabiau"
+          ]
+        },
+        "to": {
+          "lat": 43.547467,
+          "lon": 1.512964,
+          "feed": "sncf",
+          "pattern": "labege innopole",
+          "matched_stops": 3,
+          "matched_names": [
+            "Labège Innopole"
           ]
         }
       },
@@ -1321,7 +1638,7 @@
         "mode": "walk",
         "results": {
           "actuel": {
-            "response_ms": 18,
+            "response_ms": 13,
             "routing_errors": [],
             "itineraries": [
               {
@@ -1373,7 +1690,7 @@
         "mode": "bicycle",
         "results": {
           "actuel": {
-            "response_ms": 132,
+            "response_ms": 101,
             "routing_errors": [],
             "itineraries": [
               {
@@ -1421,7 +1738,15 @@
       }
     ],
     "failures": [],
-    "warnings": [],
+    "warnings": [
+      "scénario actuel : le flux futur est absent du graphe (toléré : les deux scénarios sont alors identiques)",
+      "capitole-aeroport / 2028 : contrôle ignoré, le flux futur est absent du graphe",
+      "capitole-aeroport / 2028 : le trajet le plus rapide n'emprunte pas la ligne Aéroport (futur)",
+      "colomiers-labege / 2028 : le trajet le plus rapide n'emprunte pas la ligne C (futur)",
+      "colomiers-diagora / 2028 : le trajet le plus rapide n'emprunte pas la ligne C (futur)",
+      "launaguet-matabiau / 2028 : contrôle ignoré, le flux futur est absent du graphe",
+      "matabiau-labege-la-cadene / 2028 : contrôle ignoré, le flux futur est absent du graphe"
+    ],
     "success": true
   }
 }

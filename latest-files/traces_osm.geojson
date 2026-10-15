@@ -1325,6 +1325,30 @@
      ]
     ]
    }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ligne": "AEROPORT",
+    "de_ordre": 1,
+    "a_ordre": 2,
+    "de": "Blagnac",
+    "a": "Aéroport",
+    "methode": "droit"
+   },
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      1.3956202,
+      43.6216143
+     ],
+     [
+      1.3752176,
+      43.6316246
+     ]
+    ]
+   }
   }
  ]
 }
