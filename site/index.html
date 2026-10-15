@@ -9,7 +9,7 @@
 <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' data: blob:; font-src 'self'; connect-src 'self' https://*.duckdns.org https://data.geopf.fr https://tiles.openfreemap.org; worker-src 'self' blob:; child-src 'self' blob:; manifest-src 'self'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <title>Toulouse Demain — itinéraires aujourd'hui et en 2028</title>
-<meta name="description" content="Calculez un trajet en transports en commun, à pied ou à vélo dans l'agglomération toulousaine, sur le réseau d'aujourd'hui ou sur le réseau 2028 avec la ligne C du métro, la ligne B prolongée et le tram de la Ligne Aéroport.">
+<meta name="description" content="Calculez un trajet en transports en commun, à pied ou à vélo dans l'agglomération toulousaine, sur le réseau d'aujourd'hui ou sur le réseau 2028 avec la ligne C du métro, la ligne B prolongée, le tram de la Ligne Aéroport et deux haltes TER prévisionnelles.">
 <meta name="theme-color" content="#D8E3F0">
 <link rel="icon" href="icon.svg" type="image/svg+xml">
 <link rel="preload" href="fonts/schibsted-grotesk-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
@@ -43,7 +43,7 @@
       </div>
       <div class="projection" id="projection" role="note" hidden>
         <svg class="projection-icon" width="28" height="12" viewBox="0 0 28 12" aria-hidden="true" focusable="false"><path d="M2 6H10"/><path d="M14 6H26"/><circle cx="12" cy="6" r="3"/></svg>
-        <p><strong>Projection 2028</strong> : la ligne C, la ligne B prolongée et la Ligne Aéroport (tram) sont ajoutées au réseau d'aujourd'hui, la navette Aéroport est retirée. Durées indicatives.
+        <p><strong>Projection 2028</strong> : la ligne C, la ligne B prolongée, la Ligne Aéroport (tram) et deux haltes TER prévisionnelles sont ajoutées au réseau d'aujourd'hui, la navette Aéroport est retirée. Durées indicatives.
           <a href="#hypotheses" data-open-hypotheses>Hypothèses et sources</a></p>
       </div>
       <p class="demo-banner" id="demo-banner" role="status" hidden></p>
@@ -171,7 +171,7 @@
     </button>
   </div>
   <div class="hyp-body">
-    <p class="lead">Le réseau 2028 est une <strong>projection</strong> : il ajoute au réseau d'aujourd'hui la ligne C du métro, la ligne B prolongée et le tram de la Ligne Aéroport, construits à partir des chiffres publics, et retire la navette Aéroport. Ce ne sont ni des horaires officiels ni une promesse. Les durées sont indicatives.</p>
+    <p class="lead">Le réseau 2028 est une <strong>projection</strong> : il ajoute au réseau d'aujourd'hui la ligne C du métro, la ligne B prolongée, le tram de la Ligne Aéroport et deux haltes TER prévisionnelles, construits à partir des chiffres publics, et retire la navette Aéroport. Ce ne sont ni des horaires officiels ni une promesse. Les durées sont indicatives.</p>
 
     <section aria-labelledby="hyp-lines">
       <h3 id="hyp-lines">Ce qui est ajouté</h3>
@@ -185,6 +185,9 @@
         <li><span class="hyp-badge aero" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M6 1.5h4M8 1.5V4"/><path d="M4.5 12V6a2 2 0 0 1 2-2h3a2 2 0 0 1 2 2v6Z"/><path d="M4.5 8h7"/><path d="M6 12l-1.5 2.5M10 12l1.5 2.5"/></svg></span>
           <div><strong>Tram Ligne Aéroport, Blagnac ↔ Aéroport</strong>
           2,5 km de l'ancienne branche du tram T2, de la station Blagnac (pôle Jean Maga, correspondance avec la ligne C et le T1) jusqu'à l'aérogare [S9][S11][S12]. Ouverture visée début 2027 [S11]. Les anciens arrêts Nadot et Daurat ne sont pas simulés : on ne sait pas encore s'ils seront desservis.</div></li>
+        <li><span class="hyp-badge ter" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M4 11V5l2-3h4l2 3v6a1.5 1.5 0 0 1-1.5 1.5h-5A1.5 1.5 0 0 1 4 11Z"/><path d="M4 6.5h8"/><path d="M6 9.5h.01M10 9.5h.01"/><path d="M6 12.5l-1.5 2M10 12.5l1.5 2"/></svg></span>
+          <div><strong>Haltes TER prévisionnelles</strong>
+          Route de Launaguet, entre Lalande-Église et Matabiau, à deux pas du métro La Vache : réouverture annoncée à l'automne 2026 [S17][S18][S19]. Labège-La Cadène, entre Labège-Innopole et Labège-Village, au terminus de la ligne C : fin 2028, 42 trains par jour attendus [S20][S21]. Si une halte est déjà dans les horaires SNCF, elle n'est pas ajoutée une deuxième fois.</div></li>
       </ul>
     </section>
 
@@ -194,7 +197,7 @@
         <li>Les nouvelles lignes roulent sur le <strong>calendrier d'aujourd'hui</strong> : « et si la ligne C existait déjà ? ».</li>
         <li>Les <strong>bus restent ceux d'aujourd'hui</strong> : le futur réseau de bus n'est pas connu. Seule exception : la <strong>navette Aéroport</strong> est retirée, puisque la Ligne Aéroport la remplace. C'est un choix du projet, pas une annonce de Tisséo.</li>
         <li>Les chiffres officiels sont repris tels quels ; quand il en manque, c'est une <strong>hypothèse</strong>, signalée ci-dessous.</li>
-        <li>Quand la ligne B prolongée et la Ligne Aéroport ouvriront vraiment, elles passeront dans le réseau « Aujourd'hui ».</li>
+        <li>Quand la ligne B prolongée, la Ligne Aéroport et les haltes TER ouvriront vraiment, elles passeront dans le réseau « Aujourd'hui ».</li>
       </ol>
     </section>
 
@@ -218,6 +221,8 @@
         <div><dt>Premier et dernier métro de la ligne C</dt><dd>ceux de la ligne B actuelle, lus dans les horaires Tisséo</dd></div>
         <div><dt>Correspondance C ↔ B à Labège Madron</dt><dd>2 min <span class="tag hyp">hypothèse</span></dd></div>
         <div><dt>Correspondance C ↔ Ligne Aéroport à Blagnac</dt><dd>2 min <span class="tag hyp">hypothèse</span> ; Tisséo annonce 22 min de Matabiau à l'aéroport avec la ligne C [S9][S11]</dd></div>
+        <div><dt>Trains qui s'arrêtent aux haltes TER</dt><dd>ceux qui s'arrêtent déjà aux deux gares voisines, dans les horaires SNCF d'aujourd'hui <span class="tag hyp">hypothèse</span></dd></div>
+        <div><dt>Arrêt d'un TER en halte</dt><dd>1 min, la suite du trajet est décalée d'autant <span class="tag hyp">hypothèse</span></dd></div>
         <div><dt>Navette Aéroport en 2028</dt><dd>retirée, remplacée par la Ligne Aéroport <span class="tag hyp">choix du projet</span> ; aujourd'hui, un départ toutes les 15 min [S13]</dd></div>
         <div><dt>Position des stations</dt><dd>OpenStreetMap, avec des contrôles automatiques : une station douteuse est écartée, jamais devinée</dd></div>
       </dl>
@@ -248,6 +253,11 @@
         <li>[S14] Tisséo, le même dépliant en anglais — <a href="https://www.toulouse.aeroport.fr/sites/default/files/2024-09/Tisseo_solutions-arret-T2_ANG_V2_depliant.pdf">PDF</a></li>
         <li>[S15] Wikipédia, « Ligne Aéroport du tramway de Toulouse » — <a href="https://fr.wikipedia.org/wiki/Ligne_A%C3%A9roport_Express_du_tramway_de_Toulouse">page</a></li>
         <li>[S16] Wikipedia, « Toulouse tramway » — <a href="https://en.wikipedia.org/wiki/Toulouse_tramway">page</a></li>
+        <li>[S17] toulouseimmo9, « Halte Route de Launaguet : réouverture en 2026 », 16/09/2026 — <a href="https://www.toulouseimmo9.com/actualites/transports/halte-route-de-launaguet-toulouse-reouverture-2026">page</a></li>
+        <li>[S18] Wikipédia, « Gare de Route-de-Launaguet » — <a href="https://fr.wikipedia.org/wiki/Gare_de_Route-de-Launaguet">page</a></li>
+        <li>[S19] SNCF Gares &amp; Connexions, fiche « Route de Launaguet » — <a href="https://www.garesetconnexions.sncf/en/stations-services/route-launaguet/pratical-info">page</a></li>
+        <li>[S20] SNCF Gares &amp; Connexions, compte rendu de la réunion publique du 16/12/2024 (halte de Labège-La Cadène) — <a href="https://www.garesetconnexions.sncf/sites/default/files/2025-01/SNCF-G-Co_Labege__CR--reunion-publique-du-16122024_V1.pdf">PDF</a></li>
+        <li>[S21] Wikipédia, « Gare de Labège-La Cadène » — <a href="https://fr.wikipedia.org/wiki/Gare_de_Lab%C3%A8ge-La_Cad%C3%A8ne">page</a></li>
       </ol>
     </section>
 
