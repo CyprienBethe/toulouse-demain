@@ -565,7 +565,7 @@ EOF
   info ""
   info "Ligne à mettre dans site/config.js :"
   info ""
-  info "    export const API_BASE_URL = \"https://$domain\";"
+  info "    export const API_BASE = 'https://$domain';"
   info ""
   info "Vérification depuis ton ordinateur (Terminal sur macOS ou Linux) :"
   info "    curl -s https://$domain/otp/gtfs/v1 -H 'Content-Type: application/json' -d '{\"query\":\"{ feeds { feedId } }\"}'"

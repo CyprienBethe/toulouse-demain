@@ -62,6 +62,22 @@ class SourcingTest(unittest.TestCase):
         self.assertIn('ask_secret "    Jeton DuckDNS', text)
 
 
+class SiteConfigLineTest(unittest.TestCase):
+    def test_printed_line_matches_site_config(self):
+        """The line bootstrap.sh tells Cyprien to paste must declare the same
+        constant as site/config.js, or the site breaks once it is pasted."""
+        import re
+
+        config = (ROOT / "site" / "config.js").read_text(encoding="utf-8")
+        declared = re.search(r"^export const (\w+) = 'https://SOUS-DOMAINE\.duckdns\.org';$", config, re.M)
+        self.assertIsNotNone(declared, "server address line not found in site/config.js")
+        printed = re.search(r"export const (\w+) = '(https://\$domain)';", BOOTSTRAP.read_text(encoding="utf-8"))
+        self.assertIsNotNone(printed, "config.js line not found in bootstrap.sh")
+        self.assertEqual(printed.group(1), declared.group(1))
+        guide = (ROOT / "docs" / "guide-serveur-oracle.md").read_text(encoding="utf-8")
+        self.assertIn(f"export const {declared.group(1)} = 'https://SOUS-DOMAINE.duckdns.org';", guide)
+
+
 class EnvFileTest(unittest.TestCase):
     def test_set_env_value_replaces_appends_and_keeps_mode(self):
         with tempfile.TemporaryDirectory() as tmp:

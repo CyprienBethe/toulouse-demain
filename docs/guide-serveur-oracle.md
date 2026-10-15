@@ -287,10 +287,10 @@ Deux contrôles de plus, dans ton navigateur :
 Le script l'affiche à la fin de l'étape 6, avec ton sous-domaine. Elle a cette forme :
 
 ```js
-export const API_BASE_URL = "https://SOUS-DOMAINE.duckdns.org";
+export const API_BASE = 'https://SOUS-DOMAINE.duckdns.org';
 ```
 
-Sans barre finale : le site y ajoute lui-même `/otp/gtfs/v1` et `/meta/…`. Tu peux simplement donner le **sous-domaine** au chef de projet (ce n'est pas un secret), qui fera la modification. Pour la faire toi-même : sur GitHub, ouvre `site/config.js`, clique le crayon (**Edit**), remplace la ligne qui définit `API_BASE_URL`, puis **Commit changes**. Le fichier `site/` est écrit par le développeur front-end : si la ligne n'a pas exactement ce nom, demande-lui.
+Sans barre finale : le site y ajoute lui-même `/otp/gtfs/v1` et `/meta/…`. Tu peux simplement donner le **sous-domaine** au chef de projet (ce n'est pas un secret), qui fera la modification. Pour la faire toi-même : sur GitHub, ouvre `site/config.js`, clique le crayon (**Edit**), remplace la ligne qui définit `API_BASE`, puis **Commit changes**.
 
 ### 8.2 Activer GitHub Pages
 
