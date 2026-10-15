@@ -1,0 +1,1340 @@
+{
+  "_synthetic": "SYNTHETIC test fixture (site/tests/fixtures/make-fixtures.mjs): made-up data, not an OTP answer, never published.",
+  "recorded_at": "2026-10-19T06:10:00Z",
+  "requests": [
+    {
+      "id": "synth-colomiers-labege-actuel",
+      "label": "Gare de Colomiers → Diagora, Labège",
+      "scenario": "actuel",
+      "variables": {
+        "origin": {
+          "location": {
+            "coordinate": {
+              "latitude": 43.6118,
+              "longitude": 1.3366
+            }
+          },
+          "label": "Gare de Colomiers"
+        },
+        "destination": {
+          "location": {
+            "coordinate": {
+              "latitude": 43.5462,
+              "longitude": 1.5128
+            }
+          },
+          "label": "Diagora, Labège"
+        },
+        "dateTime": {
+          "earliestDeparture": "2026-10-20T08:30:00+02:00"
+        },
+        "modes": {
+          "direct": [
+            "WALK"
+          ],
+          "transit": {
+            "access": [
+              "WALK"
+            ],
+            "egress": [
+              "WALK"
+            ],
+            "transfer": [
+              "WALK"
+            ],
+            "transit": [
+              {
+                "mode": "BUS"
+              },
+              {
+                "mode": "TRAM"
+              },
+              {
+                "mode": "SUBWAY"
+              },
+              {
+                "mode": "RAIL"
+              },
+              {
+                "mode": "GONDOLA"
+              }
+            ]
+          }
+        },
+        "preferences": {
+          "transit": {
+            "filters": [
+              {
+                "exclude": [
+                  {
+                    "agencies": [
+                      "futur:SYNTH_FUT"
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      },
+      "response": {
+        "_synthetic": "SYNTHETIC test fixture (site/tests/fixtures/make-fixtures.mjs): made-up data, not an OTP answer, never published.",
+        "data": {
+          "planConnection": {
+            "searchDateTime": "2026-10-20T08:30:00+02:00",
+            "routingErrors": [],
+            "edges": [
+              {
+                "cursor": "c0",
+                "node": {
+                  "start": "2026-10-20T08:43:00+02:00",
+                  "end": "2026-10-20T09:28:00+02:00",
+                  "duration": 2700,
+                  "numberOfTransfers": 1,
+                  "walkDistance": 770,
+                  "walkTime": 660,
+                  "legs": [
+                    {
+                      "mode": "RAIL",
+                      "transitLeg": true,
+                      "duration": 1020,
+                      "distance": 1000,
+                      "headsign": "Toulouse-Matabiau",
+                      "start": {
+                        "scheduledTime": "2026-10-20T08:43:00+02:00"
+                      },
+                      "end": {
+                        "scheduledTime": "2026-10-20T09:00:00+02:00"
+                      },
+                      "from": {
+                        "name": "Gare de Colomiers",
+                        "lat": 43.6118,
+                        "lon": 1.3366
+                      },
+                      "to": {
+                        "name": "Toulouse-Matabiau",
+                        "lat": 43.611,
+                        "lon": 1.4537
+                      },
+                      "agency": {
+                        "gtfsId": "sncf:SYNTH_SNCF",
+                        "name": "SNCF (synthétique)"
+                      },
+                      "route": {
+                        "gtfsId": "sncf:SYNTH_TER_1",
+                        "shortName": "TER",
+                        "longName": "Colomiers - Toulouse",
+                        "color": "3F4A5A",
+                        "textColor": "FFFFFF",
+                        "mode": "RAIL"
+                      },
+                      "intermediatePlaces": [
+                        {
+                          "name": "Toulouse-Arènes",
+                          "arrival": {
+                            "scheduledTime": "2026-10-20T08:52:00+02:00"
+                          }
+                        }
+                      ],
+                      "legGeometry": {
+                        "points": "_ydiG_xcGfnBsgO_mB_{E"
+                      }
+                    },
+                    {
+                      "mode": "WALK",
+                      "transitLeg": false,
+                      "duration": 120,
+                      "distance": 120,
+                      "headsign": null,
+                      "start": {
+                        "scheduledTime": "2026-10-20T09:00:00+02:00"
+                      },
+                      "end": {
+                        "scheduledTime": "2026-10-20T09:02:00+02:00"
+                      },
+                      "from": {
+                        "name": "Toulouse-Matabiau",
+                        "lat": 43.611,
+                        "lon": 1.4537
+                      },
+                      "to": {
+                        "name": "Toulouse-Matabiau",
+                        "lat": 43.611,
+                        "lon": 1.4537
+                      },
+                      "agency": null,
+                      "route": null,
+                      "intermediatePlaces": [],
+                      "legGeometry": {
+                        "points": "wwdiGs|zG??"
+                      }
+                    },
+                    {
+                      "mode": "RAIL",
+                      "transitLeg": true,
+                      "duration": 660,
+                      "distance": 1000,
+                      "headsign": "Carcassonne",
+                      "start": {
+                        "scheduledTime": "2026-10-20T09:08:00+02:00"
+                      },
+                      "end": {
+                        "scheduledTime": "2026-10-20T09:19:00+02:00"
+                      },
+                      "from": {
+                        "name": "Toulouse-Matabiau",
+                        "lat": 43.611,
+                        "lon": 1.4537
+                      },
+                      "to": {
+                        "name": "Labège-Innopole",
+                        "lat": 43.55,
+                        "lon": 1.51
+                      },
+                      "agency": {
+                        "gtfsId": "sncf:SYNTH_SNCF",
+                        "name": "SNCF (synthétique)"
+                      },
+                      "route": {
+                        "gtfsId": "sncf:SYNTH_TER_2",
+                        "shortName": "TER",
+                        "longName": "Toulouse - Labège",
+                        "color": "3F4A5A",
+                        "textColor": "FFFFFF",
+                        "mode": "RAIL"
+                      },
+                      "intermediatePlaces": [
+                        {
+                          "name": "Montaudran",
+                          "arrival": {
+                            "scheduledTime": "2026-10-20T09:14:00+02:00"
+                          }
+                        }
+                      ],
+                      "legGeometry": {
+                        "points": "wwdiGs|zGffFkcD~tCozD"
+                      }
+                    },
+                    {
+                      "mode": "WALK",
+                      "transitLeg": false,
+                      "duration": 540,
+                      "distance": 650,
+                      "headsign": null,
+                      "start": {
+                        "scheduledTime": "2026-10-20T09:19:00+02:00"
+                      },
+                      "end": {
+                        "scheduledTime": "2026-10-20T09:28:00+02:00"
+                      },
+                      "from": {
+                        "name": "Labège-Innopole",
+                        "lat": 43.55,
+                        "lon": 1.51
+                      },
+                      "to": {
+                        "name": "Diagora, Labège",
+                        "lat": 43.5462,
+                        "lon": 1.5128
+                      },
+                      "agency": null,
+                      "route": null,
+                      "intermediatePlaces": [],
+                      "legGeometry": {
+                        "points": "ozxhGo|eHvVoP"
+                      }
+                    }
+                  ]
+                }
+              },
+              {
+                "cursor": "c1",
+                "node": {
+                  "start": "2026-10-20T08:36:00+02:00",
+                  "end": "2026-10-20T09:45:00+02:00",
+                  "duration": 4140,
+                  "numberOfTransfers": 3,
+                  "walkDistance": 580,
+                  "walkTime": 540,
+                  "legs": [
+                    {
+                      "mode": "RAIL",
+                      "transitLeg": true,
+                      "duration": 840,
+                      "distance": 1000,
+                      "headsign": "Toulouse-Matabiau",
+                      "start": {
+                        "scheduledTime": "2026-10-20T08:36:00+02:00"
+                      },
+                      "end": {
+                        "scheduledTime": "2026-10-20T08:50:00+02:00"
+                      },
+                      "from": {
+                        "name": "Gare de Colomiers",
+                        "lat": 43.6118,
+                        "lon": 1.3366
+                      },
+                      "to": {
+                        "name": "Toulouse-Arènes",
+                        "lat": 43.5934,
+                        "lon": 1.4185
+                      },
+                      "agency": {
+                        "gtfsId": "sncf:SYNTH_SNCF",
+                        "name": "SNCF (synthétique)"
+                      },
+                      "route": {
+                        "gtfsId": "sncf:SYNTH_TER_1",
+                        "shortName": "TER",
+                        "longName": "Colomiers - Toulouse",
+                        "color": "3F4A5A",
+                        "textColor": "FFFFFF",
+                        "mode": "RAIL"
+                      },
+                      "intermediatePlaces": [],
+                      "legGeometry": {
+                        "points": "_ydiG_xcGfnBsgO"
+                      }
+                    },
+                    {
+                      "mode": "WALK",
+                      "transitLeg": false,
+                      "duration": 120,
+                      "distance": 150,
+                      "headsign": null,
+                      "start": {
+                        "scheduledTime": "2026-10-20T08:50:00+02:00"
+                      },
+                      "end": {
+                        "scheduledTime": "2026-10-20T08:52:00+02:00"
+                      },
+                      "from": {
+                        "name": "Toulouse-Arènes",
+                        "lat": 43.5934,
+                        "lon": 1.4185
+                      },
+                      "to": {
+                        "name": "Toulouse-Arènes",
+                        "lat": 43.5934,
+                        "lon": 1.4185
+                      },
+                      "agency": null,
+                      "route": null,
+                      "intermediatePlaces": [],
+                      "legGeometry": {
+                        "points": "wiaiGs`tG??"
+                      }
+                    },
+                    {
+                      "mode": "SUBWAY",
+                      "transitLeg": true,
+                      "duration": 360,
+                      "distance": 1000,
+                      "headsign": "Balma-Gramont",
+                      "start": {
+                        "scheduledTime": "2026-10-20T08:55:00+02:00"
+                      },
+                      "end": {
+                        "scheduledTime": "2026-10-20T09:01:00+02:00"
+                      },
+                      "from": {
+                        "name": "Toulouse-Arènes",
+                        "lat": 43.5934,
+                        "lon": 1.4185
+                      },
+                      "to": {
+                        "name": "Jean Jaurès",
+                        "lat": 43.606,
+                        "lon": 1.449
+                      },
+                      "agency": {
+                        "gtfsId": "tisseo:SYNTH_TISSEO",
+                        "name": "Tisséo (synthétique)"
+                      },
+                      "route": {
+                        "gtfsId": "tisseo:SYNTH_A",
+                        "shortName": "A",
+                        "longName": "Métro A",
+                        "color": "C53030",
+                        "textColor": "FFFFFF",
+                        "mode": "SUBWAY"
+                      },
+                      "intermediatePlaces": [
+                        {
+                          "name": "Esquirol",
+                          "arrival": {
+                            "scheduledTime": "2026-10-20T08:58:00+02:00"
+                          }
+                        }
+                      ],
+                      "legGeometry": {
+                        "points": "wiaiGs`tGwmAs}D"
+                      }
+                    },
+                    {
+                      "mode": "WALK",
+                      "transitLeg": false,
+                      "duration": 60,
+                      "distance": 80,
+                      "headsign": null,
+                      "start": {
+                        "scheduledTime": "2026-10-20T09:01:00+02:00"
+                      },
+                      "end": {
+                        "scheduledTime": "2026-10-20T09:02:00+02:00"
+                      },
+                      "from": {
+                        "name": "Jean Jaurès",
+                        "lat": 43.606,
+                        "lon": 1.449
+                      },
+                      "to": {
+                        "name": "Jean Jaurès",
+                        "lat": 43.606,
+                        "lon": 1.449
+                      },
+                      "agency": null,
+                      "route": null,
+                      "intermediatePlaces": [],
+                      "legGeometry": {
+                        "points": "oxciGg_zG??"
+                      }
+                    },
+                    {
+                      "mode": "SUBWAY",
+                      "transitLeg": true,
+                      "duration": 960,
+                      "distance": 1000,
+                      "headsign": "Ramonville",
+                      "start": {
+                        "scheduledTime": "2026-10-20T09:04:00+02:00"
+                      },
+                      "end": {
+                        "scheduledTime": "2026-10-20T09:20:00+02:00"
+                      },
+                      "from": {
+                        "name": "Jean Jaurès",
+                        "lat": 43.606,
+                        "lon": 1.449
+                      },
+                      "to": {
+                        "name": "Ramonville",
+                        "lat": 43.556,
+                        "lon": 1.476
+                      },
+                      "agency": {
+                        "gtfsId": "tisseo:SYNTH_TISSEO",
+                        "name": "Tisséo (synthétique)"
+                      },
+                      "route": {
+                        "gtfsId": "tisseo:SYNTH_B",
+                        "shortName": "B",
+                        "longName": "Métro B",
+                        "color": "F2C230",
+                        "textColor": "000000",
+                        "mode": "SUBWAY"
+                      },
+                      "intermediatePlaces": [
+                        {
+                          "name": "François Verdier",
+                          "arrival": {
+                            "scheduledTime": "2026-10-20T09:06:00+02:00"
+                          }
+                        },
+                        {
+                          "name": "Saint-Agne",
+                          "arrival": {
+                            "scheduledTime": "2026-10-20T09:12:00+02:00"
+                          }
+                        }
+                      ],
+                      "legGeometry": {
+                        "points": "oxciGg_zGnd@we@~qG_aC"
+                      }
+                    },
+                    {
+                      "mode": "WALK",
+                      "transitLeg": false,
+                      "duration": 120,
+                      "distance": 100,
+                      "headsign": null,
+                      "start": {
+                        "scheduledTime": "2026-10-20T09:20:00+02:00"
+                      },
+                      "end": {
+                        "scheduledTime": "2026-10-20T09:22:00+02:00"
+                      },
+                      "from": {
+                        "name": "Ramonville",
+                        "lat": 43.556,
+                        "lon": 1.476
+                      },
+                      "to": {
+                        "name": "Ramonville",
+                        "lat": 43.556,
+                        "lon": 1.476
+                      },
+                      "agency": null,
+                      "route": null,
+                      "intermediatePlaces": [],
+                      "legGeometry": {
+                        "points": "_`zhG_h_H??"
+                      }
+                    },
+                    {
+                      "mode": "BUS",
+                      "transitLeg": true,
+                      "duration": 900,
+                      "distance": 1000,
+                      "headsign": "Labège",
+                      "start": {
+                        "scheduledTime": "2026-10-20T09:26:00+02:00"
+                      },
+                      "end": {
+                        "scheduledTime": "2026-10-20T09:41:00+02:00"
+                      },
+                      "from": {
+                        "name": "Ramonville",
+                        "lat": 43.556,
+                        "lon": 1.476
+                      },
+                      "to": {
+                        "name": "Diagora",
+                        "lat": 43.547,
+                        "lon": 1.5115
+                      },
+                      "agency": {
+                        "gtfsId": "tisseo:SYNTH_TISSEO",
+                        "name": "Tisséo (synthétique)"
+                      },
+                      "route": {
+                        "gtfsId": "tisseo:SYNTH_79",
+                        "shortName": "79",
+                        "longName": "Ramonville - Labège",
+                        "color": "FFFFFF",
+                        "textColor": "000000",
+                        "mode": "BUS"
+                      },
+                      "intermediatePlaces": [
+                        {
+                          "name": "Parc du Canal",
+                          "arrival": {
+                            "scheduledTime": "2026-10-20T09:31:00+02:00"
+                          }
+                        }
+                      ],
+                      "legGeometry": {
+                        "points": "_`zhG_h_Hfw@{|E"
+                      }
+                    },
+                    {
+                      "mode": "WALK",
+                      "transitLeg": false,
+                      "duration": 240,
+                      "distance": 250,
+                      "headsign": null,
+                      "start": {
+                        "scheduledTime": "2026-10-20T09:41:00+02:00"
+                      },
+                      "end": {
+                        "scheduledTime": "2026-10-20T09:45:00+02:00"
+                      },
+                      "from": {
+                        "name": "Diagora",
+                        "lat": 43.547,
+                        "lon": 1.5115
+                      },
+                      "to": {
+                        "name": "Diagora, Labège",
+                        "lat": 43.5462,
+                        "lon": 1.5128
+                      },
+                      "agency": null,
+                      "route": null,
+                      "intermediatePlaces": [],
+                      "legGeometry": {
+                        "points": "wgxhG{efH~CcG"
+                      }
+                    }
+                  ]
+                }
+              },
+              {
+                "cursor": "c2",
+                "node": {
+                  "start": "2026-10-20T09:13:00+02:00",
+                  "end": "2026-10-20T09:58:00+02:00",
+                  "duration": 2700,
+                  "numberOfTransfers": 0,
+                  "walkDistance": 650,
+                  "walkTime": 480,
+                  "legs": [
+                    {
+                      "mode": "RAIL",
+                      "transitLeg": true,
+                      "duration": 2220,
+                      "distance": 1000,
+                      "headsign": "Carcassonne",
+                      "start": {
+                        "scheduledTime": "2026-10-20T09:13:00+02:00"
+                      },
+                      "end": {
+                        "scheduledTime": "2026-10-20T09:50:00+02:00"
+                      },
+                      "from": {
+                        "name": "Gare de Colomiers",
+                        "lat": 43.6118,
+                        "lon": 1.3366
+                      },
+                      "to": {
+                        "name": "Labège-Innopole",
+                        "lat": 43.55,
+                        "lon": 1.51
+                      },
+                      "agency": {
+                        "gtfsId": "sncf:SYNTH_SNCF",
+                        "name": "SNCF (synthétique)"
+                      },
+                      "route": {
+                        "gtfsId": "sncf:SYNTH_TER_1",
+                        "shortName": "TER",
+                        "longName": "Colomiers - Toulouse",
+                        "color": "3F4A5A",
+                        "textColor": "FFFFFF",
+                        "mode": "RAIL"
+                      },
+                      "intermediatePlaces": [
+                        {
+                          "name": "Toulouse-Arènes",
+                          "arrival": {
+                            "scheduledTime": "2026-10-20T09:22:00+02:00"
+                          }
+                        },
+                        {
+                          "name": "Toulouse-Matabiau",
+                          "arrival": {
+                            "scheduledTime": "2026-10-20T09:31:00+02:00"
+                          }
+                        }
+                      ],
+                      "legGeometry": {
+                        "points": "_ydiG_xcGfnBsgO_mB_{Ef|J{~I"
+                      }
+                    },
+                    {
+                      "mode": "WALK",
+                      "transitLeg": false,
+                      "duration": 480,
+                      "distance": 650,
+                      "headsign": null,
+                      "start": {
+                        "scheduledTime": "2026-10-20T09:50:00+02:00"
+                      },
+                      "end": {
+                        "scheduledTime": "2026-10-20T09:58:00+02:00"
+                      },
+                      "from": {
+                        "name": "Labège-Innopole",
+                        "lat": 43.55,
+                        "lon": 1.51
+                      },
+                      "to": {
+                        "name": "Diagora, Labège",
+                        "lat": 43.5462,
+                        "lon": 1.5128
+                      },
+                      "agency": null,
+                      "route": null,
+                      "intermediatePlaces": [],
+                      "legGeometry": {
+                        "points": "ozxhGo|eHvVoP"
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": "synth-colomiers-labege-2028",
+      "label": "Gare de Colomiers → Diagora, Labège",
+      "scenario": "2028",
+      "variables": {
+        "origin": {
+          "location": {
+            "coordinate": {
+              "latitude": 43.6118,
+              "longitude": 1.3366
+            }
+          },
+          "label": "Gare de Colomiers"
+        },
+        "destination": {
+          "location": {
+            "coordinate": {
+              "latitude": 43.5462,
+              "longitude": 1.5128
+            }
+          },
+          "label": "Diagora, Labège"
+        },
+        "dateTime": {
+          "earliestDeparture": "2026-10-20T08:30:00+02:00"
+        },
+        "modes": {
+          "direct": [
+            "WALK"
+          ],
+          "transit": {
+            "access": [
+              "WALK"
+            ],
+            "egress": [
+              "WALK"
+            ],
+            "transfer": [
+              "WALK"
+            ],
+            "transit": [
+              {
+                "mode": "BUS"
+              },
+              {
+                "mode": "TRAM"
+              },
+              {
+                "mode": "SUBWAY"
+              },
+              {
+                "mode": "RAIL"
+              },
+              {
+                "mode": "GONDOLA"
+              }
+            ]
+          }
+        },
+        "preferences": {
+          "transit": {
+            "filters": [
+              {
+                "exclude": [
+                  {
+                    "routes": [
+                      "tisseo:SYNTH_B"
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      },
+      "response": {
+        "_synthetic": "SYNTHETIC test fixture (site/tests/fixtures/make-fixtures.mjs): made-up data, not an OTP answer, never published.",
+        "data": {
+          "planConnection": {
+            "searchDateTime": "2026-10-20T08:30:00+02:00",
+            "routingErrors": [],
+            "edges": [
+              {
+                "cursor": "c0",
+                "node": {
+                  "start": "2026-10-20T08:31:00+02:00",
+                  "end": "2026-10-20T09:19:00+02:00",
+                  "duration": 2880,
+                  "numberOfTransfers": 0,
+                  "walkDistance": 620,
+                  "walkTime": 540,
+                  "legs": [
+                    {
+                      "mode": "WALK",
+                      "transitLeg": false,
+                      "duration": 180,
+                      "distance": 220,
+                      "headsign": null,
+                      "start": {
+                        "scheduledTime": "2026-10-20T08:31:00+02:00"
+                      },
+                      "end": {
+                        "scheduledTime": "2026-10-20T08:34:00+02:00"
+                      },
+                      "from": {
+                        "name": "Gare de Colomiers",
+                        "lat": 43.6118,
+                        "lon": 1.3366
+                      },
+                      "to": {
+                        "name": "Colomiers - Gare",
+                        "lat": 43.6112,
+                        "lon": 1.3352
+                      },
+                      "agency": null,
+                      "route": null,
+                      "intermediatePlaces": [],
+                      "legGeometry": {
+                        "points": "w|diGw`dGvBvG"
+                      }
+                    },
+                    {
+                      "mode": "SUBWAY",
+                      "transitLeg": true,
+                      "duration": 2340,
+                      "distance": 1000,
+                      "headsign": "Labège - Gare",
+                      "start": {
+                        "scheduledTime": "2026-10-20T08:34:00+02:00"
+                      },
+                      "end": {
+                        "scheduledTime": "2026-10-20T09:13:00+02:00"
+                      },
+                      "from": {
+                        "name": "Colomiers - Gare",
+                        "lat": 43.6112,
+                        "lon": 1.3352
+                      },
+                      "to": {
+                        "name": "Diagora",
+                        "lat": 43.547,
+                        "lon": 1.5115
+                      },
+                      "agency": {
+                        "gtfsId": "futur:SYNTH_FUT",
+                        "name": "Réseau 2028 (synthétique)"
+                      },
+                      "route": {
+                        "gtfsId": "futur:FUT_C",
+                        "shortName": "C",
+                        "longName": "Métro C",
+                        "color": "5BBF8A",
+                        "textColor": "000000",
+                        "mode": "SUBWAY"
+                      },
+                      "intermediatePlaces": [
+                        {
+                          "name": "Matabiau Gare",
+                          "arrival": {
+                            "scheduledTime": "2026-10-20T08:52:00+02:00"
+                          }
+                        },
+                        {
+                          "name": "François-Verdier",
+                          "arrival": {
+                            "scheduledTime": "2026-10-20T08:55:00+02:00"
+                          }
+                        },
+                        {
+                          "name": "Montaudran Gare - Piste des Géants",
+                          "arrival": {
+                            "scheduledTime": "2026-10-20T09:02:00+02:00"
+                          }
+                        }
+                      ],
+                      "legGeometry": {
+                        "points": "_ydiG_xcGotB_wGvuBskMvcAkHnaD_zCvgD{cE"
+                      }
+                    },
+                    {
+                      "mode": "WALK",
+                      "transitLeg": false,
+                      "duration": 360,
+                      "distance": 400,
+                      "headsign": null,
+                      "start": {
+                        "scheduledTime": "2026-10-20T09:13:00+02:00"
+                      },
+                      "end": {
+                        "scheduledTime": "2026-10-20T09:19:00+02:00"
+                      },
+                      "from": {
+                        "name": "Diagora",
+                        "lat": 43.547,
+                        "lon": 1.5115
+                      },
+                      "to": {
+                        "name": "Diagora, Labège",
+                        "lat": 43.5462,
+                        "lon": 1.5128
+                      },
+                      "agency": null,
+                      "route": null,
+                      "intermediatePlaces": [],
+                      "legGeometry": {
+                        "points": "wgxhG{efH~CcG"
+                      }
+                    }
+                  ]
+                }
+              },
+              {
+                "cursor": "c1",
+                "node": {
+                  "start": "2026-10-20T08:43:00+02:00",
+                  "end": "2026-10-20T09:28:00+02:00",
+                  "duration": 2700,
+                  "numberOfTransfers": 1,
+                  "walkDistance": 770,
+                  "walkTime": 660,
+                  "legs": [
+                    {
+                      "mode": "RAIL",
+                      "transitLeg": true,
+                      "duration": 1020,
+                      "distance": 1000,
+                      "headsign": "Toulouse-Matabiau",
+                      "start": {
+                        "scheduledTime": "2026-10-20T08:43:00+02:00"
+                      },
+                      "end": {
+                        "scheduledTime": "2026-10-20T09:00:00+02:00"
+                      },
+                      "from": {
+                        "name": "Gare de Colomiers",
+                        "lat": 43.6118,
+                        "lon": 1.3366
+                      },
+                      "to": {
+                        "name": "Toulouse-Matabiau",
+                        "lat": 43.611,
+                        "lon": 1.4537
+                      },
+                      "agency": {
+                        "gtfsId": "sncf:SYNTH_SNCF",
+                        "name": "SNCF (synthétique)"
+                      },
+                      "route": {
+                        "gtfsId": "sncf:SYNTH_TER_1",
+                        "shortName": "TER",
+                        "longName": "Colomiers - Toulouse",
+                        "color": "3F4A5A",
+                        "textColor": "FFFFFF",
+                        "mode": "RAIL"
+                      },
+                      "intermediatePlaces": [
+                        {
+                          "name": "Toulouse-Arènes",
+                          "arrival": {
+                            "scheduledTime": "2026-10-20T08:52:00+02:00"
+                          }
+                        }
+                      ],
+                      "legGeometry": {
+                        "points": "_ydiG_xcGfnBsgO_mB_{E"
+                      }
+                    },
+                    {
+                      "mode": "WALK",
+                      "transitLeg": false,
+                      "duration": 120,
+                      "distance": 120,
+                      "headsign": null,
+                      "start": {
+                        "scheduledTime": "2026-10-20T09:00:00+02:00"
+                      },
+                      "end": {
+                        "scheduledTime": "2026-10-20T09:02:00+02:00"
+                      },
+                      "from": {
+                        "name": "Toulouse-Matabiau",
+                        "lat": 43.611,
+                        "lon": 1.4537
+                      },
+                      "to": {
+                        "name": "Toulouse-Matabiau",
+                        "lat": 43.611,
+                        "lon": 1.4537
+                      },
+                      "agency": null,
+                      "route": null,
+                      "intermediatePlaces": [],
+                      "legGeometry": {
+                        "points": "wwdiGs|zG??"
+                      }
+                    },
+                    {
+                      "mode": "RAIL",
+                      "transitLeg": true,
+                      "duration": 660,
+                      "distance": 1000,
+                      "headsign": "Carcassonne",
+                      "start": {
+                        "scheduledTime": "2026-10-20T09:08:00+02:00"
+                      },
+                      "end": {
+                        "scheduledTime": "2026-10-20T09:19:00+02:00"
+                      },
+                      "from": {
+                        "name": "Toulouse-Matabiau",
+                        "lat": 43.611,
+                        "lon": 1.4537
+                      },
+                      "to": {
+                        "name": "Labège-Innopole",
+                        "lat": 43.55,
+                        "lon": 1.51
+                      },
+                      "agency": {
+                        "gtfsId": "sncf:SYNTH_SNCF",
+                        "name": "SNCF (synthétique)"
+                      },
+                      "route": {
+                        "gtfsId": "sncf:SYNTH_TER_2",
+                        "shortName": "TER",
+                        "longName": "Toulouse - Labège",
+                        "color": "3F4A5A",
+                        "textColor": "FFFFFF",
+                        "mode": "RAIL"
+                      },
+                      "intermediatePlaces": [
+                        {
+                          "name": "Montaudran",
+                          "arrival": {
+                            "scheduledTime": "2026-10-20T09:14:00+02:00"
+                          }
+                        }
+                      ],
+                      "legGeometry": {
+                        "points": "wwdiGs|zGffFkcD~tCozD"
+                      }
+                    },
+                    {
+                      "mode": "WALK",
+                      "transitLeg": false,
+                      "duration": 540,
+                      "distance": 650,
+                      "headsign": null,
+                      "start": {
+                        "scheduledTime": "2026-10-20T09:19:00+02:00"
+                      },
+                      "end": {
+                        "scheduledTime": "2026-10-20T09:28:00+02:00"
+                      },
+                      "from": {
+                        "name": "Labège-Innopole",
+                        "lat": 43.55,
+                        "lon": 1.51
+                      },
+                      "to": {
+                        "name": "Diagora, Labège",
+                        "lat": 43.5462,
+                        "lon": 1.5128
+                      },
+                      "agency": null,
+                      "route": null,
+                      "intermediatePlaces": [],
+                      "legGeometry": {
+                        "points": "ozxhGo|eHvVoP"
+                      }
+                    }
+                  ]
+                }
+              },
+              {
+                "cursor": "c2",
+                "node": {
+                  "start": "2026-10-20T08:36:00+02:00",
+                  "end": "2026-10-20T09:35:00+02:00",
+                  "duration": 3540,
+                  "numberOfTransfers": 2,
+                  "walkDistance": 930,
+                  "walkTime": 720,
+                  "legs": [
+                    {
+                      "mode": "RAIL",
+                      "transitLeg": true,
+                      "duration": 840,
+                      "distance": 1000,
+                      "headsign": "Toulouse-Matabiau",
+                      "start": {
+                        "scheduledTime": "2026-10-20T08:36:00+02:00"
+                      },
+                      "end": {
+                        "scheduledTime": "2026-10-20T08:50:00+02:00"
+                      },
+                      "from": {
+                        "name": "Gare de Colomiers",
+                        "lat": 43.6118,
+                        "lon": 1.3366
+                      },
+                      "to": {
+                        "name": "Toulouse-Arènes",
+                        "lat": 43.5934,
+                        "lon": 1.4185
+                      },
+                      "agency": {
+                        "gtfsId": "sncf:SYNTH_SNCF",
+                        "name": "SNCF (synthétique)"
+                      },
+                      "route": {
+                        "gtfsId": "sncf:SYNTH_TER_1",
+                        "shortName": "TER",
+                        "longName": "Colomiers - Toulouse",
+                        "color": "3F4A5A",
+                        "textColor": "FFFFFF",
+                        "mode": "RAIL"
+                      },
+                      "intermediatePlaces": [],
+                      "legGeometry": {
+                        "points": "_ydiG_xcGfnBsgO"
+                      }
+                    },
+                    {
+                      "mode": "WALK",
+                      "transitLeg": false,
+                      "duration": 120,
+                      "distance": 150,
+                      "headsign": null,
+                      "start": {
+                        "scheduledTime": "2026-10-20T08:50:00+02:00"
+                      },
+                      "end": {
+                        "scheduledTime": "2026-10-20T08:52:00+02:00"
+                      },
+                      "from": {
+                        "name": "Toulouse-Arènes",
+                        "lat": 43.5934,
+                        "lon": 1.4185
+                      },
+                      "to": {
+                        "name": "Toulouse-Arènes",
+                        "lat": 43.5934,
+                        "lon": 1.4185
+                      },
+                      "agency": null,
+                      "route": null,
+                      "intermediatePlaces": [],
+                      "legGeometry": {
+                        "points": "wiaiGs`tG??"
+                      }
+                    },
+                    {
+                      "mode": "SUBWAY",
+                      "transitLeg": true,
+                      "duration": 360,
+                      "distance": 1000,
+                      "headsign": "Balma-Gramont",
+                      "start": {
+                        "scheduledTime": "2026-10-20T08:55:00+02:00"
+                      },
+                      "end": {
+                        "scheduledTime": "2026-10-20T09:01:00+02:00"
+                      },
+                      "from": {
+                        "name": "Toulouse-Arènes",
+                        "lat": 43.5934,
+                        "lon": 1.4185
+                      },
+                      "to": {
+                        "name": "Jean Jaurès",
+                        "lat": 43.606,
+                        "lon": 1.449
+                      },
+                      "agency": {
+                        "gtfsId": "tisseo:SYNTH_TISSEO",
+                        "name": "Tisséo (synthétique)"
+                      },
+                      "route": {
+                        "gtfsId": "tisseo:SYNTH_A",
+                        "shortName": "A",
+                        "longName": "Métro A",
+                        "color": "C53030",
+                        "textColor": "FFFFFF",
+                        "mode": "SUBWAY"
+                      },
+                      "intermediatePlaces": [
+                        {
+                          "name": "Esquirol",
+                          "arrival": {
+                            "scheduledTime": "2026-10-20T08:58:00+02:00"
+                          }
+                        }
+                      ],
+                      "legGeometry": {
+                        "points": "wiaiGs`tGwmAs}D"
+                      }
+                    },
+                    {
+                      "mode": "WALK",
+                      "transitLeg": false,
+                      "duration": 60,
+                      "distance": 80,
+                      "headsign": null,
+                      "start": {
+                        "scheduledTime": "2026-10-20T09:01:00+02:00"
+                      },
+                      "end": {
+                        "scheduledTime": "2026-10-20T09:02:00+02:00"
+                      },
+                      "from": {
+                        "name": "Jean Jaurès",
+                        "lat": 43.606,
+                        "lon": 1.449
+                      },
+                      "to": {
+                        "name": "Jean Jaurès",
+                        "lat": 43.606,
+                        "lon": 1.449
+                      },
+                      "agency": null,
+                      "route": null,
+                      "intermediatePlaces": [],
+                      "legGeometry": {
+                        "points": "oxciGg_zG??"
+                      }
+                    },
+                    {
+                      "mode": "SUBWAY",
+                      "transitLeg": true,
+                      "duration": 1320,
+                      "distance": 1000,
+                      "headsign": "Labège Madron",
+                      "start": {
+                        "scheduledTime": "2026-10-20T09:04:00+02:00"
+                      },
+                      "end": {
+                        "scheduledTime": "2026-10-20T09:26:00+02:00"
+                      },
+                      "from": {
+                        "name": "Jean Jaurès",
+                        "lat": 43.606,
+                        "lon": 1.449
+                      },
+                      "to": {
+                        "name": "Labège Madron",
+                        "lat": 43.552,
+                        "lon": 1.504
+                      },
+                      "agency": {
+                        "gtfsId": "futur:SYNTH_FUT",
+                        "name": "Réseau 2028 (synthétique)"
+                      },
+                      "route": {
+                        "gtfsId": "futur:FUT_B",
+                        "shortName": "B",
+                        "longName": "Métro B prolongé",
+                        "color": "F2C230",
+                        "textColor": "000000",
+                        "mode": "SUBWAY"
+                      },
+                      "intermediatePlaces": [
+                        {
+                          "name": "Ramonville",
+                          "arrival": {
+                            "scheduledTime": "2026-10-20T09:20:00+02:00"
+                          }
+                        },
+                        {
+                          "name": "Parc du Canal",
+                          "arrival": {
+                            "scheduledTime": "2026-10-20T09:23:00+02:00"
+                          }
+                        }
+                      ],
+                      "legGeometry": {
+                        "points": "oxciGg_zGnd@we@~qG_aC~W_nD"
+                      }
+                    },
+                    {
+                      "mode": "WALK",
+                      "transitLeg": false,
+                      "duration": 540,
+                      "distance": 700,
+                      "headsign": null,
+                      "start": {
+                        "scheduledTime": "2026-10-20T09:26:00+02:00"
+                      },
+                      "end": {
+                        "scheduledTime": "2026-10-20T09:35:00+02:00"
+                      },
+                      "from": {
+                        "name": "Labège Madron",
+                        "lat": 43.552,
+                        "lon": 1.504
+                      },
+                      "to": {
+                        "name": "Diagora, Labège",
+                        "lat": 43.5462,
+                        "lon": 1.5128
+                      },
+                      "agency": null,
+                      "route": null,
+                      "intermediatePlaces": [],
+                      "legGeometry": {
+                        "points": "_gyhG_wdHfc@_v@"
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      }
+    }
+  ],
+  "scenario_filters": {
+    "_synthetic": "SYNTHETIC test fixture (site/tests/fixtures/make-fixtures.mjs): made-up data, not an OTP answer, never published.",
+    "request": {
+      "direct": [
+        "WALK"
+      ],
+      "access": [
+        "WALK"
+      ],
+      "egress": [
+        "WALK"
+      ],
+      "transfer": [
+        "WALK"
+      ],
+      "transit_modes": [
+        "BUS",
+        "TRAM",
+        "SUBWAY",
+        "RAIL",
+        "GONDOLA"
+      ]
+    },
+    "scenarios": {
+      "2028": {
+        "label": "Réseau 2028",
+        "excluded_agencies": [],
+        "excluded_routes": [
+          "tisseo:SYNTH_B"
+        ],
+        "filters": [
+          {
+            "exclude": [
+              {
+                "routes": [
+                  "tisseo:SYNTH_B"
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "actuel": {
+        "label": "Réseau actuel",
+        "excluded_agencies": [
+          "futur:SYNTH_FUT"
+        ],
+        "excluded_routes": [],
+        "filters": [
+          {
+            "exclude": [
+              {
+                "agencies": [
+                  "futur:SYNTH_FUT"
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    }
+  }
+}

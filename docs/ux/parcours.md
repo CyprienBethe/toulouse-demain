@@ -1,6 +1,6 @@
 # Parcours et règles d'interface — Toulouse Demain (Sprint 0)
 
-Auteur : designer UX/UI senior · 13 octobre 2026 · statut : **à valider par Cyprien**
+Auteur : designer UX/UI senior · 13 octobre 2026, mis à jour le 14 octobre (direction visuelle et comparateur) · statut : **validé par Cyprien le 14/10/2026**
 
 Maquettes : canevas « Toulouse Demain — Maquettes » (https://claude.ai/artifact/VL77jr3MAddQCLgPrABVqo).
 
@@ -8,7 +8,7 @@ Maquettes : canevas « Toulouse Demain — Maquettes » (https://claude.ai/artif
 
 ## 1. Principe directeur
 
-Un seul écran de travail : la carte en fond et un panneau qui se transforme (recherche → résultats → détail). Le comparateur et le panneau « Hypothèses et sources » sont les deux seuls écrans à part. Sur téléphone, le panneau est une feuille en bas de l'écran ; sur ordinateur, c'est une colonne à gauche.
+Un seul écran de travail : la carte en fond et un panneau qui se transforme (recherche → résultats → détail). Le comparateur est intégré aux résultats ; le panneau « Hypothèses et sources » est le seul écran à part. Sur téléphone, le panneau est une feuille en bas de l'écran ; sur ordinateur, c'est une colonne à gauche.
 
 Le scénario (Aujourd'hui / 2028) n'est pas un réglage caché : c'est le premier contrôle en haut de chaque écran, toujours visible.
 
@@ -17,9 +17,9 @@ Le scénario (Aujourd'hui / 2028) n'est pas un réglage caché : c'est le premie
 | # | Écran | Ce que fait l'utilisateur | Éléments et pourquoi ils sont là |
 | --- | --- | --- | --- |
 | 1 | **Recherche** | Choisit le scénario, saisit Départ et Arrivée, ajuste l'heure et le mode, lance la recherche. | **Sélecteur de scénario** en haut : c'est la fonction signature. **Départ / Arrivée** : seuls champs obligatoires ; une adresse, un arrêt ou un point posé sur la carte. **Ma position** (dans le champ Départ) : évite de taper le cas le plus fréquent sur téléphone. **Inverser** : le trajet retour en un geste. **Heure** : « Maintenant » par défaut, « Partir à » et « Arriver à » à un toucher. **Mode** : trois choix exclusifs (Transports, Marche, Vélo), Transports par défaut. Un seul bouton d'action. |
-| 2 | **Résultats** | Parcourt 2 à 3 trajets, en choisit un ou ouvre le comparateur. | Par trajet : **durée** (l'info la plus lue, en gros), **heures de départ et d'arrivée**, **pastilles des lignes** dans l'ordre, **correspondances** en toutes lettres (« Direct », « 1 correspondance »), **temps de marche**. Tracé du trajet choisi sur la carte. Bouton **Comparer avec aujourd'hui** sur le trajet en tête quand 2028 est actif. |
+| 2 | **Résultats** | Parcourt les trajets proposés et en choisit un. | Par trajet : **heures de départ et d'arrivée** et **durée** en gros, **pastilles des lignes** dans l'ordre, **correspondances** en toutes lettres (« Direct », « 1 correspondance »), **temps de marche**. Tracé du trajet choisi sur la carte. Quand 2028 est actif, le **comparateur est intégré** à chaque trajet (voir 4) et la liste réunit les trajets 2028 **et** les trajets d'aujourd'hui encore possibles en 2028, comme Google Maps ou Citymapper : le voyageur choisit. |
 | 3 | **Détail d'un trajet** | Suit les étapes, déplie les arrêts intermédiaires. | Frise verticale : heure à gauche, étape à droite. Trois types d'étape : **Marcher** (durée, distance, jusqu'où), **Prendre** (pastille, « direction … », « monter à … »), **Descendre à …**. Une correspondance est une étape « Marcher » entre deux « Prendre », avec son temps d'attente. |
-| 4 | **Comparateur** | Voit le même trajet Aujourd'hui et 2028 côte à côte. | **Temps gagné en très gros**, avec un mot (« plus rapide ») et une flèche, jamais la seule couleur. Deux colonnes alignées ligne à ligne (durée, horaires, lignes, correspondances, marche) et deux barres sur la même échelle de temps pour voir l'écart. Même demande des deux côtés (même jour, même heure de départ) ; le temps gagné est l'écart entre les **durées**, et les heures d'arrivée sont affichées à côté. |
+| 4 | **Comparateur** (intégré aux résultats) | Voit, sur chaque trajet 2028, ce qu'il change par rapport à aujourd'hui. | **Double barre** sur une même échelle de temps : aujourd'hui (hachurée, pastel) et 2028 (pleine, brique). En dessous, l'écart en mots et avec une flèche, jamais la seule couleur : « Arrivée 9 min plus tôt qu'aujourd'hui », ou « Comme aujourd'hui » pour un trajet qui existe déjà. Règle : même demande des deux côtés (même jour, même heure de départ) ; l'écart compare l'**heure d'arrivée** du trajet à celle du meilleur trajet d'aujourd'hui ; la **durée** de chaque trajet reste affichée. Un appui sur la double barre ouvre le détail côte à côte. |
 | 5 | **Hypothèses et sources** | Lit ce que le scénario 2028 suppose et d'où viennent les chiffres. | Ce qui est simulé (lignes, stations, dates annoncées), comment on calcule (calendrier actuel, bus inchangés), les sources avec date de consultation, les attributions de licence. |
 | 6 | **Bureau** (écran principal) | Même parcours que 1 + 2, en un seul écran. | Colonne de gauche (scénario, bandeau, formulaire, résultats), carte à droite avec légende, zoom, attribution et un encart « Comparé à aujourd'hui » qui ouvre le comparateur. |
 
@@ -44,25 +44,23 @@ Une même convention partout : **les tirets signalent ce qui n'existe pas encore
 
 ## 4. Identité visuelle
 
-**Idée** : « la ligne qui continue en pointillés ». Le logo est un trait plein, une station, puis un trait en tirets : aujourd'hui, puis demain. Ton sobre, papier chaud et encre, un clin d'œil à la brique toulousaine sans imiter aucun opérateur.
+**Direction retenue le 14/10/2026 : B, « Pastel et brique »** (artboard « Direction B » du canevas ; la version 1 et les directions A et C sont écartées). L'idée : les deux couleurs historiques de Toulouse, le bleu du pastel, la plante tinctoriale qui a fait la fortune de la ville, et la brique de la ville rose. Le pastel porte le réseau d'aujourd'hui et l'interface, la brique porte 2028. Aucun opérateur n'est imité. Les tirets gardent leur sens partout : ce qui n'est pas encore construit.
 
-| Rôle | Valeur | Usage |
-| --- | --- | --- |
-| Fond | `#F6F1EB` papier chaud | Fond de l'application |
-| Surface | `#FFFFFF` | Feuilles, cartes de trajet |
-| Encre | `#1C1917` | Texte principal |
-| Encre secondaire | `#57504A` | Textes secondaires (7,9:1 sur blanc) |
-| Bordure de champ | `#8A7F76` | Contour des champs et boutons (3,9:1) |
-| Brique | `#B23F26` | Action principale, scénario Aujourd'hui (5,8:1 avec texte blanc) |
-| Demain | `#3730A3` indigo | Scénario 2028, temps gagné, bandeau (9,9:1 avec texte blanc) |
-| Bandeau | `#ECEAFB` + tirets `#3730A3` | Bandeau projection |
+| Rôle | Valeur | Usage | Contraste |
+| --- | --- | --- | --- |
+| Fond | `#F4F6F9` | Fond de l'application | — |
+| Pastel clair | `#D8E3F0` | En-tête de recherche, zones de saisie | — |
+| Pastel profond | `#24476F` | Texte principal, scénario actif, boutons | 8,8:1 sur le fond ; blanc dessus 9,5:1 |
+| Pastel secondaire | `#4F6585` | Textes secondaires | 5,5:1 sur le fond, 4,6:1 sur pastel clair |
+| Contour de champ | `#6F84A3` | Contours des champs et boutons secondaires | 3,5:1 sur le fond |
+| Filet | `#C3D0E0` | Séparateurs décoratifs uniquement | — |
+| Brique | `#A8473C` | 2028 : barre pleine, écart, bandeau en tirets, liens | 5,3:1 sur le fond, 5,8:1 sur blanc |
 
-**Pastilles de ligne** : rectangle arrondi de 28 px de haut, pictogramme du mode (métro, train, bus) + nom de la ligne. Aucun logo d'opérateur. Couleurs **provisoires** : métro A rouge `#C53030` (texte blanc), métro B jaune `#F2C230` (texte encre), métro C vert `#5BBF8A` (texte encre), TER ardoise `#3F4A5A` (texte blanc), bus blanc bordé d'encre. Au développement, les couleurs viendront du champ `route_color` du GTFS, corrigées si le contraste du texte passe sous 4,5:1.
+**Comparateur intégré** : barre « aujourd'hui » hachurée à 135° en pastel profond, barre « 2028 » pleine en brique, même échelle pour tous les trajets de la liste.
 
-**Typographies** (Google Fonts, gratuites) :
-- *Bricolage Grotesque* : logo, durées, titres.
-- *Atkinson Hyperlegible Next* : tout le texte d'interface. Elle a été dessinée pour la lisibilité (I, l et 1 bien distincts).
-- *Atkinson Hyperlegible Mono* : heures de passage, avec des chiffres de même largeur pour que les colonnes s'alignent.
+**Pastilles de ligne** : rectangle arrondi de 28 px de haut, nom de la ligne (pictogramme du mode à ajouter au développement). Aucun logo d'opérateur. Ligne future ou section future (B prolongée) : liseré en tirets. Couleurs : celles du champ `route_color` du GTFS (provisoires pour le flux futur : C `#5BBF8A`, B `#F2C230`). Texte de la pastille : blanc ou `#16304F`, le plus contrasté des deux ; si aucun n'atteint 4,5:1, on assombrit le fond. Exemple : `#24476F` sur le vert de C ne fait que 4,2:1, alors que `#16304F` fait 5,9:1.
+
+**Typographie** (Google Fonts, gratuite) : *Schibsted Grotesk* seule, en 400, 600 et 800. Les heures et les durées utilisent ses chiffres tabulaires (`font-variant-numeric: tabular-nums`), pour que les colonnes s'alignent sans police à chasse fixe.
 
 ## 5. Règles d'accessibilité
 
@@ -78,16 +76,16 @@ Une même convention partout : **les tirets signalent ce qui n'existe pas encore
 
 | Question | Décision |
 | --- | --- |
-| Temps gagné | **Écart des durées** porte à porte ; les heures d'arrivée restent affichées à côté |
 | Couleurs des lignes | **Celles du GTFS Tisséo** (`route_color`), corrigées si le contraste du texte passe sous 4,5:1 |
 | Scénario à l'ouverture | **Le dernier choisi** ; « Aujourd'hui » à la toute première visite |
-| Maquettes | **À revoir** : une nouvelle version suit les retours de Cyprien |
-
-Reste ouvert : comparateur en écran à part (maquette actuelle) ou bascule intégrée à la liste de résultats.
+| Maquettes | Version 1 jugée trop générique (« effet vibe coding ») ; trois directions proposées, **B « Pastel et brique » retenue** |
+| Comparateur | **Intégré à la liste de résultats** |
+| Temps gagné | **Toutes les options affichées, comme Google Maps ou Citymapper** : la liste 2028 réunit les trajets 2028 et ceux d'aujourd'hui encore possibles, chacun avec départ, arrivée, durée et écart d'arrivée avec aujourd'hui. Remplace l'« écart des durées » choisi le matin même : le premier calcul réel a montré qu'avec cette règle, Colomiers → Labège afficherait « 3 min de plus » en 2028 alors que le métro C fait arriver 9 min plus tôt (départ 8:31, arrivée 9:19, contre un TER à 8:43 arrivé à 9:28) |
 
 ## Ce qu'il faut retenir
 
-- Un écran principal (carte + panneau) et deux écrans annexes : le comparateur et « Hypothèses et sources ».
+- Un écran principal (carte + panneau), le comparateur intégré à chaque trajet 2028, et un écran annexe « Hypothèses et sources ».
+- Style « Pastel et brique » : le bleu du pastel pour l'interface et le réseau d'aujourd'hui, la brique pour 2028.
 - Le choix Aujourd'hui / 2028 est le premier bouton de chaque écran, et un bandeau en tirets rappelle que 2028 est une projection.
 - Partout, les tirets veulent dire « pas encore construit » : sur la carte, sur les pastilles et dans le comparateur.
 - Lisible d'abord : grandes durées, polices conçues pour la lisibilité, cibles de 44 px minimum, aucune info portée par la couleur seule.

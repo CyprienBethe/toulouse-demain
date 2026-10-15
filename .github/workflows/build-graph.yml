@@ -153,10 +153,13 @@ jobs:
             # so that the graph of the current network is still tested and published.
             options+=(--allow-missing-feed futur)
           fi
+          # demo-responses.json: raw answers of the transit trips, for the demo mode
+          # of the site (published with the graph, and on the `rapports` branch).
           python scripts/reference_trips.py --otp-url http://127.0.0.1:8080 \
             --gtfs-dir build/otp/gtfs --trips config/reference-trips.json \
             --scenarios config/scenarios.json --output build/report/trips.json \
             --filters-output build/report/scenario-filters.json \
+            --raw-output build/report/demo-responses.json \
             "${options[@]}" 2>&1 | tee build/report/logs/trips.log
 
       - name: Arrêter le serveur OTP
@@ -180,6 +183,12 @@ jobs:
             --outcome "trips=${{ steps.trips.outcome }}" \
             --output build/report/report.md --json build/report/report.json
           cat build/report/report.md >> "$GITHUB_STEP_SUMMARY"
+          # Demo answers also readable on the `rapports` branch (latest-files/),
+          # including for pull requests (no release there).
+          if [[ -f build/report/demo-responses.json ]]; then
+            mkdir -p build/report/attachments
+            cp build/report/demo-responses.json build/report/attachments/
+          fi
 
       - name: Publier le graphe (GitHub Release)
         id: release
@@ -192,8 +201,10 @@ jobs:
           FUTUR_OUTCOME: ${{ steps.futur.outcome }}
         run: |
           # Files for the front-end, next to the graph: the resolved scenario filters,
-          # and the Tisséo lines replaced in 2028 (only if the future feed was built).
-          extra=(build/report/scenario-filters.json)
+          # the demo answers, and the Tisséo lines replaced in 2028 (only if the
+          # future feed was built). The server serves the two scenario-*.json files
+          # under /meta/ (deploy/update-graph.sh, deploy/Caddyfile).
+          extra=(build/report/scenario-filters.json build/report/demo-responses.json)
           if [[ "$FUTUR_OUTCOME" == "success" && -f build/gtfs/scenario-2028.json ]]; then
             extra+=(build/gtfs/scenario-2028.json)
           fi

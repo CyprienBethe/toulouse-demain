@@ -4,7 +4,7 @@
 - **Date** : 14 octobre 2026
 - **Auteur** : architecte et dev senior back-end
 - **Sources** : vérifiées le 14/10/2026, liste numérotée en fin de document ([S1], [S2]…)
-- **Révision** : 14/10/2026, après le premier passage du CI [S28] et la revue QA (`docs/qa/sprint-0-revue.md`)
+- **Révision** : 14/10/2026, après le premier passage du CI [S28] et la revue QA (`docs/qa/sprint-0-revue.md`) ; 14/10/2026 (sprint 1) : exposition publique minimale, pare-feu, installation du serveur (sections 4, 6 et 7)
 
 ## Contexte
 
@@ -111,7 +111,8 @@ Même `docker-compose.yml` : les images OTP et Caddy existent en arm64 [S7][S20]
 - **DuckDNS** : sous-domaine gratuit `<nom>.duckdns.org`, connexion avec un compte Google, GitHub ou Twitter ; l'adresse IP se met à jour par une simple URL avec un jeton secret ; les enregistrements TXT sont aussi gérés [S15][S16].
 - `duckdns.org` figure dans la **Public Suffix List** [S17]. Or Let's Encrypt compte ses limites (50 certificats par domaine enregistré et par 7 jours) par domaine enregistré au sens de cette liste [S18] : notre sous-domaine a donc son propre quota, non partagé avec les autres utilisateurs de DuckDNS.
 - **Caddy** obtient et renouvelle seul le certificat Let's Encrypt ; les défis HTTP (port 80) et TLS-ALPN (port 443) sont activés par défaut [S19]. Aucune configuration de certificat n'est à écrire.
-- La passerelle Caddy ajoute aussi la limitation de débit (module `caddy-ratelimit`, absent de l'image officielle : on construit une image avec `xcaddy` [S21]), le CORS restreint au site et le refus de toutes les adresses autres que l'API.
+- La passerelle Caddy ajoute aussi la limitation de débit (module `caddy-ratelimit`, absent de l'image officielle : on construit une image avec `xcaddy` [S21]), le CORS restreint au site et le refus de toutes les adresses autres que l'API (section 6). HTTP/3 est désactivé : seuls les ports TCP 80 et 443 sont ouverts.
+- Pare-feu de la machine (sprint 1) : les images Ubuntu d'Oracle n'acceptent que SSH, puis rejettent tout (`/etc/iptables/rules.v4`, voir `docs/guide-serveur-oracle.md`, étape 4.2). Les ports publiés par Docker passent par la chaîne `FORWARD`, où Docker insère ses règles en tête, donc avant ce rejet [S32]. `deploy/bootstrap.sh` ouvre quand même 80 et 443 dans `INPUT`, en éditant `rules.v4` plutôt qu'avec `netfilter-persistent save`, qui enregistrerait aussi les règles de Docker.
 
 ## 5. Où construire le graphe ?
 
@@ -151,14 +152,20 @@ Depuis notre environnement, on voit l'état des vérifications d'un commit, les 
 
 Il apparaît aussi dans le résumé de l'exécution, sur la page GitHub Actions.
 
-## 6. Contrat d'API initial pour le front-end
+## 6. Contrat d'API pour le front-end
 
-- `POST https://<API_DOMAIN>/otp/gtfs/v1`, corps JSON GraphQL, requête `planConnection` [S2][S5].
-- Scénario : au démarrage, le site lit `{ feeds { feedId agencies { gtfsId } } }`, puis envoie pour « actuel » le filtre d'exclusion des agences du flux `futur` (règles de `config/scenarios.json`).
+*Révisé le 14/10/2026 (sprint 1) : exposition publique réduite à deux préfixes, `/health` retiré, fichiers `/meta/` et réponses de démonstration ajoutés.*
+
+Seules ces adresses sont publiques. Tout le reste répond 404 : interface de débogage et GraphiQL, API Transmodel, actuator, métriques, ancienne adresse `/otp/routers/{id}/index/graphql`. La passerelle Caddy l'impose (`deploy/Caddyfile`) ; le port 8080 d'OTP n'écoute que sur la machine.
+
+- `POST https://<API_DOMAIN>/otp/gtfs/v1`, corps JSON GraphQL, requête `planConnection` [S2][S5]. Chemin vérifié dans OTP 2.10.0 : `@Path("/gtfs/v1/")` sous `/otp` [S31] et documentation [S5]. Corps limité à 32 Ko.
+- `GET https://<API_DOMAIN>/meta/scenario-filters.json` et `GET https://<API_DOMAIN>/meta/scenario-2028.json` : les fichiers de la release installée sur le serveur, copiés par `update-graph.sh` dans `deploy/data/meta/` (`scenario-2028.json` est absent, donc 404, si le flux `futur` n'a pas pu être construit). Cache de 5 minutes.
+- Scénario : le site envoie les filtres de `scenario-filters.json` (identifiants réels, résolus en CI). On peut aussi les reconstruire à partir de `{ feeds { feedId agencies { gtfsId } } }` et de `scenario-2028.json` (règles de `config/scenarios.json`).
 - Marche seule : `modes: {directOnly: true, direct: [WALK]}` ; vélo : `direct: [BICYCLE]` ; transports en commun : `modes` **explicite**, jamais `null` (section 2), avec le contenu de `request` dans `config/scenarios.json`.
-- Filtres de scénario : ceux de `scenario-filters.json`, publié avec chaque graphe. On peut aussi les reconstruire à partir de `feeds` et de `scenario-2028.json`. L'accès à ces fichiers depuis le navigateur (assets de release) n'est pas vérifié : à défaut, le front-end les copie au moment de sa construction.
-- `GET https://<API_DOMAIN>/health` : 200 quand le graphe est chargé (API Actuator d'OTP [S8]).
-- CORS limité à l'origine du site (`SITE_ORIGIN`) ; 30 requêtes par minute et par adresse IP, 600 au total (*hypothèses*, réglables dans `.env`).
+- CORS : seule l'origine `SITE_ORIGIN` (`https://cyprienbethe.github.io`) reçoit `Access-Control-Allow-Origin`. Les requêtes préliminaires `OPTIONS` reçoivent 204 (méthodes `GET, POST, OPTIONS`, en-tête `Content-Type`, 24 h de cache). Un `POST` venu d'une autre origine est refusé (403) avant d'atteindre OTP ; une requête sans `Origin` (curl) est acceptée. Les erreurs (429 limite de débit, 413, 502 pendant un redémarrage d'OTP) portent aussi les en-têtes CORS : le site peut lire le code.
+- Limites : 30 requêtes par minute et par adresse IP, 600 par minute au total pour l'API ; 30 par minute et par IP pour `/meta/` (*hypothèses*, réglables dans `.env`).
+- Réponses de démonstration : `demo-responses.json`, publié avec chaque graphe (et sur la branche `rapports`, `latest-files/`). Il contient les réponses brutes d'OTP aux trajets de référence en transports en commun, dont l'exemple des maquettes « Gare de Colomiers → Diagora (Labège) ». Forme : `{"recorded_at", "query", "requests": [{"id", "label", "scenario", "variables", "response"}], "scenario_filters"}`, détaillée en tête de `scripts/reference_trips.py`. `query` est la requête GraphQL qui a produit les réponses (`PLAN_QUERY`, avec horaires, lignes, couleurs et géométrie des étapes).
+- Santé du serveur : `http://127.0.0.1:8080/otp/actuators/health`, depuis la machine seulement (200 quand le graphe est chargé [S8]).
 - Exemple complet : `PLAN_QUERY` dans `scripts/reference_trips.py`.
 
 ## 7. Ce qui n'est pas testé
@@ -166,8 +173,8 @@ Il apparaît aussi dans le résumé de l'exécution, sur la page GitHub Actions.
 - Premier passage du CI (14/10/2026) : téléchargements, zone, OSM, filtrage SNCF, GTFS futur, construction du graphe, démarrage du serveur, marche et vélo réussis [S28]. Les trajets en transports en commun ont échoué. La requête est corrigée et validée contre le schéma, mais **pas encore relancée en CI**.
 - Pas encore vus en CI : le cas « GTFS futur en échec » (`--allow-missing-feed`), le fichier `scenario-2028.json` (le data engineer ne le produit pas encore), le contrôle « ligne C » et la publication en release (branche principale seulement).
 - Les URL de téléchargement n'ont pas pu être testées depuis notre environnement. Point d'attention : la fiche transport.data.gouv.fr n° 83195 décrit aujourd'hui l'export **NeTEx** de la SNCF, pas le GTFS [S26] ; l'URL du GTFS utilisée est celle qu'indique la fiche data.gouv.fr « Horaires SNCF » [S25].
-- `docker-compose.yml` est validé (`docker compose config`), mais il n'a pas été démarré ; le `Caddyfile` sera validé par le workflow `checks.yml` avec la vraie image Caddy.
-- `update-graph.sh` et `duckdns-update.sh` n'ont pas été testés.
+- `docker-compose.yml` est validé (`docker compose config`), mais il n'a pas été démarré ; le `Caddyfile` est validé par le workflow `checks.yml` avec la vraie image Caddy. Ses routes (404, CORS, 403, 413, en-têtes) ont été testées avec le binaire officiel Caddy 2.11.7, sans le module de limitation de débit et en HTTP local.
+- `deploy/bootstrap.sh` (sprint 1) n'a pas tourné sur une vraie machine Ubuntu ARM64 : `shellcheck`, `bash -n`, tests de ses fonctions et essai complet avec des doublures des commandes système (voir `docs/guide-serveur-oracle.md`, « Ce qui n'a pas été testé »). `update-graph.sh` a tourné dans cet essai, sur une fausse release produite par `package_graph.sh` ; `duckdns-update.sh` n'a pas été testé contre le vrai DuckDNS.
 - Scripts Python testés sur des données synthétiques ; `run_otp.py` testé avec un faux `docker`.
 - Versions : osmium vient d'apt (non épinglé, version écrite dans le rapport) ; images Docker épinglées par étiquette, pas par empreinte (`digest`), car Docker Hub n'est pas joignable depuis notre environnement.
 
@@ -178,7 +185,7 @@ Il apparaît aussi dans le résumé de l'exécution, sur la page GitHub Actions.
 3. **Préparer** : une carte de crédit, ou de débit qui fonctionne comme une carte de crédit (refusées : débit à code PIN, virtuelle, à usage unique, prépayée), un numéro de téléphone, une paire de clés SSH (on t'expliquera comment la créer).
 4. **Créer le compte Oracle Cloud** (offre Free Tier), choisir une région d'origine en Europe, puis créer une instance `VM.Standard.A1.Flex` de 2 OCPU et 12 Go sous Ubuntu. En cas d'« out of host capacity », réessayer plus tard. Ouvrir les ports 80 et 443.
 5. **Créer un compte DuckDNS** (avec GitHub), choisir le sous-domaine et le faire pointer vers l'adresse IP publique de l'instance. Le jeton DuckDNS est un secret : ne jamais le committer.
-6. Sur le serveur, avec notre aide : installer Docker, cloner le dépôt, `cp deploy/.env.example deploy/.env`, renseigner `.env`, lancer `./update-graph.sh` puis `docker compose up -d`, et ajouter la tâche planifiée hebdomadaire.
+6. Sur le serveur : suivre `docs/guide-serveur-oracle.md`, qui se résume à une commande (`deploy/bootstrap.sh`) ; elle installe tout, y compris les tâches planifiées.
 7. **Décider** : le nom du sous-domaine ; l'acceptation (ou non) de passer en « Pay as You Go » en cas de manque de capacité ; les limites de débit.
 
 ## Ce qu'il faut retenir
@@ -221,3 +228,5 @@ Il apparaît aussi dans le résumé de l'exécution, sur la page GitHub Actions.
 - [S28] Rapport du premier passage du CI (PR n° 1, 14/10/2026), branche `rapports` : https://github.com/CyprienBethe/toulouse-demain/blob/rapports/reports/2026-10-14T0610Z_pull_request_38520238846.md
 - [S29] OTP 2.10.0, `ArgumentUtils.java` (`getTransitModes`) : https://github.com/opentripplanner/OpenTripPlanner/blob/v2.10.0/application/src/main/java/org/opentripplanner/apis/gtfs/mapping/routerequest/ArgumentUtils.java
 - [S30] Linuxiac, réduction de l'offre Ampere A1 (cité par la revue QA) : https://linuxiac.com/oracle-quietly-cuts-free-tier-ampere-a1-resources-in-half/
+- [S31] OTP 2.10.0, `GtfsGraphQLAPI.java` (`@Path("/gtfs/v1/")`, ancienne adresse `/routers/{ignoreRouterId}/index/graphql`) : https://github.com/opentripplanner/OpenTripPlanner/blob/v2.10.0/application/src/main/java/org/opentripplanner/apis/gtfs/GtfsGraphQLAPI.java
+- [S32] Docker (moby), `iptables.go` : `EnsureJumpRule` insère ses règles en tête de la chaîne `FORWARD` (`-I`), donc avant la règle `REJECT` des images Oracle : https://github.com/moby/moby/blob/master/daemon/libnetwork/iptables/iptables.go

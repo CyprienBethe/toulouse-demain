@@ -1,37 +1,68 @@
 # Caddy: public HTTPS gateway in front of OpenTripPlanner.
 #
+# Public surface, and nothing else (everything else answers 404: OTP debug UI,
+# GraphiQL, other APIs, actuator, metrics, old GraphQL path...):
+#   POST /otp/gtfs/v1                  GTFS GraphQL API of OTP 2.10.0 (planConnection)
+#   GET  /meta/scenario-filters.json   files of the installed graph release, copied
+#   GET  /meta/scenario-2028.json      to data/meta/ by update-graph.sh
+#   OPTIONS on these three paths       CORS preflight, from SITE_ORIGIN only
+#
 # - HTTPS is automatic: Caddy gets and renews a Let's Encrypt certificate for
-#   API_DOMAIN (ports 80 and 443 must be open).
-# - Only two paths are public: the GraphQL API (POST /otp/gtfs/v1) and a
-#   health check (GET /health). Everything else answers 404 (OTP debug UI,
-#   metrics...).
-# - CORS: only the site at SITE_ORIGIN may call the API from a browser.
-# - Rate limiting per client IP and globally (values in .env).
+#   API_DOMAIN. HTTP/1.1 and HTTP/2 only (no HTTP/3): only TCP ports 80 and 443
+#   need to be open.
+# - CORS: only the site at SITE_ORIGIN may read the answers from a browser; a
+#   POST sent by a page of another origin is refused (403) before reaching OTP.
+# - Rate limiting per client IP and globally (values in .env), request body
+#   limited to 32 KB, request headers to 16 KB, slow clients cut off.
+# - Security headers on every answer, errors included.
 # - No access log: no IP address is stored.
+{
+	servers {
+		protocols h1 h2
+		max_header_size 16KB
+		timeouts {
+			read_header 10s
+			read_body 10s
+			write 30s
+			idle 2m
+		}
+	}
+}
 
-{$API_DOMAIN} {
+(security_headers) {
 	header {
 		Strict-Transport-Security "max-age=31536000"
 		X-Content-Type-Options "nosniff"
 		Referrer-Policy "no-referrer"
+		X-Frame-Options "DENY"
+		Content-Security-Policy "default-src 'none'; frame-ancestors 'none'"
 		-Server
 	}
+}
 
-	@from_site header Origin {$SITE_ORIGIN}
+(cors) {
+	header {
+		Access-Control-Allow-Origin "{$SITE_ORIGIN}"
+		Vary "Origin"
+	}
+}
+
+{$API_DOMAIN} {
+	import security_headers
+	encode zstd gzip
 
 	# CORS preflight, sent by the browser before each POST with a JSON body.
 	@preflight {
 		method OPTIONS
-		path /otp/gtfs/v1
+		path /otp/gtfs/v1 /meta/scenario-filters.json /meta/scenario-2028.json
 		header Origin {$SITE_ORIGIN}
 	}
 	handle @preflight {
+		import cors
 		header {
-			Access-Control-Allow-Origin "{$SITE_ORIGIN}"
-			Access-Control-Allow-Methods "POST, OPTIONS"
+			Access-Control-Allow-Methods "GET, POST, OPTIONS"
 			Access-Control-Allow-Headers "Content-Type"
 			Access-Control-Max-Age "86400"
-			Vary "Origin"
 		}
 		respond 204
 	}
@@ -42,40 +73,71 @@
 	}
 	handle @api {
 		rate_limit {
-			zone per_client {
+			zone api_per_client {
 				key {remote_host}
 				events {$RATE_LIMIT_EVENTS}
 				window {$RATE_LIMIT_WINDOW}
+				ipv6_prefix 64
 			}
-			zone global {
+			zone api_global {
 				key static
 				events {$GLOBAL_RATE_LIMIT_EVENTS}
 				window {$RATE_LIMIT_WINDOW}
 			}
 		}
+		# A page of another site: refused here, OTP does not compute anything.
+		# Requests without Origin (curl, scripts) are accepted.
+		@foreign_origin {
+			header Origin *
+			not header Origin {$SITE_ORIGIN}
+		}
+		respond @foreign_origin "Origin not allowed" 403
 		request_body {
 			max_size 32KB
 		}
-		header @from_site {
-			Access-Control-Allow-Origin "{$SITE_ORIGIN}"
-			Vary "Origin"
-		}
+		import cors
+		# OTP only ever receives this exact path, whatever the spelling sent.
+		rewrite * /otp/gtfs/v1
 		reverse_proxy otp:8080 {
-			# Drop any CORS header set by OTP: Caddy decides alone.
+			# CORS is decided by Caddy alone: drop whatever OTP sends.
 			header_down -Access-Control-Allow-Origin
 			header_down -Access-Control-Allow-Credentials
 			header_down -Access-Control-Allow-Methods
 			header_down -Access-Control-Allow-Headers
+			header_down -Access-Control-Expose-Headers
+			header_down -Access-Control-Max-Age
 		}
 	}
 
-	# 200 when the graph is loaded, 404 while OTP is starting.
-	handle /health {
-		rewrite * /otp/actuators/health
-		reverse_proxy otp:8080
+	@meta {
+		method GET HEAD
+		path /meta/scenario-filters.json /meta/scenario-2028.json
+	}
+	handle @meta {
+		rate_limit {
+			zone meta_per_client {
+				key {remote_host}
+				events {$RATE_LIMIT_EVENTS}
+				window {$RATE_LIMIT_WINDOW}
+				ipv6_prefix 64
+			}
+		}
+		import cors
+		header Cache-Control "public, max-age=300"
+		# data/meta/ of the server, mounted read-only at /srv/meta (docker-compose.yml).
+		root * /srv
+		file_server
 	}
 
 	handle {
 		respond "Not found" 404
+	}
+
+	# Errors (429 rate limit, 413 body too large, 502 while OTP restarts, 404 of
+	# a missing meta file): same headers, so that the site can read the status.
+	handle_errors {
+		import security_headers
+		import cors
+		respond "{err.status_code} {err.status_text}"
 	}
 }

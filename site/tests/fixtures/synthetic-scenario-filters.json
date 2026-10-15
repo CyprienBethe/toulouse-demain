@@ -1,0 +1,62 @@
+{
+  "_synthetic": "SYNTHETIC test fixture (site/tests/fixtures/make-fixtures.mjs): made-up data, not an OTP answer, never published.",
+  "request": {
+    "direct": [
+      "WALK"
+    ],
+    "access": [
+      "WALK"
+    ],
+    "egress": [
+      "WALK"
+    ],
+    "transfer": [
+      "WALK"
+    ],
+    "transit_modes": [
+      "BUS",
+      "TRAM",
+      "SUBWAY",
+      "RAIL",
+      "GONDOLA"
+    ]
+  },
+  "scenarios": {
+    "2028": {
+      "label": "Réseau 2028",
+      "excluded_agencies": [],
+      "excluded_routes": [
+        "tisseo:SYNTH_B"
+      ],
+      "filters": [
+        {
+          "exclude": [
+            {
+              "routes": [
+                "tisseo:SYNTH_B"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "actuel": {
+      "label": "Réseau actuel",
+      "excluded_agencies": [
+        "futur:SYNTH_FUT"
+      ],
+      "excluded_routes": [],
+      "filters": [
+        {
+          "exclude": [
+            {
+              "agencies": [
+                "futur:SYNTH_FUT"
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

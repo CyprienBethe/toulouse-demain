@@ -7,7 +7,8 @@ Usage:
         --scenarios config/scenarios.json --output build/report/trips.json \
         [--allow-missing-feed futur] \
         [--scenario-file 2028=build/gtfs/scenario-2028.json] \
-        [--filters-output build/report/scenario-filters.json]
+        [--filters-output build/report/scenario-filters.json] \
+        [--raw-output build/report/demo-responses.json]
 
 How a scenario works: the graph contains the three feeds (tisseo, sncf,
 futur). For each request, the agencies of the feeds listed in
@@ -23,6 +24,17 @@ Options:
 - --scenario-file SCENARIO=PATH: JSON file {"exclude_routes": [...]} whose
   routes are also excluded in SCENARIO (the Tisséo lines replaced by a line
   of the future feed). Ignored, with a warning, when the future feed is absent.
+- --raw-output FILE: raw GraphQL answers of the transit reference trips, for
+  the demo mode of the front-end (published with the graph as
+  demo-responses.json). Contract, read by site/:
+    {"recorded_at": "<ISO 8601, UTC>",
+     "query": "<PLAN_QUERY, the GraphQL query that produced the answers>",
+     "requests": [{"id": "<trip id>", "label": "<trip label>",
+                   "scenario": "actuel" | "2028",
+                   "variables": {...}, "response": {...}}],
+     "scenario_filters": {<same content as --filters-output>}}
+  "response" is the JSON body returned by OTP, unchanged ({"data": ...}, or
+  {"errors": [...]} when the request failed).
 
 Checks that make the script fail (exit code 1):
 - a reference trip returns no itinerary;
@@ -55,11 +67,15 @@ WEEKDAYS = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", 
 FEEDS_QUERY = "{ feeds { feedId agencies { gtfsId name } } }"
 ROUTES_QUERY = "{ routes { gtfsId shortName mode } }"
 
+# Also the query of the demo answers (--raw-output): it asks for what an
+# itinerary card and its map need (times, lines and colours, leg geometry as an
+# encoded polyline).
 PLAN_QUERY = """
 query Plan($origin: PlanLabeledLocationInput!, $destination: PlanLabeledLocationInput!,
            $dateTime: PlanDateTimeInput!, $modes: PlanModesInput, $preferences: PlanPreferencesInput) {
   planConnection(origin: $origin, destination: $destination, dateTime: $dateTime,
                  modes: $modes, preferences: $preferences, first: 3) {
+    searchDateTime
     routingErrors { code description }
     edges {
       node {
@@ -68,14 +84,21 @@ query Plan($origin: PlanLabeledLocationInput!, $destination: PlanLabeledLocation
         duration
         numberOfTransfers
         walkDistance
+        walkTime
+        waitingTime
         legs {
           mode
+          transitLeg
+          start { scheduledTime estimated { time delay } }
+          end { scheduledTime estimated { time delay } }
           duration
           distance
-          from { name }
-          to { name }
-          agency { gtfsId }
-          route { gtfsId shortName }
+          headsign
+          from { name lat lon stop { gtfsId } }
+          to { name lat lon stop { gtfsId } }
+          agency { gtfsId name }
+          route { gtfsId shortName longName color textColor }
+          legGeometry { points }
         }
       }
     }
@@ -248,6 +271,31 @@ def prepare_scenarios(scenarios: dict, agencies_by_feed: dict[str, list[str]], r
     return resolved, failures, warnings
 
 
+def filters_document(request: dict, resolved: dict) -> dict:
+    """Content of scenario-filters.json: what the front-end sends for each scenario."""
+    return {
+        "_explication": "Filtres à envoyer dans preferences.transit.filters de planConnection, "
+                        "par scénario, et modes à envoyer pour un trajet en transports en commun.",
+        "request": request,
+        "scenarios": resolved,
+    }
+
+
+def demo_document(recorded_at: dt.datetime, requests: list[dict], filters: dict) -> dict:
+    """Content of demo-responses.json (contract in the module docstring)."""
+    return {
+        "recorded_at": recorded_at.astimezone(dt.timezone.utc).isoformat(timespec="seconds"),
+        "query": PLAN_QUERY,
+        "requests": requests,
+        "scenario_filters": filters,
+    }
+
+
+def write_json(path: Path, content: dict) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(content, indent=2, ensure_ascii=False), encoding="utf-8")
+
+
 def summarize(node: dict) -> dict:
     legs = []
     for leg in node["legs"]:
@@ -310,7 +358,10 @@ def main() -> int:
     parser.add_argument("--allow-missing-feed", action="append", default=[], metavar="FEED")
     parser.add_argument("--scenario-file", action="append", default=[], metavar="SCENARIO=PATH")
     parser.add_argument("--filters-output", type=Path)
+    parser.add_argument("--raw-output", type=Path, metavar="FILE",
+                        help="raw GraphQL answers of the transit trips (demo-responses.json)")
     args = parser.parse_args()
+    recorded_at = dt.datetime.now(dt.timezone.utc)
 
     trips_config = json.loads(args.trips.read_text(encoding="utf-8"))
     scenarios_config = json.loads(args.scenarios.read_text(encoding="utf-8"))
@@ -345,6 +396,7 @@ def main() -> int:
     }
 
     stop_cache: dict = {}
+    raw_requests: list[dict] = []
     for trip in trips_config["trips"]:
         result = {"id": trip["id"], "label": trip["label"], "mode": trip["mode"], "results": {}}
         origin = resolve_place(trip["from"], args.gtfs_dir, stop_cache)
@@ -364,6 +416,9 @@ def main() -> int:
             except (urllib.error.URLError, TimeoutError) as error:
                 response = {"errors": [{"message": str(error)}]}
             elapsed_ms = round((time.monotonic() - started) * 1000)
+            if trip["mode"] == "transit":
+                raw_requests.append({"id": trip["id"], "label": trip["label"], "scenario": scenario_name,
+                                     "variables": variables, "response": response})
 
             entry: dict = {"response_ms": elapsed_ms}
             if response.get("errors"):
@@ -393,16 +448,12 @@ def main() -> int:
         output["trips"].append(result)
 
     output["success"] = not failures
-    args.output.parent.mkdir(parents=True, exist_ok=True)
-    args.output.write_text(json.dumps(output, indent=2, ensure_ascii=False), encoding="utf-8")
+    write_json(args.output, output)
+    filters = filters_document(request, resolved)
     if args.filters_output:
-        args.filters_output.parent.mkdir(parents=True, exist_ok=True)
-        args.filters_output.write_text(json.dumps({
-            "_explication": "Filtres à envoyer dans preferences.transit.filters de planConnection, "
-                            "par scénario, et modes à envoyer pour un trajet en transports en commun.",
-            "request": request,
-            "scenarios": resolved,
-        }, indent=2, ensure_ascii=False), encoding="utf-8")
+        write_json(args.filters_output, filters)
+    if args.raw_output:
+        write_json(args.raw_output, demo_document(recorded_at, raw_requests, filters))
     for failure in failures:
         print(f"FAIL: {failure}", file=sys.stderr)
     for warning in warnings:
