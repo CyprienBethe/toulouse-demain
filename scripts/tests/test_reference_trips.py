@@ -163,6 +163,44 @@ class TripChecksTest(unittest.TestCase):
         self.assertEqual(len(failures), 1)
 
 
+class AirportChecksTest(unittest.TestCase):
+    """Capitole → Aéroport: in 2028 the airport shuttle (AERO) is replaced by the Ligne Aéroport tram."""
+
+    TRIP = next(t for t in TRIPS["trips"] if t["id"] == "capitole-aeroport")
+    itinerary = staticmethod(TripChecksTest.itinerary)
+
+    def results(self, legs_2028):
+        return {"2028": {"itineraries": [self.itinerary(30, legs_2028)]},
+                "actuel": {"itineraries": [self.itinerary(33, [(None, None), ("tisseo", "AERO")])]}}
+
+    def test_tram_expected_in_2028(self):
+        ok = self.results([("tisseo", "A"), ("futur", "C"), ("futur", "Aéroport")])
+        self.assertEqual(rt.evaluate_checks(self.TRIP, ok, {"tisseo", "sncf", "futur"}), ([], []))
+        # Faster by bus 31, say: only a warning.
+        failures, warnings = rt.evaluate_checks(self.TRIP, self.results([("tisseo", "31")]), {"tisseo", "futur"})
+        self.assertEqual((failures, len(warnings)), ([], 1))
+        self.assertIn("Aéroport", warnings[0])
+
+    def test_shuttle_in_2028_is_a_failure(self):
+        # The exclusion of scenario-2028.json did not work: failure, whichever itinerary uses it.
+        results = self.results([("futur", "C"), ("futur", "Aéroport")])
+        results["2028"]["itineraries"].append(self.itinerary(40, [(None, None), ("tisseo", "AERO")]))
+        failures, _ = rt.evaluate_checks(self.TRIP, results, {"tisseo", "futur"})
+        self.assertEqual(len(failures), 1)
+        self.assertIn("ligne AERO (tisseo)", failures[0])
+
+    def test_shuttle_check_skipped_without_future_feed(self):
+        # Future feed absent: scenario 2028 is today's network, the shuttle is still there.
+        failures, warnings = rt.evaluate_checks(self.TRIP, self.results([("tisseo", "AERO")]), {"tisseo", "sncf"})
+        self.assertEqual(failures, [])
+        self.assertTrue(any("contrôle ignoré" in w for w in warnings), warnings)
+
+    def test_config(self):
+        checks = [c for c in self.TRIP["checks"] if c["scenario"] == "2028"]
+        self.assertIn({"feed": "tisseo", "line": "AERO"}, [c.get("never_uses_line") for c in checks])
+        self.assertIn({"feed": "futur", "line": "Aéroport"}, [c.get("fastest_uses") for c in checks])
+
+
 class ReferenceTripsConfigTest(unittest.TestCase):
     def test_mockup_trip_colomiers_diagora(self):
         # Example trip of the mock-ups: Gare de Colomiers → Diagora (Labège), both scenarios.
