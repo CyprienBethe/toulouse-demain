@@ -82,6 +82,7 @@ ROUTE_TYPES = {0: "tram", 1: "métro"}
 TER_LINE_ID = "TER"
 HALT_DETOUR_RATIO = 1.5  # d(A, halt) + d(halt, B) must stay below 1.5 × d(A, B) + 300 m
 HALT_DETOUR_SLACK_M = 300
+DIAGNOSTIC_RADIUS_M = 5000  # error messages list the SNCF stations served within this distance
 
 
 class BuildError(Exception):
@@ -182,7 +183,7 @@ class Station:
     source: str
     anchor: tuple[str, bool] | None
     origin: str = ""  # where the position used in the feed comes from (filled at build time)
-    between: tuple[str, ...] = ()  # TER halt only: the two neighbouring SNCF stations
+    between: tuple = ()  # TER halt only: candidates for the two neighbouring SNCF stations (two lists)
     announced: int | None = None  # TER halt only: trains per day announced (for the report)
 
 
@@ -224,9 +225,11 @@ def load_params(path: Path) -> dict:
                 raise BuildError(f"haltes_ter : clé « {key} » manquante")
         for h in haltes["haltes"]:
             between = h.get("entre") or []
-            if len(between) != 2 or normalize_name(between[0]) == normalize_name(between[1]):
-                raise BuildError(f"haltes_ter : la halte {h.get('station')} doit avoir deux gares voisines distinctes "
-                                 f"(« entre »), pas {between}")
+            sides = [[side] if isinstance(side, str) else list(side or []) for side in between]
+            if (len(sides) != 2 or not all(sides) or not all(isinstance(c, str) and c.strip() for s in sides for c in s)
+                    or {normalize_name(c) for c in sides[0]} & {normalize_name(c) for c in sides[1]}):
+                raise BuildError(f"haltes_ter : la halte {h.get('station')} doit avoir deux côtés (« entre »), chacun "
+                                 f"une gare ou une liste de gares candidates, sans gare commune ; pas {between}")
     for item in params.get("lignes_tisseo_remplacees") or []:
         if not str(item.get("ligne", "")).strip():
             raise BuildError(f"lignes_tisseo_remplacees : « ligne » (route_short_name Tisséo) manquante dans {item}")
@@ -290,7 +293,7 @@ def load_haltes(params, base: Path) -> list[Station]:
         st = by_name.get(normalize_name(item["station"]))
         if st is None:
             raise BuildError(f"haltes_ter : la halte « {item['station']} » est absente de {csv_path.name}")
-        st.between = tuple(item["entre"])
+        st.between = tuple([side] if isinstance(side, str) else list(side) for side in item["entre"])
         st.announced = item.get("trains_par_jour_annonces")
         out.append(st)
     return out
@@ -962,15 +965,18 @@ class SncfGtfs(TisseoGtfs):
     def name_of(self, stop_id: str) -> str:
         return self.stops.get(stop_id, {}).get("stop_name", "")
 
-    def stops_named(self, name: str) -> set[str]:
+    def stops_named(self, name: str, motif: str = "") -> set[str]:
         """Served stops whose own name, or whose parent station's name, is this one.
 
         Accents, case and punctuation are ignored. Without an exact match, a name that contains it
         is accepted ("Lalande-Église" for "Toulouse Lalande Église"), but only if it is one name.
+        motif: only stops whose stop_id contains it (SNCF: "Train TER", not the coaches nor the TGV).
         """
         target = normalize_name(name)
         names = {}
         for sid in self.served:
+            if motif and motif not in sid:
+                continue
             stop = self.stops.get(sid, {})
             for candidate in (stop.get("stop_name", ""), self.name_of(stop.get("parent_station", ""))):
                 if candidate:
@@ -995,6 +1001,65 @@ def is_rail_route(route: dict) -> bool:
     except ValueError:
         return False
     return value == 2 or 100 <= value <= 117
+
+
+def consecutive_calls(sncf, a_ids: set[str], b_ids: set[str]) -> list[tuple[str, int, bool]]:
+    """(trip, index of the first row, True if A then B) for the trains calling at A and B in a row."""
+    out = []
+    for tid, rows in sncf.stop_times.items():
+        if not is_rail_route(sncf.routes.get(sncf.trips.get(tid, {}).get("route_id"), {})):
+            continue  # SNCF coaches (OCECar) also call at these stations: never a halt for them
+        for i in range(len(rows) - 1):
+            s, t = rows[i]["stop_id"], rows[i + 1]["stop_id"]
+            if s in a_ids and t in b_ids:
+                out.append((tid, i, True))
+            elif s in b_ids and t in a_ids:
+                out.append((tid, i, False))
+    return out
+
+
+def sncf_diagnostic(sncf, halt, motif: str, radius_m: float = DIAGNOSTIC_RADIUS_M) -> str:
+    """Served SNCF stations near the halt, and the stations next to the candidates in the trains."""
+    trips: dict[str, set[str]] = defaultdict(set)
+    ids: dict[str, set[str]] = defaultdict(set)
+    around: dict[str, Counter] = defaultdict(Counter)
+    for tid, rows in sncf.stop_times.items():
+        if not is_rail_route(sncf.routes.get(sncf.trips.get(tid, {}).get("route_id"), {})):
+            continue
+        names = [sncf.name_of(r["stop_id"]) for r in rows]
+        for k, (row, name) in enumerate(zip(rows, names)):
+            trips[name].add(tid)
+            ids[name].add(row["stop_id"])
+            for j in (k - 1, k + 1):
+                if 0 <= j < len(rows):
+                    around[name][names[j]] += 1
+
+    def dist(name):
+        if halt.lat is None:
+            return None
+        return min(haversine_m(halt.lat, halt.lon, float(sncf.stops[s]["stop_lat"]), float(sncf.stops[s]["stop_lon"]))
+                   for s in ids[name])
+
+    def label(name):
+        d = dist(name)
+        kind = "" if not motif or any(motif in s for s in ids[name]) else f", aucun arrêt « {motif} »"
+        return f"{name} ({'?' if d is None else f'{d:.0f} m'}, {len(trips[name])} course(s){kind})"
+
+    out = []
+    if halt.lat is not None:
+        near = sorted((n for n in trips if dist(n) <= radius_m), key=dist)
+        out.append(f"gares SNCF desservies par des trains à moins de {radius_m / 1000:.0f} km de {halt.name} : "
+                   + (", ".join(label(n) for n in near) or "aucune"))
+    seen = set()
+    for side in halt.between:
+        for cand in side:
+            target = normalize_name(cand)
+            for name in trips:
+                if target and target in normalize_name(name) and name not in seen:
+                    seen.add(name)
+                    nxt = ", ".join(f"{label(n)} × {c}" for n, c in around[name].most_common(8))
+                    out.append(f"gares juste avant ou après {name} dans les trains : {nxt}")
+    return "\n".join(f"  - {line}" for line in out)
 
 
 def resolve_halte_positions(haltes, osm_positions, lines, tisseo: TisseoGtfs | None) -> None:
@@ -1051,23 +1116,25 @@ def build_ter_haltes(params, haltes, sncf: SncfGtfs | None, tables, agency_id, n
     tag = f"{prefix}SNCF_"
     dwell = int(cfg.get("temps_arret_s", 60))
     radius = float(cfg.get("rayon_deja_desservie_m", 150))
+    motif = cfg.get("motif_arrets_sncf") or ""
+    if motif and not any(motif in sid for sid in sncf.served):
+        raise BuildError(f"haltes_ter : aucun arrêt desservi du GTFS SNCF {sncf.path.name} n'a « {motif} » dans son "
+                         "stop_id (motif_arrets_sncf) : le format des identifiants SNCF a changé ?\n"
+                         + sncf_diagnostic(sncf, haltes[0], ""))
     inserts: dict[str, list[tuple[int, Station, float]]] = defaultdict(list)  # trip -> (index, halt, share)
     added = []
     for h in haltes:
-        a_name, b_name = h.between
-        a_ids, b_ids = sncf.stops_named(a_name), sncf.stops_named(b_name)
-        for name, ids in ((a_name, a_ids), (b_name, b_ids)):
-            if not ids:
-                raise BuildError(f"halte TER « {h.name} » : la gare voisine « {name} » n'est desservie par aucun "
-                                 f"train du GTFS SNCF {sncf.path.name}. Corrigez « entre » dans parametres.yaml.")
-        info = {"name": h.name, "between": f"{a_name} – {b_name}", "announced": h.announced, "origin": h.origin}
+        info = {"name": h.name, "announced": h.announced, "origin": h.origin,
+                "between": " – ".join(" / ".join(side) for side in h.between)}
         result["haltes"].append(info)
         same = sorted({sncf.name_of(s) for s in sncf.served if normalize_name(sncf.name_of(s)) == normalize_name(h.name)})
         near = []
         if h.lat is not None:
-            near = sorted({sncf.name_of(s) for s in sncf.served - a_ids - b_ids
-                           if haversine_m(h.lat, h.lon, float(sncf.stops[s]["stop_lat"]),
-                                          float(sncf.stops[s]["stop_lon"])) <= radius})
+            candidates = {normalize_name(c) for side in h.between for c in side}
+            near = sorted({sncf.name_of(s) for s in sncf.served
+                           if normalize_name(sncf.name_of(s)) not in candidates
+                           and haversine_m(h.lat, h.lon, float(sncf.stops[s]["stop_lat"]),
+                                           float(sncf.stops[s]["stop_lon"])) <= radius} - set(same))
         if same or near:
             info["status"] = f"déjà desservie dans le GTFS SNCF actuel ({', '.join(same + near)}) : non ajoutée"
             notes.append(f"Halte TER {h.name} déjà desservie dans le GTFS SNCF ({', '.join(same + near)}) : "
@@ -1077,6 +1144,36 @@ def build_ter_haltes(params, haltes, sncf: SncfGtfs | None, tables, agency_id, n
             info["status"] = "sans position vérifiable : non ajoutée"
             notes.append(f"Halte TER {h.name} sans position vérifiable (CSV, OSM, station voisine) : non ajoutée.")
             continue
+        # Neighbours: the first pair of candidates (side A first) with trains calling at both in a row.
+        chosen, tried = None, []
+        try:
+            for a_name in h.between[0]:
+                a_ids = sncf.stops_named(a_name, motif)
+                if not a_ids:
+                    tried.append(f"{a_name} : non desservie")
+                    continue
+                for b_name in h.between[1]:
+                    b_ids = sncf.stops_named(b_name, motif)
+                    calls = consecutive_calls(sncf, a_ids, b_ids) if b_ids else []
+                    tried.append(f"{a_name} → {b_name} : "
+                                 + (f"{len(calls)} passage(s) de train" if b_ids else f"{b_name} non desservie"))
+                    if calls:
+                        chosen = (a_name, a_ids, b_name, b_ids, calls)
+                        break
+                if chosen:
+                    break
+        except BuildError as exc:
+            raise BuildError(f"halte TER « {h.name} » : {exc}\n" + sncf_diagnostic(sncf, h, motif)) from exc
+        if chosen is None:
+            raise BuildError(
+                f"halte TER « {h.name} » : aucun train du GTFS SNCF {sncf.path.name} ne dessert successivement "
+                f"deux des gares voisines candidates (« entre » dans parametres.yaml). Rien n'est recopié ni exclu "
+                f"au hasard. Essais : {' ; '.join(tried)}.\n" + sncf_diagnostic(sncf, h, motif))
+        a_name, a_ids, b_name, b_ids, calls = chosen
+        info["between"] = f"{a_name} – {b_name}"
+        if (a_name, b_name) != (h.between[0][0], h.between[1][0]):
+            notes.append(f"Halte TER {h.name} : gares voisines de repli retenues, {a_name} et {b_name} "
+                         f"({' ; '.join(tried)}).")
         pa, pb = sncf.position(a_ids), sncf.position(b_ids)
         d_a, d_b, d_ab = haversine_m(*pa, h.lat, h.lon), haversine_m(h.lat, h.lon, *pb), haversine_m(*pa, *pb)
         info["distances"] = (d_a, d_b)
@@ -1085,21 +1182,8 @@ def build_ter_haltes(params, haltes, sncf: SncfGtfs | None, tables, agency_id, n
             notes.append(f"Halte TER {h.name} : position à {d_a:.0f} m de {a_name} et {d_b:.0f} m de {b_name}, "
                          f"qui sont à {d_ab:.0f} m l'une de l'autre : position douteuse, halte non ajoutée.")
             continue
-        found = 0
-        for tid, rows in sncf.stop_times.items():
-            if not is_rail_route(sncf.routes.get(sncf.trips.get(tid, {}).get("route_id"), {})):
-                continue  # SNCF coaches (OCECar) also call at these stations: never a halt for them
-            for i in range(len(rows) - 1):
-                s, t = rows[i]["stop_id"], rows[i + 1]["stop_id"]
-                if s in a_ids and t in b_ids:
-                    inserts[tid].append((i, h, d_a / (d_a + d_b)))
-                    found += 1
-                elif s in b_ids and t in a_ids:
-                    inserts[tid].append((i, h, d_b / (d_a + d_b)))
-                    found += 1
-        if not found:
-            raise BuildError(f"halte TER « {h.name} » : aucun train du GTFS SNCF ne dessert successivement "
-                             f"{a_name} et {b_name}. Rien n'est recopié ni exclu au hasard : corrigez « entre ».")
+        for tid, i, a_first in calls:
+            inserts[tid].append((i, h, (d_a if a_first else d_b) / (d_a + d_b)))
         info["status"] = "ajoutée"
         added.append(h)
     if not added:

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import csv
 import json
+import re
 
 import pytest
 
@@ -146,13 +147,39 @@ def test_halt_far_from_its_neighbours_is_rejected(tmp_path, positions):
 
 
 @pytest.mark.parametrize("kwargs,expected", [
-    ({"drop_stations": ("Labège Village",)}, "la gare voisine « Labège Village » n'est desservie"),
-    ({"express_only": True}, "aucun train du GTFS SNCF ne dessert successivement Lalande-Église et Toulouse Matabiau"),
+    ({"drop_stations": ("Labège Village", "Escalquens")}, "Labège Innopole → Labège Village : Labège Village non desservie"),
+    ({"express_only": True}, "Lalande-Église → Toulouse Matabiau : 0 passage(s) de train"),
+    ({"rename": {"Lalande-Église": "Grisolles"}}, "Lalande-Église : non desservie ; Lacourtensourt : non desservie"),
 ])
-def test_loud_failures(tmp_path, positions, capsys, kwargs, expected):
+def test_loud_failures_with_a_diagnostic(tmp_path, positions, capsys, kwargs, expected):
+    """No pair of candidate neighbours with trains: the build stops, and lists what the SNCF GTFS serves nearby."""
     out, _, _ = build(tmp_path, positions, kwargs, expect=2)
-    assert expected in capsys.readouterr().err
+    err = capsys.readouterr().err
+    assert "ne dessert successivement deux des gares voisines candidates" in err and expected in err
+    assert "gares SNCF desservies par des trains à moins de 5 km de" in err
+    assert re.search(r"gares juste avant ou après (Toulouse Matabiau|Labège Innopole) dans les trains : \S", err)
+    assert re.search(r"Labège Innopole \(\d+ m, \d+ course\(s\)\)|Toulouse Matabiau \(\d+ m, \d+ course\(s\)\)", err)
     assert not out.exists()
+
+
+def test_fallback_neighbour_is_used_and_reported(tmp_path, positions):
+    """Lalande-Église no longer served: the next candidate northwards (here Saint-Jory) is used."""
+    out, tables, report = build(tmp_path, positions, {"rename": {"Lalande-Église": "Saint-Jory"}})
+    assert "| Route de Launaguet | Saint-Jory – Toulouse Matabiau | ajoutée |" in report
+    assert "gares voisines de repli retenues, Saint-Jory et Toulouse Matabiau" in report
+    assert "Lalande-Église : non desservie" in report
+    assert LAUNAGUET in [r["stop_id"] for r in by_trip(tables)["FUT_SNCF_OCESNNORD008F"]]
+    # Labège Village not served: Escalquens, the next one, is used (SUD trains call at Innopole then Escalquens).
+    _, _, report = build(tmp_path / "b", positions, {"drop_stations": ("Labège Village",)})
+    assert "| Labège-La Cadène | Labège Innopole – Escalquens | ajoutée |" in report
+
+
+def test_coaches_and_other_stop_ids_are_ignored(tmp_path, positions, capsys):
+    """motif_arrets_sncf: only the TER stop points; a feed without any stops the build with a diagnostic."""
+    sncf = make_sncf_zip(tmp_path / "sncf.zip", positions)
+    loaded = bgf.SncfGtfs(sncf)
+    loaded.load()
+    assert loaded.stops_named("Labège Innopole", "Train TER") and not loaded.stops_named("Labège Innopole", "TGV")
 
 
 def test_neighbour_names(tmp_path, positions):

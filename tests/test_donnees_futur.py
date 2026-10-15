@@ -125,10 +125,14 @@ def test_ter_halts_are_consistent():
     """Two halts, marked as forecasts, each between two SNCF stations; Labège-La Cadène with its 42 trains."""
     params = bgf.load_params(PARAMS)
     haltes = bgf.load_haltes(params, REPO_ROOT)
-    assert [(h.name, h.between) for h in haltes] == [
-        ("Route de Launaguet", ("Lalande-Église", "Toulouse Matabiau")),
-        ("Labège-La Cadène", ("Labège Innopole", "Labège Village")),
+    assert [(h.name, h.between[0][0], h.between[1][0]) for h in haltes] == [
+        ("Route de Launaguet", "Lalande-Église", "Toulouse Matabiau"),
+        ("Labège-La Cadène", "Labège Innopole", "Labège Village"),
     ]
+    # Fallback neighbours, in the order of the line away from the halt.
+    assert haltes[0].between[0][-1] == "Castelnau-d'Estrétefonds"
+    assert haltes[1].between[1] == ["Labège Village", "Escalquens"]
+    assert params["haltes_ter"]["motif_arrets_sncf"] == "Train TER"
     with open(REPO_ROOT / "data" / "futur" / "haltes_ter.csv", encoding="utf-8", newline="") as fh:
         assert all(row["remarques"].startswith("PRÉVISIONNEL") for row in csv.DictReader(fh))
     assert haltes[1].announced == 42  # SNCF Gares & Connexions, 16/12/2024

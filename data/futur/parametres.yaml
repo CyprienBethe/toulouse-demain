@@ -85,11 +85,20 @@ haltes_ter:
   stations: "data/futur/haltes_ter.csv"
   temps_arret_s: 60                        # HYPOTHÈSE : arrêt d'un TER en halte, retard reporté sur la suite [§8.3]
   rayon_deja_desservie_m: 150              # arrêt SNCF desservi à moins de 150 m = halte déjà ouverte [§8.4]
+  motif_arrets_sncf: "Train TER"           # arrêts des TER dans le GTFS SNCF (StopPoint:OCETrain TER-…), pas les cars ni les TGV
+  # « entre » : les deux côtés de la halte, chacun une liste de gares dans l'ordre de la ligne en
+  # s'éloignant de la halte. La première paire desservie successivement par des trains l'emporte,
+  # le rapport dit laquelle (noms du GTFS SNCF, accents et ponctuation ignorés) [§8.2].
   haltes:
     - station: "Route de Launaguet"
-      entre: ["Lalande-Église", "Toulouse Matabiau"]   # FAIT : Wikipédia (noms du GTFS SNCF, accents ignorés)
+      entre:
+        # FAIT : ordre des haltes au nord de Matabiau (Wikipédia ; toulouseimmo9, 16/09/2026)
+        - ["Lalande-Église", "Lacourtensourt", "Fenouillet - Saint-Alban", "Saint-Jory", "Castelnau-d'Estrétefonds"]
+        - ["Toulouse Matabiau"]
     - station: "Labège-La Cadène"
-      entre: ["Labège Innopole", "Labège Village"]     # FAIT : Wikipédia
+      entre:
+        - ["Labège Innopole"]                # FAIT : Wikipédia, ligne 10 Toulouse – Narbonne
+        - ["Labège Village", "Escalquens"]   # FAIT : Wikipédia (Labège-Innopole → Labège-Village ; Escalquens ensuite, ligne 25)
       trains_par_jour_annonces: 42         # FAIT : SNCF Gares & Connexions, 16/12/2024 (comparé dans le rapport)
 
 # Intervalle d'une période = intervalle de pointe × coefficient.

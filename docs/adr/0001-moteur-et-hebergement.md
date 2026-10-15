@@ -81,6 +81,8 @@ Les règles sont écrites une seule fois, dans `config/scenarios.json` ; le fron
 
 Le CI vérifie à chaque construction que cette liste couvre tous les modes présents dans le graphe (sinon avertissement). Des tests (`scripts/tests/`) valident les requêtes et les variables contre le schéma officiel 2.10.0 [S2].
 
+**Sur une pull request** (et toute branche autre que la branche principale), un GTFS futur en échec **fait échouer le workflow** (dernière étape, après la publication du rapport, et titre « ÉCHEC » du rapport) : une coche verte ne doit jamais cacher un scénario 2028 absent (correction du 15/10/2026). Le succès partiel ci-dessous ne vaut que pour la branche principale et la construction hebdomadaire.
+
 **Si le GTFS futur échoue**, le graphe est construit sans lui : OTP ignore une source absente, d'après la lecture du code par le QA. Le CI calcule alors les trajets avec `--allow-missing-feed futur` : l'absence du flux devient un avertissement et le graphe du réseau actuel est publié. Le rapport affiche « succès partiel ».
 
 Limite connue : les stations futures existent dans le graphe même en scénario « actuel », mais aucun véhicule ne les dessert ; elles n'ont donc pas d'effet sur les trajets (à confirmer par les trajets de référence).

@@ -237,7 +237,7 @@ def sncf_positions(positions):
     }
 
 
-def make_sncf_zip(path: Path, positions: dict, served_halt=None, drop_stations=(), express_only=False):
+def make_sncf_zip(path: Path, positions: dict, served_halt=None, drop_stations=(), express_only=False, rename=None):
     """Synthetic filtered SNCF GTFS (calendar_dates only, as the SNCF feed), StopArea + StopPoint.
 
     NORD: Montauban - Lalande-Église - Toulouse Matabiau (and back) every hour 06:00-21:00, plus
@@ -245,8 +245,10 @@ def make_sncf_zip(path: Path, positions: dict, served_halt=None, drop_stations=(
     Innopole - Labège Village - Escalquens (and back), every hour. OUEST: Colomiers - Matabiau.
     served_halt: name of an extra stop served by the NORD trains between Lalande and Matabiau
     (the halt already opened). drop_stations: stations left out. express_only: NORD trains end at
-    Lalande-Église, so that no train calls at Lalande-Église then Matabiau.
+    Lalande-Église, so that no train calls at Lalande-Église then Matabiau. rename: {name: name
+    written in stops.txt}, for example to test the fallback neighbours.
     """
+    rename = rename or {}
     pos = sncf_positions(positions)
     if served_halt:
         pos[served_halt] = offset(pos["Lalande-Église"], 400, -3000)
@@ -254,10 +256,10 @@ def make_sncf_zip(path: Path, positions: dict, served_halt=None, drop_stations=(
     sid = {n: f"StopPoint:OCETrain TER-{87_000_000 + k}" for k, n in enumerate(names)}
     stops = []
     for n in names:
-        stops.append({"stop_id": f"StopArea:OCE{87_000_000 + names.index(n)}", "stop_name": n,
+        stops.append({"stop_id": f"StopArea:OCE{87_000_000 + names.index(n)}", "stop_name": rename.get(n, n),
                       "stop_lat": f"{pos[n][0]:.6f}", "stop_lon": f"{pos[n][1]:.6f}", "location_type": "1",
                       "parent_station": ""})
-        stops.append({"stop_id": sid[n], "stop_name": n, "stop_lat": f"{pos[n][0]:.6f}",
+        stops.append({"stop_id": sid[n], "stop_name": rename.get(n, n), "stop_lat": f"{pos[n][0]:.6f}",
                       "stop_lon": f"{pos[n][1]:.6f}", "location_type": "0",
                       "parent_station": f"StopArea:OCE{87_000_000 + names.index(n)}"})
     nord = [("Montauban", 0), ("Lalande-Église", 1500), ("Toulouse Matabiau", 2100)]
