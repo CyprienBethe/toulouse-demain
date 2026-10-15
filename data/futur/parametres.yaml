@@ -56,6 +56,51 @@ lignes:
       - {station: "Labège Madron", minutes: 3.5}  # FAIT : « entre 3 et 3 min 30 » (Tisséo) : haut de la fourchette
     intervalle_pointe_s: 300               # FAIT : 5 min en heure de pointe (Tisséo, 2022) [§4.1]
 
+  - id: "AEROPORT"
+    nom_court: "Aéroport"
+    nom_long: "Ligne Aéroport Blagnac – Aéroport (tram, projet, ouverture visée début 2027)"
+    route_type: 0                          # tram (GTFS) ; les autres lignes sont des métros (1, valeur par défaut) [§7.1]
+    couleur: "B39DDB"                      # HYPOTHÈSE : couleur provisoire de l'équipe, texte #16304F à 5,6:1 [§7.4]
+    couleur_texte: "16304F"
+    stations: "data/futur/stations_ligne_aeroport.csv"
+    points_de_calage:
+      - {station: "Blagnac", minutes: 0}
+      - {station: "Aéroport", minutes: 7}  # FAIT : 7 min depuis la station Blagnac (Tisséo, 2024 ; presse, 2026) [§7.2]
+    intervalle_pointe_s: 300               # FAIT : « à terme, un tram toutes les cinq minutes » (Tisséo, 2026) [§7.3]
+
+# Lignes Tisséo retirées du scénario 2028 parce qu'une ligne du flux futur les remplace [§7.5].
+# « ligne » = route_short_name exact dans le GTFS Tisséo, résolu en route_id à la construction.
+# La construction s'arrête (code 2) si ce nom désigne zéro ou plusieurs lignes : jamais
+# d'exclusion ratée en silence. La ligne B, recopiée et prolongée, est exclue à part (§4.5).
+lignes_tisseo_remplacees:
+  - ligne: "AERO"                          # FAIT : « Navette Aéroport », route tisseo:line:99 (rapport CI du 15/10/2026)
+    remplacee_par: "AEROPORT"              # décision de Cyprien (15/10/2026)
+
+# Haltes TER prévisionnelles du scénario 2028 [§8]. Avec le GTFS SNCF filtré (--sncf-gtfs) :
+# les trains qui desservent les deux gares voisines l'une après l'autre s'arrêtent aussi à la
+# halte (HYPOTHÈSE) ; leurs lignes SNCF sont recopiées dans le flux futur avec la halte, et
+# exclues du scénario 2028. La construction s'arrête si une gare voisine est introuvable ou si
+# aucun train ne dessert les deux. Une halte déjà desservie dans le GTFS SNCF n'est pas dupliquée.
+haltes_ter:
+  stations: "data/futur/haltes_ter.csv"
+  temps_arret_s: 60                        # HYPOTHÈSE : arrêt d'un TER en halte, retard reporté sur la suite [§8.3]
+  rayon_deja_desservie_m: 150              # arrêt SNCF desservi à moins de 150 m = halte déjà ouverte [§8.4]
+  motif_arrets_sncf: "Train TER"           # arrêts des TER dans le GTFS SNCF (StopPoint:OCETrain TER-…), pas les cars ni les TGV
+  # « entre » : les deux côtés de la halte, chacun une liste de gares dans l'ordre de la ligne en
+  # s'éloignant de la halte. La première paire desservie successivement par des trains l'emporte,
+  # le rapport dit laquelle (noms du GTFS SNCF, accents et ponctuation ignorés) [§8.2].
+  haltes:
+    - station: "Route de Launaguet"
+      entre:
+        # FAIT : ordre des haltes au nord de Matabiau (Wikipédia ; toulouseimmo9, 16/09/2026)
+        - ["Lalande-Église", "Lacourtensourt", "Fenouillet - Saint-Alban", "Saint-Jory", "Castelnau-d'Estrétefonds"]
+        - ["Toulouse Matabiau"]
+    - station: "Labège-La Cadène"
+      entre:
+        - ["Labège Innopole"]                # FAIT : Wikipédia, ligne 10 Toulouse – Narbonne
+        - ["Labège Village", "Escalquens"]   # FAIT : Wikipédia (Labège-Innopole → Labège-Village ; Escalquens ensuite, ligne 25)
+      trains_par_jour_annonces: 42         # FAIT : SNCF Gares & Connexions, 16/12/2024 (comparé dans le rapport)
+
 # Intervalle d'une période = intervalle de pointe × coefficient.
 # HYPOTHÈSE provisoire, remplacée automatiquement par la calibration sur la ligne B
 # du GTFS Tisséo quand il est fourni (voir calibration_tisseo) [§4.2].
@@ -115,6 +160,7 @@ calibration_tisseo:
 # Correspondance entre deux lignes du GTFS futur (même flux : transfers.txt) [§6]
 correspondances_internes:
   - {station: "Labège Madron", lignes: ["C", "B_EXT"], temps_min_s: 120}   # HYPOTHÈSE
+  - {station: "Blagnac", lignes: ["C", "AEROPORT"], temps_min_s: 120}      # HYPOTHÈSE [§7.4]
 
 # Rapport de proximité avec les arrêts Tisséo existants [§6]
 correspondances_tisseo:

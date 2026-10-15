@@ -4,7 +4,11 @@
 Usage:
     python scripts/write_report.py --report-dir build/report --zone build/zone.json \
         --futur build/gtfs/futur.gtfs.zip --outcome download=success --outcome ... \
-        --output build/report/report.md --json build/report/report.json
+        --output build/report/report.md --json build/report/report.json [--futur-required]
+
+--futur-required: the future feed is mandatory (pull requests and branches other
+than main). Without it, a failed future feed is a "partial success": the
+current network is still tested and published (main, weekly run).
 
 Every input is optional: when a step failed, its file is missing and the
 report says so, so that a failed run still produces a readable report. The
@@ -111,6 +115,25 @@ def best(entry: dict | None) -> dict | None:
     return min(entry["itineraries"], key=lambda i: i["minutes"])
 
 
+def report_status(outcomes: dict[str, str], warnings: list, futur_required: bool) -> tuple[bool, bool, str]:
+    """(success, futur_ok, status title) of the run.
+
+    The future feed may fail on main and on the weekly run ("partial success": the current
+    network is still published). Where it is required (pull requests), its failure fails the run.
+    """
+    futur_ok = outcomes.get("futur", "success") == "success"
+    success = bool(outcomes) and all(v == "success" for k, v in outcomes.items() if k != "futur")
+    if not futur_ok and futur_required:
+        return False, False, "ÉCHEC (GTFS futur en échec : obligatoire sur une pull request)"
+    if not success:
+        return False, futur_ok, "ÉCHEC"
+    if not futur_ok:
+        return True, False, "SUCCÈS PARTIEL (réseau actuel seulement, GTFS futur en échec)"
+    if warnings:
+        return True, True, "SUCCÈS AVEC AVERTISSEMENTS"
+    return True, True, "SUCCÈS"
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("--report-dir", type=Path, required=True)
@@ -119,6 +142,8 @@ def main() -> int:
     parser.add_argument("--outcome", action="append", default=[], help="step=outcome")
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--json", type=Path, required=True)
+    parser.add_argument("--futur-required", action="store_true",
+                        help="a failed future feed fails the run (pull requests)")
     args = parser.parse_args()
 
     d = args.report_dir
@@ -131,19 +156,10 @@ def main() -> int:
     serve = load(d / "otp-serve.json") or {}
     trips = load(d / "trips.json")
     futur = futur_summary(args.futur)
-    # The future feed is optional: when it fails, the current network is still
-    # tested and published ("partial success").
-    success = bool(outcomes) and all(v == "success" for k, v in outcomes.items() if k != "futur")
-    futur_ok = outcomes.get("futur", "success") == "success"
+    # The future feed is optional on main and on the weekly run: when it fails, the current
+    # network is still tested and published ("partial success"). It is required elsewhere.
     warnings = (trips or {}).get("warnings") or []
-    if not success:
-        status = "ÉCHEC"
-    elif not futur_ok:
-        status = "SUCCÈS PARTIEL (réseau actuel seulement, GTFS futur en échec)"
-    elif warnings:
-        status = "SUCCÈS AVEC AVERTISSEMENTS"
-    else:
-        status = "SUCCÈS"
+    success, futur_ok, status = report_status(outcomes, warnings, args.futur_required)
 
     env = os.environ
     run_url = None
@@ -169,7 +185,8 @@ def main() -> int:
     for step, label in STEP_LABELS.items():
         outcome = OUTCOME_LABELS.get(outcomes.get(step, "skipped"), outcomes.get(step))
         if step == "futur" and outcomes.get(step) == "failure":
-            outcome += " (toléré : graphe construit sans le flux futur)"
+            outcome += (" (non toléré sur une pull request : le workflow échoue)" if args.futur_required
+                        else " (toléré : graphe construit sans le flux futur)")
         md.append(f"| {label} | {outcome} |")
 
     md += ["", "### Données", "", "| Source | Taille | SHA-256 (début) | Last-Modified |", "| --- | --- | --- | --- |"]

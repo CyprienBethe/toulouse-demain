@@ -39,6 +39,10 @@ env:
   # JVM heap for the build (runner: 16 GB of RAM) and for the test server.
   BUILD_XMX: 12g
   SERVE_XMX: 6g
+  # The future feed may fail only on the default branch and on the weekly run ("partial
+  # success": the current network is still published). On a pull request, or any other
+  # branch, a failed future feed fails the workflow: no misleading green tick.
+  FUTUR_REQUIRED: ${{ github.event_name != 'schedule' && github.ref_name != github.event.repository.default_branch }}
 
 defaults:
   run:
@@ -120,9 +124,12 @@ jobs:
             mkdir -p build/report/attachments
             cp build/futur-osm/stations_osm.csv build/futur-osm/traces_osm.geojson \
               build/report/attachments/
+            # The filtered SNCF GTFS gives the trains that will stop at the TER halts.
             build/venv-futur/bin/python scripts/build_gtfs_futur.py \
-              --tisseo-gtfs build/raw/tisseo.gtfs.zip --osm-dir build/futur-osm \
-              --output build/gtfs/futur.gtfs.zip
+              --tisseo-gtfs build/raw/tisseo.gtfs.zip --sncf-gtfs build/otp/gtfs/sncf.gtfs.zip \
+              --osm-dir build/futur-osm --output build/gtfs/futur.gtfs.zip
+            # Build report (halts, excluded lines, warnings), readable on the `rapports` branch.
+            cp build/gtfs/futur-rapport.md build/futur-osm/rapport_osm.md build/report/attachments/
             cp build/gtfs/futur.gtfs.zip build/otp/gtfs/futur.gtfs.zip
           } 2>&1 | tee build/report/logs/futur.log
 
@@ -171,8 +178,10 @@ jobs:
       - name: Écrire le rapport
         if: always()
         run: |
+          required=()
+          if [[ "$FUTUR_REQUIRED" == "true" ]]; then required=(--futur-required); fi
           python scripts/write_report.py --report-dir build/report --zone build/zone.json \
-            --futur build/gtfs/futur.gtfs.zip \
+            --futur build/gtfs/futur.gtfs.zip "${required[@]}" \
             --outcome "download=${{ steps.download.outcome }}" \
             --outcome "zone=${{ steps.zone.outcome }}" \
             --outcome "osm=${{ steps.osm.outcome }}" \
@@ -229,3 +238,10 @@ jobs:
           PR_NUMBER: ${{ github.event.pull_request.number }}
           REPORT_BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
         run: bash scripts/publish_report.sh build/report/report.md build/report/report.json build/report/attachments
+
+      - name: Exiger le GTFS futur (pull request et autres branches)
+        # Last step, so that the report is published first. See FUTUR_REQUIRED above.
+        if: always() && steps.futur.outcome == 'failure' && env.FUTUR_REQUIRED == 'true'
+        run: |
+          echo "::error title=GTFS futur en échec::Le GTFS futur n'a pas pu être construit (voir le rapport). Le succès partiel n'est accepté que sur la branche principale et lors de la construction hebdomadaire."
+          exit 1

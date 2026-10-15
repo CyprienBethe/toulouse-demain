@@ -163,6 +163,77 @@ class TripChecksTest(unittest.TestCase):
         self.assertEqual(len(failures), 1)
 
 
+class AirportChecksTest(unittest.TestCase):
+    """Capitole → Aéroport: in 2028 the airport shuttle (AERO) is replaced by the Ligne Aéroport tram."""
+
+    TRIP = next(t for t in TRIPS["trips"] if t["id"] == "capitole-aeroport")
+    itinerary = staticmethod(TripChecksTest.itinerary)
+
+    def results(self, legs_2028):
+        return {"2028": {"itineraries": [self.itinerary(30, legs_2028)]},
+                "actuel": {"itineraries": [self.itinerary(33, [(None, None), ("tisseo", "AERO")])]}}
+
+    def test_tram_expected_in_2028(self):
+        ok = self.results([("tisseo", "A"), ("futur", "C"), ("futur", "Aéroport")])
+        self.assertEqual(rt.evaluate_checks(self.TRIP, ok, {"tisseo", "sncf", "futur"}), ([], []))
+        # Faster by bus 31, say: only a warning.
+        failures, warnings = rt.evaluate_checks(self.TRIP, self.results([("tisseo", "31")]), {"tisseo", "futur"})
+        self.assertEqual((failures, len(warnings)), ([], 1))
+        self.assertIn("Aéroport", warnings[0])
+
+    def test_shuttle_in_2028_is_a_failure(self):
+        # The exclusion of scenario-2028.json did not work: failure, whichever itinerary uses it.
+        results = self.results([("futur", "C"), ("futur", "Aéroport")])
+        results["2028"]["itineraries"].append(self.itinerary(40, [(None, None), ("tisseo", "AERO")]))
+        failures, _ = rt.evaluate_checks(self.TRIP, results, {"tisseo", "futur"})
+        self.assertEqual(len(failures), 1)
+        self.assertIn("ligne AERO (tisseo)", failures[0])
+
+    def test_shuttle_check_skipped_without_future_feed(self):
+        # Future feed absent: scenario 2028 is today's network, the shuttle is still there.
+        failures, warnings = rt.evaluate_checks(self.TRIP, self.results([("tisseo", "AERO")]), {"tisseo", "sncf"})
+        self.assertEqual(failures, [])
+        self.assertTrue(any("contrôle ignoré" in w for w in warnings), warnings)
+
+    def test_config(self):
+        checks = [c for c in self.TRIP["checks"] if c["scenario"] == "2028"]
+        self.assertIn({"feed": "tisseo", "line": "AERO"}, [c.get("never_uses_line") for c in checks])
+        self.assertIn({"feed": "futur", "line": "Aéroport"}, [c.get("fastest_uses") for c in checks])
+
+
+class TerHaltChecksTest(unittest.TestCase):
+    """2028: the TER halts of the future feed are used by at least one itinerary (warning otherwise)."""
+
+    TRIP = next(t for t in TRIPS["trips"] if t["id"] == "launaguet-matabiau")
+
+    @staticmethod
+    def results(legs):
+        itinerary = {"minutes": 12, "feeds": sorted({l["feed"] for l in legs if l["feed"]}), "legs": legs}
+        return {"2028": {"itineraries": [itinerary]}, "actuel": {"itineraries": []}}
+
+    def test_halt_used(self):
+        legs = [{"feed": None, "line": None, "from": "La Vache", "to": "Route de Launaguet"},
+                {"feed": "futur", "line": "K1", "from": "Route de Launaguet", "to": "Toulouse Matabiau"}]
+        self.assertEqual(rt.evaluate_checks(self.TRIP, self.results(legs), {"futur"}), ([], []))
+
+    def test_halt_not_used_is_a_warning(self):
+        legs = [{"feed": None, "line": None, "from": "La Vache", "to": "Route de Launaguet"},  # walking only
+                {"feed": "tisseo", "line": "B", "from": "La Vache", "to": "Jean Jaurès"}]
+        failures, warnings = rt.evaluate_checks(self.TRIP, self.results(legs), {"futur"})
+        self.assertEqual((failures, len(warnings)), ([], 1))
+        self.assertIn("route de launaguet", warnings[0])
+
+    def test_trips_resolve_without_the_halts(self):
+        # Halt not added (no position, or already in the SNCF GTFS): the trips still have an origin and a destination.
+        cadene = next(t for t in TRIPS["trips"] if t["id"] == "matabiau-labege-la-cadene")
+        with tempfile.TemporaryDirectory() as tmp:
+            gtfs = Path(tmp)
+            write_stops(gtfs / "tisseo.gtfs.zip", [("T1", "La Vache", 43.6365, 1.4517)])
+            write_stops(gtfs / "futur.gtfs.zip", [("F1", "Labège - Gare", 43.539, 1.52)])
+            self.assertEqual(rt.resolve_place(self.TRIP["from"], gtfs, {})["feed"], "tisseo")
+            self.assertEqual(rt.resolve_place(cadene["to"], gtfs, {})["pattern"], "^labege gare$")
+
+
 class ReferenceTripsConfigTest(unittest.TestCase):
     def test_mockup_trip_colomiers_diagora(self):
         # Example trip of the mock-ups: Gare de Colomiers → Diagora (Labège), both scenarios.
@@ -263,7 +334,8 @@ class MainEndToEndTest(unittest.TestCase):
         write_stops(gtfs / "tisseo.gtfs.zip", [
             ("T1", "Capitole", 43.6045, 1.4455), ("T2", "Aéroport", 43.6312, 1.3747),
             ("T3", "Marengo-SNCF", 43.611, 1.455), ("T4", "Ramonville", 43.5559, 1.4771),
-            ("T5", "Colomiers Gare", 43.6044, 1.3353), ("T6", "Labège Gare", 43.539, 1.5206)])
+            ("T5", "Colomiers Gare", 43.6044, 1.3353), ("T6", "Labège Gare", 43.539, 1.5206),
+            ("T7", "La Vache", 43.6365, 1.4517)])
         write_stops(gtfs / "sncf.gtfs.zip", [("S1", "Colomiers", 43.6037, 1.3342),
                                              ("S2", "Labège Innopole", 43.5475, 1.513)])
         write_stops(gtfs / "futur.gtfs.zip", [("F1", "Diagora", 43.544148, 1.509680)])
