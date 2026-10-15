@@ -1,6 +1,6 @@
 # Toulouse Demain
 
-Site web gratuit de calcul d'itinéraires sur le réseau Tisséo (114 communes) et les TER de la zone : transports en commun avec marche, marche seule ou vélo. Sa fonction phare : comparer un même trajet **aujourd'hui** et **en 2028**, avec la ligne C du métro et la ligne B prolongée, pour voir le temps gagné.
+Site web gratuit de calcul d'itinéraires sur le réseau Tisséo (114 communes) et les TER de la zone : transports en commun avec marche, marche seule ou vélo. Sa fonction phare : comparer un même trajet **aujourd'hui** et **en 2028**, avec la ligne C du métro, la ligne B prolongée et le tram de la Ligne Aéroport, pour voir le temps gagné.
 
 > Le scénario 2028 est une **projection** : les lignes futures sont simulées à partir de chiffres publics, sur le calendrier actuel. Les durées sont indicatives.
 
@@ -11,7 +11,7 @@ Site web gratuit de calcul d'itinéraires sur le réseau Tisséo (114 communes) 
  ─────────────────           ──────────────────────────────                ─────────────────────────────
  GTFS Tisséo      ──┐        1. télécharger                                 Caddy (HTTPS, limite de débit, CORS)
  GTFS SNCF        ──┼──────▶ 2. découper OSM, filtrer SNCF à la zone          │
- OpenStreetMap    ──┘        3. construire le GTFS « futur » (ligne C, B)     ▼
+ OpenStreetMap    ──┘        3. construire le GTFS « futur » (C, B, Aéroport) ▼
                              4. construire le graphe OpenTripPlanner  ──────▶ OpenTripPlanner (un seul graphe)
                              5. tester des trajets de référence      release   ▲
                              6. publier le rapport et le graphe                │  requêtes GraphQL
