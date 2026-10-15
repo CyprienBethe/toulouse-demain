@@ -8,9 +8,11 @@ Contract (fixed with the architect):
 ``--tisseo-gtfs`` is optional. The routing engine loads the output under the feed id ``futur``.
 
 Inputs
-    data/futur/stations_ligne_c.csv, data/futur/stations_ligne_b_prolongee.csv (stations, in order)
+    data/futur/stations_*.csv (stations of each line, in order; metro C, B extension, Ligne Aéroport tram)
     data/futur/parametres.yaml (headways, service hours, travel times; see docs/hypotheses-reseau-2028.md)
     build/futur-osm/ (optional): positions and track produced by scripts/extract_futur_osm.py
+
+Each line is a metro (route_type 1, default) or a tram (``route_type: 0``).
 
 Station positions, by priority: the CSV, then the OSM extraction, then the Tisséo stop named in
 column ``arret_tisseo_reference``. A station without any position stops the build (exit code 2):
@@ -22,6 +24,10 @@ nearest existing stops. Line B is copied (same stops, times and shapes) as route
 feed, and enough of its trains run on to Labège Madron to give the extension headway; scenario
 2028 then excludes the Tisséo line B (scenario-2028.json). Without it: a standalone 21-day
 calendar, the default parameters and a Ramonville – Labège Madron shuttle.
+
+Scenario 2028 also excludes the Tisséo lines listed in ``lignes_tisseo_remplacees`` (for example
+the airport shuttle, replaced by the Ligne Aéroport): each route_short_name is resolved to its
+route_id in the Tisséo GTFS, and the build stops (exit code 2) if it matches no route or several.
 
 Output, in the folder of --output: the GTFS zip (data derived under ODbL), scenario-2028.json
 and a Markdown report.
@@ -62,6 +68,8 @@ MAX_HOP_M = 4000
 NIGHT_CUT_S = 4 * 3600
 # Line B extension: a gap longer than this between two trains starts a new grid of extended trains.
 RUN_GAP_S = 30 * 60
+# GTFS route_type values a future line may have.
+ROUTE_TYPES = {0: "tram", 1: "métro"}
 
 
 class BuildError(Exception):
@@ -188,7 +196,28 @@ def load_params(path: Path) -> dict:
                 raise BuildError(f"profil {profile} : période « {period} » sans coefficient")
             if parse_hhmm(start) >= parse_hhmm(end):
                 raise BuildError(f"profil {profile} : fenêtre {start}-{end} vide")
+    line_ids = [line["id"] for line in params["lignes"]]
+    if len(line_ids) != len(set(line_ids)):
+        raise BuildError(f"identifiants de ligne en double : {line_ids}")
+    for line in params["lignes"]:
+        if route_type(line) not in ROUTE_TYPES:
+            raise BuildError(f"ligne {line['id']} : route_type {line.get('route_type')!r} non pris en charge "
+                             f"({', '.join(f'{k} = {v}' for k, v in ROUTE_TYPES.items())})")
+    for item in params.get("lignes_tisseo_remplacees") or []:
+        if not str(item.get("ligne", "")).strip():
+            raise BuildError(f"lignes_tisseo_remplacees : « ligne » (route_short_name Tisséo) manquante dans {item}")
+        if item.get("remplacee_par") not in line_ids:
+            raise BuildError(f"lignes_tisseo_remplacees : la ligne Tisséo {item['ligne']} est remplacée par "
+                             f"« {item.get('remplacee_par')} », absente de « lignes » {line_ids}")
     return params
+
+
+def route_type(line: dict) -> int:
+    """GTFS route_type of a future line: 1 (metro) unless the parameters say otherwise."""
+    try:
+        return int(line.get("route_type", 1))
+    except (TypeError, ValueError):
+        return -1
 
 
 def resolve_path(value: str, base: Path) -> Path:
@@ -364,6 +393,11 @@ class TisseoGtfs:
         if self.ref_trips:
             return sum(1 for svc in self.ref_trips.values() if svc in services)
         return sum(1 for t in self.trips if t["service_id"] in services)
+
+    def routes_named(self, short_name: str) -> list[dict]:
+        """Routes whose route_short_name is this one (case and surrounding spaces ignored)."""
+        target = short_name.strip().casefold()
+        return [r for r in self.routes if (r.get("route_short_name") or "").strip().casefold() == target]
 
     def find_stop(self, name: str) -> dict | None:
         """Tisséo stop with this name, preferring stations served by the metro."""
@@ -865,6 +899,50 @@ def build_b_direct(params, line, tisseo: TisseoGtfs, tables, platform_id, coeffi
     }
 
 
+# --------------------------------------------------------------------------- replaced Tisséo lines
+
+
+def resolve_replaced_lines(params, lines, tisseo: TisseoGtfs | None, notes: list[str]) -> list[dict]:
+    """Tisséo routes listed in lignes_tisseo_remplacees, resolved to their real route_id.
+
+    The name must designate exactly one route of the Tisséo GTFS: otherwise the build stops, so
+    that a renamed or duplicated line is never left running (or wrongly removed) in silence.
+    Without the Tisséo GTFS nothing can be resolved: nothing is excluded, and the report says so.
+    """
+    items = params.get("lignes_tisseo_remplacees") or []
+    by_id = {line["id"]: line for line in lines}
+    if tisseo is None:
+        if items:
+            notes.append("Sans GTFS Tisséo, lignes Tisséo remplacées non résolues, donc non exclues : "
+                         + ", ".join(str(i["ligne"]) for i in items) + ".")
+        return []
+    out = []
+    for item in items:
+        name = str(item["ligne"]).strip()
+        matches = tisseo.routes_named(name)
+        if len(matches) != 1:
+            if matches:
+                found = "; ".join(f"{r['route_id']} « {r.get('route_long_name', '')} »" for r in matches)
+                problem = f"désigne {len(matches)} lignes ({found})"
+            else:
+                close = sorted({r.get("route_short_name", "").strip() for r in tisseo.routes
+                                if normalize_name(name) in normalize_name(r.get("route_short_name", ""))
+                                or normalize_name(name) in normalize_name(r.get("route_long_name", ""))} - {""})
+                problem = "ne correspond à aucune ligne" + (f" (noms voisins : {', '.join(close)})" if close else "")
+            raise BuildError(
+                f"lignes_tisseo_remplacees : le route_short_name « {name} » {problem} dans le GTFS Tisséo "
+                f"{tisseo.path.name}. Corrigez data/futur/parametres.yaml : aucune ligne n'est exclue au hasard."
+            )
+        route = matches[0]
+        out.append({
+            "route": f"tisseo:{route['route_id']}",
+            "nom_court": route.get("route_short_name", "").strip(),
+            "nom_long": route.get("route_long_name", "").strip(),
+            "remplacee_par": by_id[item["remplacee_par"]]["nom_court"],
+        })
+    return out
+
+
 # --------------------------------------------------------------------------- feed assembly
 
 
@@ -901,6 +979,7 @@ def build_feed(params, lines, tisseo: TisseoGtfs | None, start: dt.date, osm_use
                 direct = line
             else:
                 notes.append(f"Ligne {line['nom_court']} du GTFS Tisséo introuvable : prolongement simulé en navette.")
+    replaced = resolve_replaced_lines(params, lines, tisseo, notes)
     cal_start, cal_end, assigned = build_calendar(params, tisseo, start)
 
     tables: dict[str, list[dict]] = defaultdict(list)
@@ -971,7 +1050,7 @@ def build_feed(params, lines, tisseo: TisseoGtfs | None, start: dt.date, osm_use
                     "route_short_name": line["nom_court"],
                     "route_long_name": line["nom_long"],
                     "route_desc": "Ligne en projet : horaires simulés, voir les hypothèses du projet Toulouse Demain",
-                    "route_type": "1",
+                    "route_type": str(route_type(line)),
                     "route_color": line.get("couleur", ""),
                     "route_text_color": line.get("couleur_texte", ""),
                 }
@@ -1137,6 +1216,17 @@ def build_feed(params, lines, tisseo: TisseoGtfs | None, start: dt.date, osm_use
     if tisseo is not None:
         check_collisions(tables, tisseo)
 
+    # Tisséo routes excluded from scenario 2028 (scenario-2028.json): line B when it is copied, then the list.
+    excluded = []
+    if direct_info:
+        excluded += [{"route": r, "nom_court": direct["prolongement_tisseo"]["ligne"], "nom_long": "",
+                      "remplacee_par": f"{direct['nom_court']} (recopiée et prolongée)"}
+                     for r in direct_info["exclude_routes"]]
+    for item in replaced:
+        if item["route"] in {e["route"] for e in excluded}:
+            raise BuildError(f"lignes_tisseo_remplacees : {item['route']} ({item['nom_court']}) est déjà exclue")
+        excluded.append(item)
+
     context = {
         "notes": notes,
         "coefficients": coefficients,
@@ -1146,6 +1236,7 @@ def build_feed(params, lines, tisseo: TisseoGtfs | None, start: dt.date, osm_use
         "calendar": (cal_start, cal_end, exceptions),
         "dwell": dwell,
         "direct": direct_info,
+        "excluded": excluded,
     }
     return tables, context
 
@@ -1237,8 +1328,18 @@ def write_report(path: Path, params, lines, context, tisseo: TisseoGtfs | None, 
         for period, value in sorted(direct["achieved"].items()):
             out.append(f"  - {period} : {fmt_minsec(value)} en moyenne")
         out.append("")
+    out.append("## Lignes Tisséo exclues du scénario 2028 (scenario-2028.json)")
+    out.append("")
+    if context["excluded"]:
+        out.append("| Ligne Tisséo | route_id | Nom long | Remplacée par |")
+        out.append("| --- | --- | --- | --- |")
+        for e in context["excluded"]:
+            out.append(f"| {e['nom_court']} | {e['route']} | {e['nom_long'] or '-'} | {e['remplacee_par']} |")
+    else:
+        out.append("Aucune.")
+    out.append("")
     for line in lines:
-        out.append(f"## Ligne {line['nom_court']} ({line['id']})")
+        out.append(f"## Ligne {line['nom_court']} ({line['id']}, {ROUTE_TYPES[route_type(line)]})")
         out.append("")
         out.append("| # | Station | lat | lon | Position |")
         out.append("| --- | --- | --- | --- | --- |")
@@ -1291,7 +1392,9 @@ def write_report(path: Path, params, lines, context, tisseo: TisseoGtfs | None, 
                 tisseo_modes = [c for c in st.connections.split(";") if c.strip().startswith(("Métro A", "Métro B", "Tram"))]
                 tisseo_modes = [c for c in tisseo_modes if "prolongement" not in c]
                 if tisseo_modes and not near:
-                    warnings.append(f"{st.name} : correspondance attendue mais aucun arrêt Tisséo à moins de {radius} m")
+                    warnings.append(f"Ligne {line['id']}, {st.name} : correspondance attendue "
+                                    f"({', '.join(c.strip() for c in tisseo_modes)}) mais aucun arrêt Tisséo "
+                                    f"à moins de {radius} m")
                 out.append(f"| {line['id']} | {st.name} | {st.connections or '-'} | {', '.join(near) or '-'} |")
         out.append("")
     counts = {name: len(rows) for name, rows in sorted(tables.items())}
@@ -1347,7 +1450,7 @@ def run(args) -> int:
     output = Path(args.output)
     write_zip(tables, output)
     # Routes of the current network replaced by the futur feed in scenario 2028 (read by the CI).
-    excluded = context["direct"]["exclude_routes"] if context.get("direct") else []
+    excluded = [e["route"] for e in context["excluded"]]
     (output.parent / "scenario-2028.json").write_text(json.dumps({"exclude_routes": excluded}) + "\n", encoding="utf-8")
     report = output.with_name(output.name.split(".")[0] + "-rapport.md")
     warnings = write_report(report, params, lines, context, tisseo, osm_dir, tables)

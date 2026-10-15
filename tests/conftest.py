@@ -39,7 +39,8 @@ def real_lines():
 
 
 def synthetic_positions():
-    """{(line, order): (lat, lon)}: line C eastwards with 1.2-1.5 km hops, B_EXT southwards to Labège Madron."""
+    """{(line, order): (lat, lon)}: line C eastwards with 1.2-1.5 km hops, B_EXT southwards to Labège Madron,
+    AEROPORT northwards from Blagnac (2.2 km)."""
     lines = real_lines()
     pos, east = {}, 0.0
     for st in lines["C"]:
@@ -50,6 +51,10 @@ def synthetic_positions():
     n = len(lines["B_EXT"])
     for st in lines["B_EXT"]:
         pos[("B_EXT", st.order)] = offset(end, 0, -1350 * (n - st.order))
+    blagnac = next(s for s in lines["C"] if s.name == "Blagnac")
+    start = pos[("C", blagnac.order)]
+    for st in lines["AEROPORT"]:
+        pos[("AEROPORT", st.order)] = offset(start, 0, 2200 * (st.order - 1))
     return pos
 
 
@@ -109,13 +114,16 @@ def departures(windows, first, last):
     return out
 
 
-def make_tisseo_zip(path: Path, positions: dict, extra_stops=(), night_next_day=False, extra_service_date=None):
+def make_tisseo_zip(path: Path, positions: dict, extra_stops=(), night_next_day=False, extra_service_date=None,
+                    aero_routes=("AERO",)):
     """Synthetic Tisséo-like GTFS: metro B Borderouge - Université - Ramonville with known headways,
-    shapes, metro A, a bus stop.
+    shapes, metro A, a bus stop, and the airport shuttle route (short name "AERO", no trip needed).
 
     night_next_day: adds Thursday/Friday/Saturday night trips (00:20 to 02:20) coded on the next
     date's service with times below 24:00, as some feeds do.
     extra_service_date: "YYYYMMDD" with extra peak trains (07:01 to 08:59, every 2 min) on that day only.
+    aero_routes: route_short_name of each airport shuttle route to write (several, or none, to test
+    the lignes_tisseo_remplacees checks).
     """
     lines = real_lines()
     by_name = {st.name: positions[(lid, st.order)] for lid, sts in lines.items() for st in sts}
@@ -181,6 +189,8 @@ def make_tisseo_zip(path: Path, positions: dict, extra_stops=(), night_next_day=
             {"route_id": "LA", "agency_id": "TISSEO", "route_short_name": "A", "route_type": 1},
             {"route_id": "LB", "agency_id": "TISSEO", "route_short_name": "B", "route_type": 1},
             {"route_id": "BUS", "agency_id": "TISSEO", "route_short_name": "14", "route_type": 3},
+            *({"route_id": f"line:{99 + k}", "agency_id": "TISSEO", "route_short_name": name, "route_type": 3}
+              for k, name in enumerate(aero_routes)),
         ],
         "trips.txt": trips,
         "stop_times.txt": stop_times,

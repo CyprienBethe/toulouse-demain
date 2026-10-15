@@ -48,6 +48,7 @@ def mini_case(tmp_path):
         }
     ]
     params["correspondances_internes"] = []
+    params["lignes_tisseo_remplacees"] = []
     params_path = tmp_path / "params.yaml"
     params_path.write_text(yaml.safe_dump(params, allow_unicode=True), encoding="utf-8")
 
@@ -125,8 +126,9 @@ def full_line_osm(tmp_path, with_real=("Raisin", "Ormeau"), with_track=True):
             if st.name not in ids:
                 nid += 1
                 ids[st.name] = nid
-                elements.append(node(nid, pos[(line_id, st.order)],
-                                     {"public_transport": "stop_position", "subway": "yes", "name": st.name}))
+                tags = ({"railway": "tram_stop", "name": st.name} if line_id == "AEROPORT"  # tram stop only
+                        else {"public_transport": "stop_position", "subway": "yes", "name": st.name})
+                elements.append(node(nid, pos[(line_id, st.order)], tags))
     c = {s.name: pos[("C", s.order)] for s in lines["C"]}
     decoys = [
         node(5, offset(c["Lycée Toulouse-Lautrec"], 3000, -14_300), {"public_transport": "platform", "name": "Raisin"}),
@@ -139,6 +141,10 @@ def full_line_osm(tmp_path, with_real=("Raisin", "Ormeau"), with_track=True):
         for wid, stations in ((900, lines["C"]), (901, lines["B_EXT"])):
             refs = [ids[s.name] for s in stations if s.name in ids]
             elements.append(way(wid, refs, {"railway": "construction", "construction": "subway"}))
+        # Ligne Aéroport: existing tram track of the former T2 branch, through an intermediate node.
+        blagnac, airport = pos[("AEROPORT", 1)], pos[("AEROPORT", 2)]
+        elements.append(node(20_001, offset(blagnac, 150, 1100)))
+        elements.append(way(902, [ids["Blagnac"], 20_001, ids["Aéroport"]], {"railway": "tram"}))
     osm_file = tmp_path / "line.osm"
     osm_file.write_text("<?xml version='1.0' encoding='UTF-8'?>\n<osm version=\"0.6\" generator=\"test\">\n"
                         + "\n".join(elements) + "\n</osm>\n", encoding="utf-8")
@@ -158,8 +164,28 @@ def test_homonyms_far_away_are_not_chosen(tmp_path):
     assert rows[("C", "Raisin")]["osm_id"] == str(ids["Raisin"])  # not node 5, 14 km south
     assert rows[("C", "Ormeau")]["osm_id"] == str(ids["Ormeau"])  # not "Bel Air" nor the Colomiers homonym
     assert rows[("C", "Ormeau")]["osm_nom"] == "Ormeau"
-    assert len(rows) == 24
+    assert len(rows) == 26
     assert all(r["precision"].startswith("station exacte") for r in rows.values())  # stops on the track
+
+
+def test_tram_line_uses_tram_stops_and_tram_track(tmp_path):
+    """Ligne Aéroport: a pure tram stop is a candidate (for the tram line only), the hop follows the tram track."""
+    osm_file, ids = full_line_osm(tmp_path)
+    rows, report = extract(tmp_path, osm_file)
+    airport = rows[("AEROPORT", "Aéroport")]
+    assert airport["osm_id"] == str(ids["Aéroport"])
+    assert airport["precision"] == "station exacte (OSM : quai ou arrêt de même nom sur la voie de tram)"
+    assert rows[("AEROPORT", "Blagnac")]["osm_id"] == rows[("C", "Blagnac")]["osm_id"]  # same pole
+    traces = json.loads((tmp_path / "osm-out" / "traces_osm.geojson").read_text(encoding="utf-8"))
+    hop = next(f for f in traces["features"] if f["properties"]["ligne"] == "AEROPORT")
+    assert hop["properties"]["methode"] == "osm" and len(hop["geometry"]["coordinates"]) >= 3
+    assert "## Ligne Aéroport (AEROPORT, tram)" in report
+
+
+def test_tram_stop_is_not_a_metro_candidate():
+    tram_stop = {"railway": "tram_stop", "name": "Blagnac"}
+    assert efo.station_rank(tram_stop) == 0 and efo.station_rank(tram_stop, tram=True) == 1
+    assert efo.is_tram_track({"railway": "tram"}) and not efo.is_track({"railway": "tram"})
 
 
 def test_rejected_candidate_gives_missing_station(tmp_path):
@@ -169,7 +195,7 @@ def test_rejected_candidate_gives_missing_station(tmp_path):
     assert "10. Raisin : candidat REJETÉ Raisin (node/5)" in report
     assert "16. Ormeau : candidat REJETÉ Ormeau (node/7)" in report
     assert "10. Raisin : MANQUANTE" in report and "16. Ormeau : MANQUANTE" in report
-    assert len(rows) == 22  # all the other stations are kept
+    assert len(rows) == 24  # all the other stations are kept
     lines, pos = real_lines(), synthetic_positions()
     for st in lines["C"]:
         if ("C", st.name) in rows:

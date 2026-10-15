@@ -21,6 +21,10 @@ How a station is matched (data/futur/stations_*.csv, line by line):
 The track of each hop is the shortest path over the railway ways under construction (then also
 the existing metro), simplified; when no path is found the hop is a straight line.
 
+Tram lines (``route_type: 0`` in parametres.yaml, the Ligne Aéroport): tram stops
+(``railway=tram_stop``) are also station candidates, and "the track" is the tram track, existing
+or under construction (``railway=tram``), because the line reuses the former T2 branch.
+
 Outputs (data derived under ODbL, © OpenStreetMap contributors):
     stations_osm.csv      position, OSM object and precision of every matched station
     traces_osm.geojson    one LineString per hop
@@ -48,6 +52,7 @@ from build_gtfs_futur import (  # noqa: E402
     load_stations,
     normalize_name,
     resolve_path,
+    route_type,
 )
 
 LICENCE = "données dérivées sous ODbL - © les contributeurs d'OpenStreetMap"
@@ -79,8 +84,8 @@ def is_construction(tags: dict) -> bool:
     )
 
 
-def station_rank(tags: dict) -> int:
-    """2 = station, 1 = platform or stop, 0 = not a station-like object."""
+def station_rank(tags: dict, tram: bool = False) -> int:
+    """2 = station, 1 = platform or stop (or tram stop, for a tram line), 0 = not a station-like object."""
     values = {
         tags.get("railway"),
         tags.get("public_transport"),
@@ -90,7 +95,7 @@ def station_rank(tags: dict) -> int:
     }
     if values & {"station", "halt"}:
         return 2
-    if values & {"platform", "stop_position", "stop"}:
+    if values & ({"platform", "stop_position", "stop"} | ({"tram_stop"} if tram else set())):
         return 1
     return 0
 
@@ -102,6 +107,15 @@ def is_track(tags: dict) -> bool:
     if railway == "construction":
         return tags.get("construction", "subway") in {"subway", "light_rail", "rail", "yes", "monorail"}
     return tags.get("construction:railway") in {"subway", "light_rail"}
+
+
+def is_tram_track(tags: dict) -> bool:
+    """Tram track, existing or under construction."""
+    return (
+        tags.get("railway") == "tram"
+        or (tags.get("railway") == "construction" and tags.get("construction") == "tram")
+        or tags.get("construction:railway") == "tram"
+    )
 
 
 def name_score(expected: str, candidate: str) -> float:
@@ -187,10 +201,14 @@ def simplify(points, tolerance_m=SIMPLIFY_M):
 
 
 def read_osm(path: Path):
-    """Station-like objects, railway graphs and the segments of the track under construction."""
+    """Station-like objects, railway graphs and track segments, per kind of line.
+
+    Returns (candidates, graphs, coords, segments): graphs["metro"] and graphs["tram"] are lists
+    of graphs tried in order; segments[kind] is "the track" used to rank candidates.
+    """
     import osmium  # imported here so that the module can be imported without pyosmium
 
-    candidates, edges, coords = [], [], {}
+    candidates, edges, tram_edges, coords = [], [], [], {}
     keys = ("railway", "public_transport", "construction", "construction:railway", "construction:public_transport")
     processor = osmium.FileProcessor(str(path)).with_locations().with_filter(osmium.filter.KeyFilter(*keys))
     for obj in processor:
@@ -209,13 +227,17 @@ def read_osm(path: Path):
                 for (ra, la, oa), (rb, lb, ob) in zip(pts, pts[1:]):
                     coords[ra], coords[rb] = (la, oa), (lb, ob)
                     edges.append((ra, rb, haversine_m(la, oa, lb, ob), building))
+            elif is_tram_track(tags) and any(in_bbox(p[1], p[2]) for p in pts):
+                for (ra, la, oa), (rb, lb, ob) in zip(pts, pts[1:]):
+                    coords[ra], coords[rb] = (la, oa), (lb, ob)
+                    tram_edges.append((ra, rb, haversine_m(la, oa, lb, ob)))
             unique = list({p[0]: p for p in pts}.values())
             lat = sum(p[1] for p in unique) / len(unique)
             lon = sum(p[2] for p in unique) / len(unique)
             kind = "way"
         else:
             continue
-        rank = station_rank(tags)
+        rank = station_rank(tags, tram=True)
         names = [(k, tags[k]) for k in NAME_KEYS if tags.get(k)]
         if rank and names and in_bbox(lat, lon):
             candidates.append(
@@ -227,6 +249,7 @@ def read_osm(path: Path):
                     "names": names,
                     "label": tags.get("name") or names[0][1],
                     "rank": rank,
+                    "tram_only": station_rank(tags) == 0,  # a tram stop: candidate for tram lines only
                     "construction": is_construction(tags),
                 }
             )
@@ -240,17 +263,26 @@ def read_osm(path: Path):
                 graph.setdefault(a, []).append((b, w))
                 graph.setdefault(b, []).append((a, w))
         graphs.append(graph)
-    segments = [(coords[a], coords[b]) for a, b, _, building in edges if building]
-    return candidates, graphs, coords, segments
+    tram_graph: dict[int, list[tuple[int, float]]] = {}
+    for a, b, w in tram_edges:
+        tram_graph.setdefault(a, []).append((b, w))
+        tram_graph.setdefault(b, []).append((a, w))
+    segments = {
+        "metro": [(coords[a], coords[b]) for a, b, _, building in edges if building],
+        "tram": [(coords[a], coords[b]) for a, b, _ in tram_edges],
+    }
+    return candidates, {"metro": graphs, "tram": [tram_graph]}, coords, segments
 
 
 # --------------------------------------------------------------------------- station choice
 
 
-def station_candidates(station, candidates, segments) -> list[dict]:
+def station_candidates(station, candidates, segments, tram: bool = False) -> list[dict]:
     """Candidates whose name is acceptable for this station, with score and track distance."""
     out = []
     for cand in candidates:
+        if cand.get("tram_only") and not tram:
+            continue
         score, matched = candidate_score(station.name, cand)
         if score < (MIN_SCORE if cand["construction"] else 1.0):
             continue
@@ -342,16 +374,18 @@ def choose_stations(stations, cands_by_order: dict[int, list[dict]]):
     return picks, rejected
 
 
-def precision_of(cand: dict, same_station: bool) -> str:
+def precision_of(cand: dict, same_station: bool, tram: bool = False) -> str:
     what, existing = ("station", "station existante") if cand["rank"] == 2 else ("quai ou arrêt", "quai ou arrêt existant")
+    on, near, none = (("sur la voie de tram", "de la voie de tram", "sans voie de tram cartographiée") if tram else
+                      ("sur le tracé en construction", "du tracé en construction",
+                       "sans tracé en construction cartographié"))
     if cand["construction"]:
         return f"station exacte (OSM : {what} en construction)"
     if same_station:
         return f"station exacte (OSM : {existing}, même station)"
     if cand["d_track"] is not None and cand["d_track"] <= ON_TRACK_M:
-        return f"station exacte (OSM : {what} de même nom sur le tracé en construction)"
-    where = (f"à {cand['d_track']:.0f} m du tracé en construction" if cand["d_track"] is not None
-             else "sans tracé en construction cartographié")
+        return f"station exacte (OSM : {what} de même nom {on})"
+    where = f"à {cand['d_track']:.0f} m {near}" if cand["d_track"] is not None else none
     return f"approximative (OSM : {existing} de même nom, {where})"
 
 
@@ -422,9 +456,11 @@ def run(args) -> int:
     for line in params["lignes"]:
         stations = load_stations(resolve_path(line["stations"], base), line["id"])
         total += len(stations)
-        cands = {st.order: station_candidates(st, candidates, segments) for st in stations}
+        tram = route_type(line) == 0
+        kind = "tram" if tram else "metro"
+        cands = {st.order: station_candidates(st, candidates, segments[kind], tram=tram) for st in stations}
         picks, rejected = choose_stations(stations, cands)
-        report += [f"## Ligne {line['nom_court']} ({line['id']})", ""]
+        report += [f"## Ligne {line['nom_court']} ({line['id']}{', tram' if tram else ''})", ""]
         found = {}
         for st in stations:
             for reason in rejected.get(st.order, []):
@@ -433,7 +469,7 @@ def run(args) -> int:
             if cand is None:
                 report.append(f"- {st.order}. {st.name} : MANQUANTE ({len(cands[st.order])} candidat(s) de même nom)")
                 continue
-            precision = precision_of(cand, bool(st.anchor and st.anchor[1]))
+            precision = precision_of(cand, bool(st.anchor and st.anchor[1]), tram)
             url = f"https://www.openstreetmap.org/{cand['osm_type']}/{cand['osm_id']}"
             found[st.order] = (cand["lat"], cand["lon"])
             rows.append(
@@ -460,7 +496,7 @@ def run(args) -> int:
         for a, b in zip(stations, stations[1:]):
             if a.order not in found or b.order not in found:
                 continue
-            method, geometry = hop_track(graphs, coords, found[a.order], found[b.order])
+            method, geometry = hop_track(graphs[kind], coords, found[a.order], found[b.order])
             report.append(f"- tracé {a.name} → {b.name} : {method}")
             features.append(
                 {
