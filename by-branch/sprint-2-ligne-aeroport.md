@@ -1,11 +1,11 @@
 <!-- toulouse-demain:graph-report -->
-## Rapport de construction du graphe : SUCCÈS PARTIEL (réseau actuel seulement, GTFS futur en échec)
+## Rapport de construction du graphe : SUCCÈS AVEC AVERTISSEMENTS
 
-- Date : 2026-10-15 21:22 UTC
-- Événement : `pull_request`, branche `3/merge`, commit `6e7abc3`
+- Date : 2026-10-15 21:35 UTC
+- Événement : `pull_request`, branche `3/merge`, commit `19b3ef2`
 - Image OTP : `docker.io/opentripplanner/opentripplanner:2.10.0`
-- Exécution : https://github.com/CyprienBethe/toulouse-demain/actions/runs/38809009148
-- Durée depuis le début du workflow : 3 min 11 s
+- Exécution : https://github.com/CyprienBethe/toulouse-demain/actions/runs/38810500944
+- Durée depuis le début du workflow : 4 min 14 s
 
 ### Étapes
 
@@ -15,7 +15,7 @@
 | Calcul de la zone | réussi |
 | Découpage OpenStreetMap | réussi |
 | Filtrage du GTFS SNCF | réussi |
-| Construction du GTFS futur (data engineer) | ÉCHEC (toléré : graphe construit sans le flux futur) |
+| Construction du GTFS futur (data engineer) | réussi |
 | Construction du graphe OTP | réussi |
 | Démarrage du serveur OTP | réussi |
 | Trajets de référence | réussi |
@@ -31,36 +31,36 @@
 Zone (rectangle WGS84 min_lon,min_lat,max_lon,max_lat) : `1.02706,43.30141,1.81453,43.83973` — calculée sur 5726 arrêts Tisséo + 10.0 km de marge.
 OpenStreetMap découpé : 362,95 Mo → 82,61 Mo (osmium version 1.16.0).
 GTFS SNCF filtré : 1390 courses, 22 lignes, 121 arrêts gardés ; stop_times 517476 → 7024 lignes ; route_type {'2': 20, '3': 2}.
-GTFS futur : **absent** (`build/gtfs/futur.gtfs.zip` non produit).
+GTFS futur : 2,92 Mo, 8 lignes (C, B, Aéroport, K1, K13, C1, C3, K11), 144 arrêts, 15260 courses.
 
 ### Moteur OpenTripPlanner (mesures de cette exécution)
 
 | Mesure | Valeur |
 | --- | --- |
-| Durée de construction du graphe | 1 min 26 s |
-| Mémoire max du conteneur pendant la construction (-Xmx12g) | 4,42 Go |
-| Tas Java vivant max après GC, construction | 1,46 Go |
-| Taille de graph.obj | 83,48 Mo |
-| Démarrage du serveur (chargement du graphe) | 6 s |
-| Mémoire du conteneur serveur prêt (-Xmx6g) | 1,09 Go |
-| Mémoire du conteneur serveur après les trajets | 1,16 Go |
-| Tas Java vivant max après GC, serveur | 723,52 Mo |
+| Durée de construction du graphe | 2 min 16 s |
+| Mémoire max du conteneur pendant la construction (-Xmx12g) | 3,78 Go |
+| Tas Java vivant max après GC, construction | 1,67 Go |
+| Taille de graph.obj | 88,63 Mo |
+| Démarrage du serveur (chargement du graphe) | 11 s |
+| Mémoire du conteneur serveur prêt (-Xmx6g) | 1,20 Go |
+| Mémoire du conteneur serveur après les trajets | 1,27 Go |
+| Tas Java vivant max après GC, serveur | 840,96 Mo |
 
 ### Trajets de référence (départ 2026-10-20T08:30:00+02:00)
 
 | Trajet | Actuel | 2028 | Écart |
 | --- | --- | --- | --- |
-| Capitole → Aéroport Toulouse-Blagnac | 26 min | 26 min | identique |
+| Capitole → Aéroport Toulouse-Blagnac | 26 min | 36 min | 10 min plus long en 2028 |
 | Gare Matabiau → Ramonville | 21 min | 21 min | identique |
-| Colomiers gare → Labège | 45 min | 45 min | identique |
-| Gare de Colomiers → Diagora (Labège) | 45 min | 45 min | identique |
-| La Vache (halte Route de Launaguet) → Gare Matabiau | 27 min | 27 min | identique |
-| Gare Matabiau → Labège-La Cadène | 9 min | 9 min | identique |
+| Colomiers gare → Labège | 45 min | 48 min | 3 min plus long en 2028 |
+| Gare de Colomiers → Diagora (Labège) | 53 min | 38 min | 15 min plus court en 2028 |
+| La Vache (halte Route de Launaguet) → Gare Matabiau | 26 min | 4 min | 22 min plus court en 2028 |
+| Gare Matabiau → Labège-La Cadène | 24 min | 27 min | 3 min plus long en 2028 |
 | Capitole → Gare Matabiau, marche seule | 17 min | — |  |
 | Capitole → Aéroport Toulouse-Blagnac, vélo | 38 min | — |  |
 
-- Scénario actuel : 0 agence(s) exclue(s), lignes exclues : aucune
-- Scénario 2028 : 0 agence(s) exclue(s), lignes exclues : aucune
+- Scénario actuel : 1 agence(s) exclue(s), lignes exclues : aucune
+- Scénario 2028 : 0 agence(s) exclue(s), lignes exclues : tisseo:line:69, tisseo:line:99, sncf:FR:Line::0312E125-B6BC-404C-A7D1-C1600D4CACAF:, sncf:FR:Line::1CEA14EA-7F5A-4D44-A739-F6A13138F139:, sncf:FR:Line::3EA7647F-5C9C-4833-AFB5-3B9D213283B0:, sncf:FR:Line::52D5BA37-0A0E-43ED-AB0D-DAF12888D586:, sncf:FR:Line::F9BD440B-D41F-4106-B2BA-B807F0635262:
 - Modes présents dans le graphe : BUS, GONDOLA, RAIL, SUBWAY, TRAM ; modes demandés : BUS, TRAM, SUBWAY, RAIL, GONDOLA
 
 <details><summary>Détail des trajets</summary>
@@ -71,11 +71,11 @@ GTFS futur : **absent** (`build/gtfs/futur.gtfs.zip` non produit).
 - actuel : 33 min, 0 corresp., walk 8 min → BUS AERO (tisseo) → walk 0 min
 - actuel : 32 min, 0 corresp., walk 8 min → BUS AERO (tisseo) → walk 0 min
 - actuel : 26 min, 0 corresp., walk 8 min → BUS AERO (tisseo) → walk 0 min
-  (réponse en 451 ms)
-- 2028 : 33 min, 0 corresp., walk 8 min → BUS AERO (tisseo) → walk 0 min
-- 2028 : 32 min, 0 corresp., walk 8 min → BUS AERO (tisseo) → walk 0 min
-- 2028 : 26 min, 0 corresp., walk 8 min → BUS AERO (tisseo) → walk 0 min
-  (réponse en 166 ms)
+  (réponse en 762 ms)
+- 2028 : 38 min, 2 corresp., walk 0 min → SUBWAY A (tisseo) → walk 6 min → SUBWAY C (futur) → TRAM Aéroport (futur) → walk 1 min
+- 2028 : 36 min, 2 corresp., walk 0 min → SUBWAY A (tisseo) → walk 6 min → SUBWAY C (futur) → TRAM Aéroport (futur) → walk 1 min
+- 2028 : 44 min, 1 corresp., walk 18 min → SUBWAY C (futur) → TRAM Aéroport (futur) → walk 1 min
+  (réponse en 574 ms)
 
 **Gare Matabiau → Ramonville** (transit)
 - Départ : Toulouse Matabiau [sncf, 4 arrêt(s), 43.611206, 1.453616]
@@ -83,11 +83,11 @@ GTFS futur : **absent** (`build/gtfs/futur.gtfs.zip` non produit).
 - actuel : 21 min, 1 corresp., RAIL K5 (sncf) → walk 4 min → SUBWAY B (tisseo) → walk 2 min
 - actuel : 32 min, 0 corresp., walk 14 min → SUBWAY B (tisseo) → walk 2 min
 - actuel : 31 min, 0 corresp., walk 1 min → BUS 27 (tisseo) → walk 0 min
-  (réponse en 191 ms)
-- 2028 : 21 min, 1 corresp., RAIL K5 (sncf) → walk 4 min → SUBWAY B (tisseo) → walk 2 min
-- 2028 : 32 min, 0 corresp., walk 14 min → SUBWAY B (tisseo) → walk 2 min
+  (réponse en 208 ms)
+- 2028 : 21 min, 1 corresp., RAIL K5 (sncf) → walk 4 min → SUBWAY B (futur) → walk 3 min
+- 2028 : 32 min, 0 corresp., walk 13 min → SUBWAY B (futur) → walk 3 min
 - 2028 : 31 min, 0 corresp., walk 1 min → BUS 27 (tisseo) → walk 0 min
-  (réponse en 204 ms)
+  (réponse en 146 ms)
 
 **Colomiers gare → Labège** (transit)
 - Départ : Colomiers [sncf, 3 arrêt(s), 43.603734, 1.334221]
@@ -95,77 +95,61 @@ GTFS futur : **absent** (`build/gtfs/futur.gtfs.zip` non produit).
 - actuel : 45 min, 1 corresp., RAIL C6 (sncf) → RAIL K3 (sncf)
 - actuel : 53 min, 2 corresp., RAIL C6 (sncf) → walk 4 min → SUBWAY B (tisseo) → walk 4 min → BUS 80 (tisseo) → walk 3 min
 - actuel : 68 min, 1 corresp., RAIL C6 (sncf) → RAIL C3 (sncf)
-  (réponse en 324 ms)
-- 2028 : 45 min, 1 corresp., RAIL C6 (sncf) → RAIL K3 (sncf)
-- 2028 : 53 min, 2 corresp., RAIL C6 (sncf) → walk 4 min → SUBWAY B (tisseo) → walk 4 min → BUS 80 (tisseo) → walk 3 min
-- 2028 : 68 min, 1 corresp., RAIL C6 (sncf) → RAIL C3 (sncf)
-  (réponse en 260 ms)
+  (réponse en 306 ms)
+- 2028 : 48 min, 0 corresp., walk 4 min → SUBWAY C (futur) → walk 10 min
+- 2028 : 48 min, 0 corresp., walk 4 min → SUBWAY C (futur) → walk 10 min
+- 2028 : 48 min, 0 corresp., walk 4 min → SUBWAY C (futur) → walk 10 min
+  (réponse en 247 ms)
 
 **Gare de Colomiers → Diagora (Labège)** (transit)
 - Départ : Colomiers [sncf, 3 arrêt(s), 43.603734, 1.334221]
-- Arrivée : Labège Innopole [sncf, 3 arrêt(s), 43.547467, 1.512964]
-- actuel : 45 min, 1 corresp., RAIL C6 (sncf) → RAIL K3 (sncf)
-- actuel : 53 min, 2 corresp., RAIL C6 (sncf) → walk 4 min → SUBWAY B (tisseo) → walk 4 min → BUS 80 (tisseo) → walk 3 min
-- actuel : 68 min, 1 corresp., RAIL C6 (sncf) → RAIL C3 (sncf)
-  (réponse en 236 ms)
-- 2028 : 45 min, 1 corresp., RAIL C6 (sncf) → RAIL K3 (sncf)
-- 2028 : 53 min, 2 corresp., RAIL C6 (sncf) → walk 4 min → SUBWAY B (tisseo) → walk 4 min → BUS 80 (tisseo) → walk 3 min
-- 2028 : 68 min, 1 corresp., RAIL C6 (sncf) → RAIL C3 (sncf)
-  (réponse en 242 ms)
+- Arrivée : Diagora [futur, 2 arrêt(s), 43.544148, 1.50968]
+- actuel : 53 min, 1 corresp., RAIL C6 (sncf) → RAIL K3 (sncf) → walk 8 min
+- actuel : 59 min, 2 corresp., RAIL C6 (sncf) → walk 4 min → SUBWAY B (tisseo) → walk 2 min → BUS 79 (tisseo) → walk 2 min
+- actuel : 76 min, 1 corresp., RAIL C6 (sncf) → RAIL C3 (sncf) → walk 8 min
+  (réponse en 260 ms)
+- 2028 : 38 min, 0 corresp., walk 4 min → SUBWAY C (futur)
+- 2028 : 38 min, 0 corresp., walk 4 min → SUBWAY C (futur)
+- 2028 : 38 min, 0 corresp., walk 4 min → SUBWAY C (futur)
+  (réponse en 201 ms)
 
 **La Vache (halte Route de Launaguet) → Gare Matabiau** (transit)
-- Départ : La Vache [tisseo, 11 arrêt(s), 43.633586, 1.434678]
+- Départ : Route de Launaguet [futur, 2 arrêt(s), 43.633617, 1.434951]
 - Arrivée : Toulouse Matabiau [sncf, 4 arrêt(s), 43.611206, 1.453616]
 - actuel : 51 min, 0 corresp., walk 51 min
-- actuel : 27 min, 0 corresp., walk 4 min → SUBWAY B (tisseo) → walk 14 min
-- actuel : 27 min, 0 corresp., walk 4 min → SUBWAY B (tisseo) → walk 14 min
-  (réponse en 116 ms)
-- 2028 : 51 min, 0 corresp., walk 51 min
-- 2028 : 27 min, 0 corresp., walk 4 min → SUBWAY B (tisseo) → walk 14 min
-- 2028 : 27 min, 0 corresp., walk 4 min → SUBWAY B (tisseo) → walk 14 min
-  (réponse en 100 ms)
+- actuel : 26 min, 0 corresp., walk 4 min → SUBWAY B (tisseo) → walk 14 min
+- actuel : 26 min, 0 corresp., walk 4 min → SUBWAY B (tisseo) → walk 14 min
+  (réponse en 161 ms)
+- 2028 : 4 min, 0 corresp., RAIL C1 (futur)
+- 2028 : 4 min, 0 corresp., RAIL C1 (futur)
+  (réponse en 102 ms)
 
 **Gare Matabiau → Labège-La Cadène** (transit)
 - Départ : Toulouse Matabiau [sncf, 4 arrêt(s), 43.611206, 1.453616]
-- Arrivée : Labège Innopole [sncf, 3 arrêt(s), 43.547467, 1.512964]
-- actuel : 9 min, 0 corresp., RAIL K3 (sncf)
-  (réponse en 90 ms)
-- 2028 : 9 min, 0 corresp., RAIL K3 (sncf)
-  (réponse en 75 ms)
+- Arrivée : Labège-La Cadène [futur, 2 arrêt(s), 43.53897, 1.520634]
+- actuel : 48 min, 2 corresp., RAIL K5 (sncf) → walk 4 min → SUBWAY B (tisseo) → walk 4 min → BUS 80 (tisseo) → walk 3 min
+- actuel : 24 min, 1 corresp., RAIL K3 (sncf) → walk 3 min → BUS 80 (tisseo) → walk 3 min
+- actuel : 27 min, 0 corresp., RAIL K3 (sncf) → walk 18 min
+  (réponse en 109 ms)
+- 2028 : 27 min, 0 corresp., walk 7 min → SUBWAY C (futur)
+- 2028 : 27 min, 0 corresp., walk 7 min → SUBWAY C (futur)
+- 2028 : 27 min, 0 corresp., walk 7 min → SUBWAY C (futur)
+  (réponse en 97 ms)
 
 **Capitole → Gare Matabiau, marche seule** (walk)
 - Départ : Capitole [tisseo, 3 arrêt(s), 43.604465, 1.445537]
 - Arrivée : Toulouse Matabiau [sncf, 4 arrêt(s), 43.611206, 1.453616]
 - actuel : 17 min, 0 corresp., walk 17 min
-  (réponse en 13 ms)
+  (réponse en 16 ms)
 
 **Capitole → Aéroport Toulouse-Blagnac, vélo** (bicycle)
 - Départ : Capitole [tisseo, 3 arrêt(s), 43.604465, 1.445537]
 - Arrivée : Aéroport [tisseo, 4 arrêt(s), 43.631247, 1.374752]
 - actuel : 38 min, 0 corresp., bicycle 38 min
-  (réponse en 101 ms)
+  (réponse en 112 ms)
 
 </details>
 
 ### Avertissements
 
-- scénario actuel : le flux futur est absent du graphe (toléré : les deux scénarios sont alors identiques)
-- capitole-aeroport / 2028 : contrôle ignoré, le flux futur est absent du graphe
-- capitole-aeroport / 2028 : le trajet le plus rapide n'emprunte pas la ligne Aéroport (futur)
-- colomiers-labege / 2028 : le trajet le plus rapide n'emprunte pas la ligne C (futur)
-- colomiers-diagora / 2028 : le trajet le plus rapide n'emprunte pas la ligne C (futur)
-- launaguet-matabiau / 2028 : contrôle ignoré, le flux futur est absent du graphe
-- matabiau-labege-la-cadene / 2028 : contrôle ignoré, le flux futur est absent du graphe
-
-### Fin des journaux des étapes en échec
-
-<details><summary>Construction du GTFS futur (data engineer)</summary>
-
-```
-
-[notice] A new release of pip is available: 25.0.1 -> 26.2.1
-[notice] To update, run: python -m pip install --upgrade pip
-Stations trouvées dans OSM : 26/28 ; rapport : build/futur-osm/rapport_osm.md
-ERREUR : halte TER « Route de Launaguet » : la gare voisine « Lalande-Église » n'est desservie par aucun train du GTFS SNCF sncf.gtfs.zip. Corrigez « entre » dans parametres.yaml.
-```
-</details>
+- matabiau-labege-la-cadene / 2028 : aucun itinéraire ne monte ni ne descend à l'arrêt « ^labege la cadene$ » (futur)
