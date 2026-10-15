@@ -1,11 +1,11 @@
 <!-- toulouse-demain:graph-report -->
 ## Rapport de construction du graphe : SUCCÈS
 
-- Date : 2026-10-14 18:18 UTC
-- Événement : `pull_request`, branche `2/merge`, commit `5ce5274`
+- Date : 2026-10-15 20:21 UTC
+- Événement : `pull_request`, branche `2/merge`, commit `7b9311f`
 - Image OTP : `docker.io/opentripplanner/opentripplanner:2.10.0`
-- Exécution : https://github.com/CyprienBethe/toulouse-demain/actions/runs/38613374423
-- Durée depuis le début du workflow : 4 min 36 s
+- Exécution : https://github.com/CyprienBethe/toulouse-demain/actions/runs/38800719428
+- Durée depuis le début du workflow : 4 min 27 s
 
 ### Étapes
 
@@ -24,27 +24,27 @@
 
 | Source | Taille | SHA-256 (début) | Last-Modified |
 | --- | --- | --- | --- |
-| tisseo | 16,00 Mo | `c8cee6784dec` | ? |
-| sncf | 5,48 Mo | `a2456c6e95a1` | Tue, 13 Oct 2026 19:46:43 GMT |
-| osm | 362,90 Mo | `503210075995` | Tue, 13 Oct 2026 23:44:10 GMT |
+| tisseo | 16,00 Mo | `e50e70ecc365` | ? |
+| sncf | 5,52 Mo | `5599d956aa87` | Thu, 15 Oct 2026 20:00:05 GMT |
+| osm | 362,95 Mo | `8d68b6c8b88c` | Thu, 15 Oct 2026 01:51:47 GMT |
 
-Zone (rectangle WGS84 min_lon,min_lat,max_lon,max_lat) : `1.02706,43.30141,1.81453,43.83973` — calculée sur 5721 arrêts Tisséo + 10.0 km de marge.
-OpenStreetMap découpé : 362,90 Mo → 82,60 Mo (osmium version 1.16.0).
-GTFS SNCF filtré : 1373 courses, 22 lignes, 121 arrêts gardés ; stop_times 511818 → 6937 lignes ; route_type {'2': 20, '3': 2}.
+Zone (rectangle WGS84 min_lon,min_lat,max_lon,max_lat) : `1.02706,43.30141,1.81453,43.83973` — calculée sur 5726 arrêts Tisséo + 10.0 km de marge.
+OpenStreetMap découpé : 362,95 Mo → 82,61 Mo (osmium version 1.16.0).
+GTFS SNCF filtré : 1390 courses, 22 lignes, 121 arrêts gardés ; stop_times 517476 → 7024 lignes ; route_type {'2': 20, '3': 2}.
 GTFS futur : 2,88 Mo, 2 lignes (C, B), 105 arrêts, 13950 courses.
 
 ### Moteur OpenTripPlanner (mesures de cette exécution)
 
 | Mesure | Valeur |
 | --- | --- |
-| Durée de construction du graphe | 2 min 25 s |
-| Mémoire max du conteneur pendant la construction (-Xmx12g) | 5,36 Go |
-| Tas Java vivant max après GC, construction | 1,51 Go |
+| Durée de construction du graphe | 2 min 30 s |
+| Mémoire max du conteneur pendant la construction (-Xmx12g) | 7,35 Go |
+| Tas Java vivant max après GC, construction | 1,50 Go |
 | Taille de graph.obj | 88,08 Mo |
 | Démarrage du serveur (chargement du graphe) | 11 s |
-| Mémoire du conteneur serveur prêt (-Xmx6g) | 1,09 Go |
-| Mémoire du conteneur serveur après les trajets | 1,29 Go |
-| Tas Java vivant max après GC, serveur | 832,57 Mo |
+| Mémoire du conteneur serveur prêt (-Xmx6g) | 1,18 Go |
+| Mémoire du conteneur serveur après les trajets | 1,25 Go |
+| Tas Java vivant max après GC, serveur | 628,10 Mo |
 
 ### Trajets de référence (départ 2026-10-20T08:30:00+02:00)
 
@@ -69,11 +69,11 @@ GTFS futur : 2,88 Mo, 2 lignes (C, B), 105 arrêts, 13950 courses.
 - actuel : 33 min, 0 corresp., walk 8 min → BUS AERO (tisseo) → walk 0 min
 - actuel : 32 min, 0 corresp., walk 8 min → BUS AERO (tisseo) → walk 0 min
 - actuel : 26 min, 0 corresp., walk 8 min → BUS AERO (tisseo) → walk 0 min
-  (réponse en 996 ms)
+  (réponse en 760 ms)
 - 2028 : 33 min, 0 corresp., walk 8 min → BUS AERO (tisseo) → walk 0 min
 - 2028 : 32 min, 0 corresp., walk 8 min → BUS AERO (tisseo) → walk 0 min
 - 2028 : 26 min, 0 corresp., walk 8 min → BUS AERO (tisseo) → walk 0 min
-  (réponse en 391 ms)
+  (réponse en 265 ms)
 
 **Gare Matabiau → Ramonville** (transit)
 - Départ : Toulouse Matabiau [sncf, 4 arrêt(s), 43.611206, 1.453616]
@@ -81,11 +81,11 @@ GTFS futur : 2,88 Mo, 2 lignes (C, B), 105 arrêts, 13950 courses.
 - actuel : 21 min, 1 corresp., RAIL K5 (sncf) → walk 4 min → SUBWAY B (tisseo) → walk 2 min
 - actuel : 32 min, 0 corresp., walk 14 min → SUBWAY B (tisseo) → walk 2 min
 - actuel : 31 min, 0 corresp., walk 1 min → BUS 27 (tisseo) → walk 0 min
-  (réponse en 299 ms)
+  (réponse en 346 ms)
 - 2028 : 21 min, 1 corresp., RAIL K5 (sncf) → walk 4 min → SUBWAY B (futur) → walk 3 min
 - 2028 : 32 min, 0 corresp., walk 13 min → SUBWAY B (futur) → walk 3 min
 - 2028 : 31 min, 0 corresp., walk 1 min → BUS 27 (tisseo) → walk 0 min
-  (réponse en 178 ms)
+  (réponse en 218 ms)
 
 **Colomiers gare → Labège** (transit)
 - Départ : Colomiers [sncf, 3 arrêt(s), 43.603734, 1.334221]
@@ -93,11 +93,11 @@ GTFS futur : 2,88 Mo, 2 lignes (C, B), 105 arrêts, 13950 courses.
 - actuel : 45 min, 1 corresp., RAIL C6 (sncf) → RAIL K3 (sncf)
 - actuel : 53 min, 2 corresp., RAIL C6 (sncf) → walk 4 min → SUBWAY B (tisseo) → walk 4 min → BUS 80 (tisseo) → walk 3 min
 - actuel : 68 min, 1 corresp., RAIL C6 (sncf) → RAIL C3 (sncf)
-  (réponse en 409 ms)
+  (réponse en 434 ms)
 - 2028 : 48 min, 0 corresp., walk 4 min → SUBWAY C (futur) → walk 10 min
 - 2028 : 48 min, 0 corresp., walk 4 min → SUBWAY C (futur) → walk 10 min
 - 2028 : 48 min, 0 corresp., walk 4 min → SUBWAY C (futur) → walk 10 min
-  (réponse en 268 ms)
+  (réponse en 275 ms)
 
 **Gare de Colomiers → Diagora (Labège)** (transit)
 - Départ : Colomiers [sncf, 3 arrêt(s), 43.603734, 1.334221]
@@ -105,22 +105,22 @@ GTFS futur : 2,88 Mo, 2 lignes (C, B), 105 arrêts, 13950 courses.
 - actuel : 53 min, 1 corresp., RAIL C6 (sncf) → RAIL K3 (sncf) → walk 8 min
 - actuel : 59 min, 2 corresp., RAIL C6 (sncf) → walk 4 min → SUBWAY B (tisseo) → walk 2 min → BUS 79 (tisseo) → walk 2 min
 - actuel : 76 min, 1 corresp., RAIL C6 (sncf) → RAIL C3 (sncf) → walk 8 min
-  (réponse en 319 ms)
+  (réponse en 290 ms)
 - 2028 : 38 min, 0 corresp., walk 4 min → SUBWAY C (futur)
 - 2028 : 38 min, 0 corresp., walk 4 min → SUBWAY C (futur)
 - 2028 : 38 min, 0 corresp., walk 4 min → SUBWAY C (futur)
-  (réponse en 266 ms)
+  (réponse en 212 ms)
 
 **Capitole → Gare Matabiau, marche seule** (walk)
 - Départ : Capitole [tisseo, 3 arrêt(s), 43.604465, 1.445537]
 - Arrivée : Toulouse Matabiau [sncf, 4 arrêt(s), 43.611206, 1.453616]
 - actuel : 17 min, 0 corresp., walk 17 min
-  (réponse en 18 ms)
+  (réponse en 19 ms)
 
 **Capitole → Aéroport Toulouse-Blagnac, vélo** (bicycle)
 - Départ : Capitole [tisseo, 3 arrêt(s), 43.604465, 1.445537]
 - Arrivée : Aéroport [tisseo, 4 arrêt(s), 43.631247, 1.374752]
 - actuel : 38 min, 0 corresp., bicycle 38 min
-  (réponse en 111 ms)
+  (réponse en 127 ms)
 
 </details>
