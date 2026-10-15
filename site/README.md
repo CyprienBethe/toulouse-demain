@@ -1,6 +1,6 @@
 # Le site de Toulouse Demain
 
-Le site calcule un trajet en transports en commun (avec la marche), à pied ou à vélo, sur le réseau d'aujourd'hui ou sur le réseau 2028 (ligne C et ligne B prolongée). En 2028, chaque trajet affiche une double barre qui le compare au meilleur trajet d'aujourd'hui. Il est publié sur `https://cyprienbethe.github.io/toulouse-demain/`.
+Le site calcule un trajet en transports en commun (avec la marche), à pied ou à vélo, sur le réseau d'aujourd'hui ou sur le réseau 2028 (ligne C, ligne B prolongée et Ligne Aéroport, sans la navette Aéroport). En 2028, chaque trajet affiche une double barre qui le compare au meilleur trajet d'aujourd'hui. Il est publié sur `https://cyprienbethe.github.io/toulouse-demain/`.
 
 Spécification : `docs/ux/parcours.md` (écrans, accessibilité, direction « Pastel et brique », décisions de Cyprien) et la maquette « Direction B ».
 
