@@ -988,6 +988,15 @@ class SncfGtfs(TisseoGtfs):
         return sum(p[0] for p in pts) / len(pts), sum(p[1] for p in pts) / len(pts)
 
 
+def is_rail_route(route: dict) -> bool:
+    """GTFS route_type of a train: 2, or 100 to 117 (extended railway types)."""
+    try:
+        value = int(route.get("route_type", ""))
+    except ValueError:
+        return False
+    return value == 2 or 100 <= value <= 117
+
+
 def resolve_halte_positions(haltes, osm_positions, lines, tisseo: TisseoGtfs | None) -> None:
     """Position of each TER halt: CSV, OSM extraction, then a neighbouring station (future line or Tisséo).
 
@@ -1078,6 +1087,8 @@ def build_ter_haltes(params, haltes, sncf: SncfGtfs | None, tables, agency_id, n
             continue
         found = 0
         for tid, rows in sncf.stop_times.items():
+            if not is_rail_route(sncf.routes.get(sncf.trips.get(tid, {}).get("route_id"), {})):
+                continue  # SNCF coaches (OCECar) also call at these stations: never a halt for them
             for i in range(len(rows) - 1):
                 s, t = rows[i]["stop_id"], rows[i + 1]["stop_id"]
                 if s in a_ids and t in b_ids:

@@ -54,6 +54,7 @@ def test_lines_with_a_halt_are_copied_and_excluded(ter):
     routes = {r["route_id"]: r for r in tables["routes.txt"]}
     assert {"FUT_SNCF_FR:Line::NORD:", "FUT_SNCF_FR:Line::SUD:"} <= set(routes)
     assert "FUT_SNCF_FR:Line::OUEST:" not in routes  # does not run past a halt
+    assert "FUT_SNCF_FR:Line::CAR:" not in routes  # a coach between the two stations: never a halt
     assert routes["FUT_SNCF_FR:Line::SUD:"]["route_short_name"] == "C3"
     excluded = json.loads((out.parent / "scenario-2028.json").read_text())["exclude_routes"]
     assert excluded[-2:] == ["sncf:FR:Line::NORD:", "sncf:FR:Line::SUD:"]

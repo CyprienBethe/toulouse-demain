@@ -269,6 +269,7 @@ def make_sncf_zip(path: Path, positions: dict, served_halt=None, drop_stations=(
         "NORD": nord,
         "SUD": [("Toulouse Matabiau", 0), ("Labège Innopole", 600), ("Labège Village", 840), ("Escalquens", 1080)],
         "OUEST": [("Colomiers", 0), ("Toulouse Matabiau", 900)],
+        "CAR": [("Labège Innopole", 0), ("Labège Village", 420)],  # an SNCF coach (route_type 3)
     }
     patterns = {r: ([n for n, _ in calls if n not in drop_stations], [o for n, o in calls if n not in drop_stations])
                 for r, calls in patterns.items()}
@@ -294,9 +295,10 @@ def make_sncf_zip(path: Path, positions: dict, served_halt=None, drop_stations=(
                         "agency_timezone": "Europe/Paris"}],
         "stops.txt": stops,
         "routes.txt": [{"route_id": f"FR:Line::{r}:", "agency_id": "1187", "route_short_name": short,
-                        "route_long_name": f"Ligne {r} (test)", "route_type": 2, "route_color": "0749FF",
+                        "route_long_name": f"Ligne {r} (test)", "route_type": 3 if r == "CAR" else 2,
+                        "route_color": "0749FF",
                         "route_text_color": "FFFFFF"}
-                       for r, short in (("NORD", "K1"), ("SUD", "C3"), ("OUEST", "C6"))],
+                       for r, short in (("NORD", "K1"), ("SUD", "C3"), ("OUEST", "C6"), ("CAR", "Car"))],
         "trips.txt": trips,
         "stop_times.txt": stop_times,
         # Monday 19 to Friday 23 October 2026.
