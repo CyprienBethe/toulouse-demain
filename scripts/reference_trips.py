@@ -48,6 +48,9 @@ Per-trip checks ("checks" in config/reference-trips.json), each for one scenario
 - "never_uses_feed": "<feed>": no itinerary uses that feed;
 - "never_uses_line": {"feed", "line"}: no itinerary has a leg on that line
   (for example a Tisséo line replaced in 2028 by a line of the future feed).
+- "uses_stop": {"feed", "pattern"}: at least one itinerary boards or alights a
+  vehicle of that feed at a stop whose normalized name matches the pattern
+  (for example a TER halt of the future feed).
 "line" is the route short name returned by OTP. Optional "requires_feed": the
 check is skipped (warning) when that feed is absent from the graph.
 """
@@ -363,6 +366,13 @@ def evaluate_checks(trip: dict, results: dict, feeds_present: set[str] | None = 
             if any(leg["feed"] == unwanted["feed"] and leg["line"] == unwanted["line"]
                    for itinerary in itineraries for leg in itinerary["legs"]):
                 problem = f"un itinéraire emprunte la ligne {unwanted['line']} ({unwanted['feed']})"
+        if "uses_stop" in check:
+            wanted = check["uses_stop"]
+            pattern = re.compile(wanted["pattern"])
+            if not any(leg["feed"] == wanted["feed"] and any(pattern.search(normalize(leg[end] or ""))
+                                                             for end in ("from", "to"))
+                       for itinerary in itineraries for leg in itinerary["legs"]):
+                problem = f"aucun itinéraire ne monte ni ne descend à l'arrêt « {wanted['pattern']} » ({wanted['feed']})"
         if problem:
             message = f"{trip['id']} / {scenario} : {problem}"
             (failures if check.get("severity") == "failure" else warnings).append(message)

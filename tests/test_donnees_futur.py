@@ -12,7 +12,8 @@ from conftest import PARAMS, REPO_ROOT, real_lines
 import build_gtfs_futur as bgf
 
 COLUMNS = ["ordre", "nom_officiel", "commune", "lat", "lon", "precision", "correspondances", "source"]
-CSV_FILES = ["stations_ligne_c.csv", "stations_ligne_b_prolongee.csv", "stations_ligne_aeroport.csv"]
+CSV_FILES = ["stations_ligne_c.csv", "stations_ligne_b_prolongee.csv", "stations_ligne_aeroport.csv",
+             "haltes_ter.csv"]
 # Generous box around the Toulouse area: a coordinate outside is a typo.
 BBOX = (43.45, 1.20, 43.75, 1.65)
 
@@ -118,6 +119,20 @@ def test_build_refuses_to_invent_missing_coordinates(tmp_path, capsys):
     assert code == 2
     assert "sans coordonnées" in err and "Colomiers - Gare" in err
     assert not (tmp_path / "futur.gtfs.zip").exists()
+
+
+def test_ter_halts_are_consistent():
+    """Two halts, marked as forecasts, each between two SNCF stations; Labège-La Cadène with its 42 trains."""
+    params = bgf.load_params(PARAMS)
+    haltes = bgf.load_haltes(params, REPO_ROOT)
+    assert [(h.name, h.between) for h in haltes] == [
+        ("Route de Launaguet", ("Lalande-Église", "Toulouse Matabiau")),
+        ("Labège-La Cadène", ("Labège Innopole", "Labège Village")),
+    ]
+    with open(REPO_ROOT / "data" / "futur" / "haltes_ter.csv", encoding="utf-8", newline="") as fh:
+        assert all(row["remarques"].startswith("PRÉVISIONNEL") for row in csv.DictReader(fh))
+    assert haltes[1].announced == 42  # SNCF Gares & Connexions, 16/12/2024
+    assert params["haltes_ter"]["temps_arret_s"] == 60
 
 
 def _luminance(hex_colour: str) -> float:

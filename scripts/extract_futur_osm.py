@@ -21,6 +21,11 @@ How a station is matched (data/futur/stations_*.csv, line by line):
 The track of each hop is the shortest path over the railway ways under construction (then also
 the existing metro), simplified; when no path is found the hop is a straight line.
 
+TER halts (``haltes_ter`` in parametres.yaml): only railway objects (station, halt, platform)
+with the same name are candidates (never a bus stop of the same name), under construction first,
+then a station before a platform. There is no track and no neighbour guard here: the build
+script checks that the halt lies between its two SNCF neighbours.
+
 Tram lines (``route_type: 0`` in parametres.yaml, the Ligne Aéroport): tram stops
 (``railway=tram_stop``) are also station candidates, and "the track" is the tram track, existing
 or under construction (``railway=tram``), because the line reuses the former T2 branch.
@@ -46,6 +51,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from build_gtfs_futur import (  # noqa: E402
     DEFAULT_PARAMS,
     REPO_ROOT,
+    TER_LINE_ID,
     BuildError,
     haversine_m,
     load_params,
@@ -107,6 +113,17 @@ def is_track(tags: dict) -> bool:
     if railway == "construction":
         return tags.get("construction", "subway") in {"subway", "light_rail", "rail", "yes", "monorail"}
     return tags.get("construction:railway") in {"subway", "light_rail"}
+
+
+def is_rail_stop(tags: dict) -> bool:
+    """A railway station, halt or platform, existing or under construction (not a bus stop)."""
+    kinds = {"station", "halt", "platform", "stop"}
+    return (
+        tags.get("railway") in kinds
+        or tags.get("construction:railway") in kinds
+        or (tags.get("railway") == "construction" and tags.get("construction") in kinds)
+        or tags.get("train") == "yes"
+    )
 
 
 def is_tram_track(tags: dict) -> bool:
@@ -250,6 +267,7 @@ def read_osm(path: Path):
                     "label": tags.get("name") or names[0][1],
                     "rank": rank,
                     "tram_only": station_rank(tags) == 0,  # a tram stop: candidate for tram lines only
+                    "rail": is_rail_stop(tags),
                     "construction": is_construction(tags),
                 }
             )
@@ -374,8 +392,10 @@ def choose_stations(stations, cands_by_order: dict[int, list[dict]]):
     return picks, rejected
 
 
-def precision_of(cand: dict, same_station: bool, tram: bool = False) -> str:
+def precision_of(cand: dict, same_station: bool, tram: bool = False, halt: bool = False) -> str:
     what, existing = ("station", "station existante") if cand["rank"] == 2 else ("quai ou arrêt", "quai ou arrêt existant")
+    if halt and not cand["construction"]:
+        return f"approximative (OSM : {existing} de même nom ; la halte peut avoir été déplacée)"
     on, near, none = (("sur la voie de tram", "de la voie de tram", "sans voie de tram cartographiée") if tram else
                       ("sur le tracé en construction", "du tracé en construction",
                        "sans tracé en construction cartographié"))
@@ -506,6 +526,28 @@ def run(args) -> int:
                     "geometry": {"type": "LineString", "coordinates": [[lon, lat] for lat, lon in geometry]},
                 }
             )
+        report.append("")
+
+    haltes = params.get("haltes_ter")
+    if haltes:
+        stations = load_stations(resolve_path(haltes["stations"], base), TER_LINE_ID, min_count=1)
+        total += len(stations)
+        report += ["## Haltes TER prévisionnelles", ""]
+        for st in stations:
+            cands = [c for c in station_candidates(st, candidates, []) if c["rail"]]
+            if not cands:
+                report.append(f"- {st.order}. {st.name} : MANQUANTE (aucun objet ferroviaire de même nom)")
+                continue
+            cand = sorted(cands, key=lambda c: preference(c, None, None))[0]
+            precision = precision_of(cand, False, halt=True)
+            url = f"https://www.openstreetmap.org/{cand['osm_type']}/{cand['osm_id']}"
+            rows.append({"ligne": TER_LINE_ID, "ordre": st.order, "nom_officiel": st.name,
+                         "lat": f"{cand['lat']:.6f}", "lon": f"{cand['lon']:.6f}", "precision": precision,
+                         "osm_type": cand["osm_type"], "osm_id": cand["osm_id"], "osm_nom": cand["label"],
+                         "nom_apparie": cand["matched"], "score_nom": f"{cand['score']:.2f}",
+                         "distance_trace_m": "", "source": url, "licence": LICENCE})
+            report.append(f"- {st.order}. {st.name} → « {cand['label']} » ({url}, {cand['matched']}, "
+                          f"score {cand['score']:.2f}, {len(cands)} candidat(s)) : {precision}")
         report.append("")
 
     fields = ["ligne", "ordre", "nom_officiel", "lat", "lon", "precision", "osm_type", "osm_id", "osm_nom",

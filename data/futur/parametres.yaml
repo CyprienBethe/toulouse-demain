@@ -76,6 +76,22 @@ lignes_tisseo_remplacees:
   - ligne: "AERO"                          # FAIT : « Navette Aéroport », route tisseo:line:99 (rapport CI du 15/10/2026)
     remplacee_par: "AEROPORT"              # décision de Cyprien (15/10/2026)
 
+# Haltes TER prévisionnelles du scénario 2028 [§8]. Avec le GTFS SNCF filtré (--sncf-gtfs) :
+# les trains qui desservent les deux gares voisines l'une après l'autre s'arrêtent aussi à la
+# halte (HYPOTHÈSE) ; leurs lignes SNCF sont recopiées dans le flux futur avec la halte, et
+# exclues du scénario 2028. La construction s'arrête si une gare voisine est introuvable ou si
+# aucun train ne dessert les deux. Une halte déjà desservie dans le GTFS SNCF n'est pas dupliquée.
+haltes_ter:
+  stations: "data/futur/haltes_ter.csv"
+  temps_arret_s: 60                        # HYPOTHÈSE : arrêt d'un TER en halte, retard reporté sur la suite [§8.3]
+  rayon_deja_desservie_m: 150              # arrêt SNCF desservi à moins de 150 m = halte déjà ouverte [§8.4]
+  haltes:
+    - station: "Route de Launaguet"
+      entre: ["Lalande-Église", "Toulouse Matabiau"]   # FAIT : Wikipédia (noms du GTFS SNCF, accents ignorés)
+    - station: "Labège-La Cadène"
+      entre: ["Labège Innopole", "Labège Village"]     # FAIT : Wikipédia
+      trains_par_jour_annonces: 42         # FAIT : SNCF Gares & Connexions, 16/12/2024 (comparé dans le rapport)
+
 # Intervalle d'une période = intervalle de pointe × coefficient.
 # HYPOTHÈSE provisoire, remplacée automatiquement par la calibration sur la ligne B
 # du GTFS Tisséo quand il est fourni (voir calibration_tisseo) [§4.2].

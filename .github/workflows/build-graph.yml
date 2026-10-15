@@ -120,9 +120,10 @@ jobs:
             mkdir -p build/report/attachments
             cp build/futur-osm/stations_osm.csv build/futur-osm/traces_osm.geojson \
               build/report/attachments/
+            # The filtered SNCF GTFS gives the trains that will stop at the TER halts.
             build/venv-futur/bin/python scripts/build_gtfs_futur.py \
-              --tisseo-gtfs build/raw/tisseo.gtfs.zip --osm-dir build/futur-osm \
-              --output build/gtfs/futur.gtfs.zip
+              --tisseo-gtfs build/raw/tisseo.gtfs.zip --sncf-gtfs build/otp/gtfs/sncf.gtfs.zip \
+              --osm-dir build/futur-osm --output build/gtfs/futur.gtfs.zip
             cp build/gtfs/futur.gtfs.zip build/otp/gtfs/futur.gtfs.zip
           } 2>&1 | tee build/report/logs/futur.log
 

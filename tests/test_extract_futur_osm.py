@@ -49,6 +49,7 @@ def mini_case(tmp_path):
     ]
     params["correspondances_internes"] = []
     params["lignes_tisseo_remplacees"] = []
+    params.pop("haltes_ter")
     params_path = tmp_path / "params.yaml"
     params_path.write_text(yaml.safe_dump(params, allow_unicode=True), encoding="utf-8")
 
@@ -230,3 +231,22 @@ def test_guards_reject_isolated_outlier():
     cands = {1: [cand(1, -9000)], 2: [cand(2, 1200)], 3: [cand(3, 2400)], 4: [cand(4, 3600)], 5: [cand(5, 4800)]}
     picks, _ = efo.choose_stations(stations, cands)
     assert picks[1] is None and all(picks[o] for o in (2, 3, 4, 5))
+
+
+def test_ter_halts_only_match_railway_objects(tmp_path):
+    """Route de Launaguet: the railway halt, never the bus stop of the same name; La Cadène not mapped yet."""
+    halt, bus = (43.63, 1.45), (43.6302, 1.4504)
+    elements = [
+        node(1, bus, {"highway": "bus_stop", "public_transport": "platform", "name": "Route de Launaguet"}),
+        node(2, halt, {"railway": "halt", "name": "Route de Launaguet"}),
+    ]
+    osm_file = tmp_path / "halts.osm"
+    osm_file.write_text("<?xml version='1.0' encoding='UTF-8'?>\n<osm version=\"0.6\" generator=\"test\">\n"
+                        + "\n".join(elements) + "\n</osm>\n", encoding="utf-8")
+    rows, report = extract(tmp_path, osm_file)
+    launaguet = rows[("TER", "Route de Launaguet")]
+    assert launaguet["osm_id"] == "2"
+    assert launaguet["precision"].startswith("approximative (OSM : station existante de même nom ; la halte peut")
+    assert ("TER", "Labège-La Cadène") not in rows
+    assert "2. Labège-La Cadène : MANQUANTE" in report
+    assert efo.is_rail_stop({"railway": "halt"}) and not efo.is_rail_stop({"public_transport": "platform"})
