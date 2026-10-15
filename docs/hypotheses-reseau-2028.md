@@ -1,8 +1,8 @@
 # Hypothèses du réseau 2028 (GTFS « futur »)
 
-Auteur : data engineer transport · 14 octobre 2026 · mis à jour le même jour après le premier passage CI et la revue QA (`docs/qa/sprint-0-revue.md`), puis le 15 octobre 2026 (Ligne Aéroport, §7) · statut : **à valider par Cyprien**
+Auteur : data engineer transport · 14 octobre 2026 · mis à jour le même jour après le premier passage CI et la revue QA (`docs/qa/sprint-0-revue.md`), puis le 15 octobre 2026 (Ligne Aéroport, §7 ; haltes TER, §8) · statut : **à valider par Cyprien**
 
-Ce document justifie chaque valeur de `data/futur/parametres.yaml` et des CSV de stations. Il distingue les **faits** (chiffre public, source citée) des **hypothèses** (estimation de l'équipe, avec son raisonnement). Les pages [S1] à [S10] ont été consultées le 14/10/2026, les pages [S11] à [S16] le 15/10/2026 ; la liste est en fin de document. Les sources [S8] à [S10] ont été relues par la QA, pas par le data engineer.
+Ce document justifie chaque valeur de `data/futur/parametres.yaml` et des CSV de stations. Il distingue les **faits** (chiffre public, source citée) des **hypothèses** (estimation de l'équipe, avec son raisonnement). Les pages [S1] à [S10] ont été consultées le 14/10/2026, les pages [S11] à [S21] le 15/10/2026 ; la liste est en fin de document. Les sources [S8] à [S10] ont été relues par la QA, pas par le data engineer.
 
 Règles de modélisation reprises de `docs/equipe/README.md` : les lignes futures roulent sur le calendrier actuel, le réseau de bus reste celui d'aujourd'hui, aucune donnée n'est inventée.
 
@@ -15,6 +15,8 @@ Règles de modélisation reprises de `docs/equipe/README.md` : les lignes future
 | Ligne Aéroport (tram) | Blagnac ↔ Aéroport | 2 [S9][S11] | 2,5 km [S11][S12] | début 2027 visé [S11] (§7) |
 
 **Retrait de la navette Aéroport en 2028** (décision de Cyprien, 15/10/2026) : la ligne Tisséo `AERO` est exclue du scénario 2028, remplacée par la Ligne Aéroport (§7.5).
+
+**Haltes TER prévisionnelles** (décision de Cyprien, 15/10/2026) : Route de Launaguet (réouverture annoncée à l'automne 2026) et Labège-La Cadène (fin 2028), insérées dans les trains SNCF actuels (§8).
 
 **Décision de Cyprien (14/10/2026) : la B prolongée roule en rames directes.** Tisséo annonce que « la ligne B actuelle sera prolongée » et que Labège Madron (ex-INP) devient son nouveau terminus [S10]. Avec le GTFS Tisséo, toute la ligne B est recopiée dans le flux futur, et une partie de ses rames continue jusqu'à Labège Madron (§4.5). La navette Ramonville ↔ Labège Madron ne sert plus qu'en mode autonome, sans GTFS Tisséo (tests, poste local).
 
@@ -243,7 +245,53 @@ lignes_tisseo_remplacees:
 - **Ouverture réelle avant 2028** : quand la Ligne Aéroport apparaîtra dans le GTFS Tisséo, il faudra retirer la ligne `AEROPORT` de `parametres.yaml`. Si la navette existe encore à ce moment-là, son exclusion restera un choix à trancher. Si elle disparaît du GTFS, la construction s'arrêtera (point 2 du §7.5), ce qui obligera à mettre la liste à jour.
 - Article du Petit Journal du 18/09/2026 cité par Cyprien : **non consulté**, la page refuse l'accès à l'outil de lecture.
 
-## 8. Tableau récapitulatif
+## 8. Haltes TER prévisionnelles
+
+Ajoutées le 15/10/2026. **Décision de Cyprien (15/10/2026)** : ajouter au scénario 2028 deux haltes TER, marquées **« prévisionnel »** : Route de Launaguet et Labège-La Cadène.
+
+### 8.1 Ce que disent les sources
+
+| Donnée | Route de Launaguet | Labège-La Cadène |
+| --- | --- | --- |
+| Ligne | Bordeaux-Saint-Jean – Sète-Ville, PK 253,490 [S18] ; « axe Bordeaux-Sète » [S17] | Bordeaux-Saint-Jean – Sète-Ville [S21], trains liO de la ligne Toulouse – Narbonne [S20] |
+| Gares voisines | Lalande-Église et Toulouse-Matabiau [S17][S18] | Labège-Innopole et Labège-Village [S21] |
+| Correspondance | « à deux pas de la station de métro La Vache » [S17] (métro B) | pôle d'échanges du terminus de la ligne C (Labège - Gare) [S20][S21] |
+| Ouverture | halte fermée depuis 2016 [S18] ; « dès l'automne 2026 » [S17], sans date précise | « fin 2028 », travaux à partir de 2027 [S20] |
+| Desserte | non publiée [S17] | « 1000 voyageurs et 42 trains sont attendus par jour à la mise en service de la halte, en 2028 » [S20] ; grille 2028-2029 pas encore arrêtée [S20] |
+| Position | déplacée « d'une centaine de mètres vers l'ouest » [S17] ou « vers le nord » [S18] : **les deux sources se contredisent**, nouvelle position non publiée | non publiée |
+| Nom | « Route de Launaguet » (SNCF Gares & Connexions [S19]) ; « Route-de-Launaguet » sur Wikipédia [S18] | « Labège-La Cadène » [S21] ; « Labège–La Cadène » [S20] |
+
+Le chiffre de 42 trains par jour a été **relu dans le compte rendu** de la réunion publique du 16/12/2024 [S20]. Une autre source, citée par Cyprien, annonce Route de Launaguet pour novembre 2026 ou 2027 : non retrouvée ; seule la date « automne 2026 » de [S17] est retenue, comme ordre de grandeur.
+
+### 8.2 Méthode (avec le GTFS SNCF filtré, `--sncf-gtfs`)
+
+1. Les gares voisines (`entre` dans `parametres.yaml`) sont cherchées dans le GTFS SNCF par leur nom, accents, casse et ponctuation ignorés (« Lalande-Église » = « Lalande Église »). Faute de nom identique, un nom plus long qui le contient est accepté s'il est unique.
+2. **HYPOTHÈSE de desserte** : un train qui s'arrête aux deux gares voisines, l'une juste après l'autre, s'arrêtera aussi à la halte. Un train qui ne s'arrête pas à l'une des deux (direct) ne s'y arrête pas.
+3. Les lignes SNCF (`route_id`) de ces trains sont **recopiées en entier** dans le flux futur (`FUT_SNCF_<identifiant SNCF>`), avec leurs arrêts, horaires, calendriers et tracés. La halte est insérée dans les trains concernés ; les autres trains de ces lignes sont recopiés sans changement, pour qu'ils roulent encore en 2028.
+4. Le scénario 2028 **exclut les lignes SNCF d'origine** (`sncf:<route_id>` dans `scenario-2028.json`, même mécanisme que la navette Aéroport, §7.5) : les filtres d'OTP portent sur des lignes, pas sur des courses, d'où la copie de lignes entières.
+5. Rapport de construction : une section « Haltes TER prévisionnelles » donne, pour chaque halte, son statut, l'origine de sa position, le nombre de courses qui s'y arrêtent et la médiane par jour de semaine, à comparer aux 42 trains annoncés pour La Cadène.
+
+### 8.3 Temps de parcours — HYPOTHÈSES
+
+- **Heure de passage** : le temps entre les deux gares voisines (horaire SNCF) est partagé au prorata des distances à vol d'oiseau gare voisine → halte → gare voisine.
+- **Arrêt en halte : 60 s** (`temps_arret_s`), aucune source publique. Le train repart 60 s plus tard, et **toute la suite de sa course est décalée de 60 s**.
+- Le temps perdu à freiner et à repartir n'est pas ajouté : choix un peu optimiste, d'environ une minute de plus par arrêt.
+
+### 8.4 Positions et garde-fous
+
+- **Position** : CSV (vide aujourd'hui), puis extraction OSM (objets ferroviaires de même nom : gare, halte, quai, jamais un arrêt de bus homonyme ; en construction d'abord), puis la station voisine citée par les sources, en **position approximative** : l'arrêt Tisséo La Vache pour Route de Launaguet [S17], la station Labège - Gare de la ligne C pour La Cadène [S20][S21].
+- **Contrôle** : la halte doit se trouver entre ses deux gares voisines (gare A → halte → gare B ≤ 1,5 × A → B + 300 m), sinon elle est écartée.
+- **Halte déjà ouverte** : si le GTFS SNCF dessert déjà un arrêt du même nom, ou un autre arrêt à moins de 150 m de la position de la halte, la halte **n'est pas dupliquée** en 2028 : elle est déjà dans le réseau actuel, et le rapport le signale. C'est le cas attendu pour Route de Launaguet après sa réouverture.
+- **Échec bruyant** (construction arrêtée, code 2) : une gare voisine introuvable dans le GTFS SNCF, ou aucun train qui dessert les deux. Rien n'est alors recopié ni exclu au hasard.
+- **Halte sautée, avec avertissement**, sans bloquer le reste du flux futur : halte sans position vérifiable, ou position hors de la ligne. Une halte prévisionnelle ne doit pas priver le scénario 2028 de la ligne C.
+
+### 8.5 Limites
+
+- En 2028, **tous les trains des lignes recopiées** passent par le flux futur. Sur le site, leur pastille porte donc le liseré en tirets des lignes en projet, même pour un train qui ne dessert pas la halte. Leurs horaires sont ceux de la SNCF, sauf le décalage de 60 s après la halte.
+- Le nombre de trains vient de la grille SNCF actuelle (même calendrier que le reste, règle 1 du projet), pas de la grille 2028 annoncée : l'écart avec les 42 trains de La Cadène est attendu, et sera lu dans le rapport CI.
+- Non vérifié ici : le nombre de trains qui s'arrêtent à Lalande-Église puis à Matabiau, ou à Labège-Innopole puis à Labège-Village. Le GTFS SNCF n'est pas téléchargeable depuis l'espace de travail : **le rapport CI le dira**.
+
+## 9. Tableau récapitulatif
 
 | Élément | Valeur | Fait / hypothèse | Source |
 | --- | --- | --- | --- |
@@ -272,9 +320,13 @@ lignes_tisseo_remplacees:
 | Correspondance C ↔ Ligne Aéroport à Blagnac | 2 min | Hypothèse | §7.4 |
 | Ligne Aéroport : nom court, couleur | « Aéroport », `#B39DDB` | Hypothèse | §7.4 |
 | Navette Aéroport (`AERO`) en 2028 | retirée | Décision de Cyprien (pas une annonce officielle) | §7.5 |
+| Haltes TER : emplacement, gares voisines | Route de Launaguet, Labège-La Cadène | Fait | [S17] à [S21], §8.1 |
+| Haltes TER : trains qui s'y arrêtent | ceux qui desservent les deux gares voisines | Hypothèse | §8.2 |
+| Haltes TER : arrêt | 60 s, suite de la course décalée | Hypothèse | §8.3 |
+| Labège-La Cadène : trains par jour | 42 annoncés ; nombre simulé dans le rapport CI | Fait (annonce) ; écart attendu | [S20], §8.5 |
 | Calendrier | celui de Tisséo, jours fériés en dimanche | Règle du projet | §5 |
 
-## 9. Points à arbitrer par Cyprien
+## 10. Points à arbitrer par Cyprien
 
 1. **Stations manquantes** : si les garde-fous laissent une station sans position au prochain passage CI, la saisir à la main depuis openstreetmap.org (source vérifiable). Le scénario 2028 reste bloqué tant qu'une station n'a pas de position.
 2. **Part des rames B prolongées** : l'hypothèse actuelle (assez de rames pour 5 min en pointe) est à remplacer dès que Tisséo publie la grille réelle.
@@ -283,21 +335,23 @@ lignes_tisseo_remplacees:
 5. **Nadot et Daurat** sur la Ligne Aéroport : les ajouter (hypothèse : desservis comme par l'ancien T2) ou attendre une annonce de Tisséo (§7.6) ?
 6. **Navette Aéroport** : la retirer en 2028 est un choix de modélisation, pas une annonce. À revoir si Tisséo annonce son maintien (§7.5).
 7. **Correspondance à Blagnac** : 2 min retenues ; à comparer aux 22 min Matabiau → aéroport annoncées, une fois le rapport CI lu (§7.2).
+8. **Haltes TER** : l'arrêt de 60 s et la règle « s'arrête aux deux gares voisines » conviennent-ils ? Faut-il caler La Cadène sur les 42 trains annoncés plutôt que sur la grille actuelle (§8.5) ?
+9. **Route de Launaguet** : si elle n'est pas encore dans le GTFS SNCF quand elle ouvre, faut-il la garder dans le scénario 2028 ? (Dès qu'elle y est, elle n'est plus dupliquée, §8.4.)
 
-## 10. Mise en œuvre (pour l'architecte)
+## 11. Mise en œuvre (pour l'architecte)
 
 ```bash
 python -m pip install -r scripts/requirements.txt
 # 1. positions et tracé depuis OSM (extrait découpé)
 python scripts/extract_futur_osm.py --osm build/otp/osm/zone.osm.pbf --output-dir build/futur-osm
 # 2. GTFS futur + scenario-2028.json, dans le dossier de --output
-python scripts/build_gtfs_futur.py --tisseo-gtfs build/raw/tisseo.gtfs.zip --osm-dir build/futur-osm \
-  --output build/gtfs/futur.gtfs.zip
+python scripts/build_gtfs_futur.py --tisseo-gtfs build/raw/tisseo.gtfs.zip \
+  --sncf-gtfs build/otp/gtfs/sncf.gtfs.zip --osm-dir build/futur-osm --output build/gtfs/futur.gtfs.zip
 ```
 
 Sorties (données dérivées sous ODbL) : `build/futur-osm/stations_osm.csv`, `traces_osm.geojson`, `rapport_osm.md` ; `build/gtfs/futur.gtfs.zip` (licence dans `feed_info.txt` et `attributions.txt`), `build/gtfs/scenario-2028.json`, `build/gtfs/futur-rapport.md`. Rien n'est versionné, puisque `build/` est ignoré. À l'ouverture réelle de la B prolongée, il suffit de retirer la ligne `B_EXT` de `parametres.yaml` ; à celle de la Ligne Aéroport, la ligne `AEROPORT` (et l'entrée `AERO` de `lignes_tisseo_remplacees` si la navette disparaît). Si un nom de `lignes_tisseo_remplacees` ne désigne plus exactement une ligne du GTFS Tisséo, la construction du GTFS futur échoue : le graphe est alors publié sans le flux futur (« succès partiel »), et il faut corriger la liste.
 
-## Sources (consultées le 14/10/2026, [S11] à [S16] et [R1] le 15/10/2026)
+## Sources (consultées le 14/10/2026, [S11] à [S21] et [R1] le 15/10/2026)
 
 - [S1] Tisséo Collectivités, démarrage des travaux de Labège, 15/02/2022 — https://tisseo-collectivites.fr/sites/default/files/media/downloads/lab-demarrage-tvx-metro-20220215.pdf
 - [S2] Tisséo Collectivités, démarrage des travaux de la Connexion Ligne B à Ramonville, 09/02/2022 — https://tisseo-collectivites.fr/sites/default/files/media/downloads/ram_-_dmarrage_tvx_clb_-_2022_02_09_.pdf
@@ -315,13 +369,19 @@ Sorties (données dérivées sous ODbL) : `build/futur-osm/stations_osm.csv`, `t
 - [S14] Tisséo, même dépliant en anglais (« Airport line frequency: in 2026, one tram every 5min ») — https://www.toulouse.aeroport.fr/sites/default/files/2024-09/Tisseo_solutions-arret-T2_ANG_V2_depliant.pdf
 - [S15] Wikipédia, « Ligne Aéroport du tramway de Toulouse » — https://fr.wikipedia.org/wiki/Ligne_A%C3%A9roport_Express_du_tramway_de_Toulouse
 - [S16] Wikipedia, « Toulouse tramway » — https://en.wikipedia.org/wiki/Toulouse_tramway
+- [S17] toulouseimmo9, « Halte Route de Launaguet : réouverture en 2026 », 16/09/2026 — https://www.toulouseimmo9.com/actualites/transports/halte-route-de-launaguet-toulouse-reouverture-2026
+- [S18] Wikipédia, « Gare de Route-de-Launaguet » — https://fr.wikipedia.org/wiki/Gare_de_Route-de-Launaguet
+- [S19] SNCF Gares & Connexions, fiche « Route de Launaguet » — https://www.garesetconnexions.sncf/en/stations-services/route-launaguet/pratical-info
+- [S20] SNCF Gares & Connexions, compte rendu de la réunion publique du 16/12/2024 sur la halte de Labège-La Cadène — https://www.garesetconnexions.sncf/sites/default/files/2025-01/SNCF-G-Co_Labege__CR--reunion-publique-du-16122024_V1.pdf
+- [S21] Wikipédia, « Gare de Labège-La Cadène » — https://fr.wikipedia.org/wiki/Gare_de_Lab%C3%A8ge-La_Cad%C3%A8ne
 - [R1] Rapport de construction du graphe du 15/10/2026 (exécution 38801486541), branche `rapports` du dépôt : `latest.md` (« BUS AERO (tisseo) ») et `latest-files/demo-responses.json` (route `tisseo:line:99`, `shortName` « AERO », `longName` « Navette Aéroport », couleur `e46809`) — https://github.com/CyprienBethe/toulouse-demain/actions/runs/38801486541
 - GTFS Tisséo (ODbL), recopié et mesuré à chaque construction : https://www.data.gouv.fr/datasets/tisseo-reseau-transport-urbain-toulousain
+- GTFS SNCF (ODbL), filtré à la zone, dont les lignes qui passent par une halte sont recopiées : https://www.data.gouv.fr/datasets/horaires-sncf
 
 ## Ce qu'il faut retenir
 
-- Les chiffres officiels sont repris tels quels : 21 stations, 37 min de Colomiers à Labège, une rame toutes les 3 min 25 en pointe sur la C, et 5 min sur le prolongement de la B.
-- La B prolongée est désormais un vrai prolongement : on garde toute la ligne B de Tisséo, et assez de rames continuent jusqu'à Labège Madron pour en avoir une toutes les 5 min en pointe. Cette répartition est une hypothèse, faute de grille publiée.
+- Les chiffres officiels sont repris tels quels : 21 stations, 37 min de Colomiers à Labège, une rame toutes les 3 min 25 en pointe sur la C ; la B est vraiment prolongée, avec assez de rames jusqu'à Labège Madron pour une toutes les 5 min en pointe (répartition supposée, faute de grille publiée).
 - Les positions des stations viennent d'OpenStreetMap. Deux erreurs du premier essai (Raisin, Ormeau) sont maintenant bloquées : une station mal placée est rejetée et signalée comme manquante plutôt que fausse.
-- Il reste à trancher le calage à 17 min de Matabiau et le nom du terminus de Labège (§9).
+- Il reste à trancher le calage à 17 min de Matabiau et le nom du terminus de Labège (§10).
 - Nouveau (15/10/2026) : le tram de la Ligne Aéroport relie Blagnac (station de la ligne C) à l'aéroport en 7 min, toutes les 5 min en pointe, et la navette Aéroport est retirée du scénario 2028 (choix de Cyprien). Si Tisséo renomme ou supprime la navette dans ses données, la construction s'arrête au lieu de se tromper en silence.
+- Deux haltes TER « prévisionnelles » s'ajoutent en 2028 : Route de Launaguet (près du métro La Vache) et Labège-La Cadène (au terminus de la C). Les trains qui s'arrêtent déjà aux deux gares voisines s'y arrêtent aussi, une minute ; une halte déjà ouverte n'est jamais comptée deux fois.

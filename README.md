@@ -1,6 +1,6 @@
 # Toulouse Demain
 
-Site web gratuit de calcul d'itinéraires sur le réseau Tisséo (114 communes) et les TER de la zone : transports en commun avec marche, marche seule ou vélo. Sa fonction phare : comparer un même trajet **aujourd'hui** et **en 2028**, avec la ligne C du métro, la ligne B prolongée et le tram de la Ligne Aéroport, pour voir le temps gagné.
+Site web gratuit de calcul d'itinéraires sur le réseau Tisséo (114 communes) et les TER de la zone : transports en commun avec marche, marche seule ou vélo. Sa fonction phare : comparer un même trajet **aujourd'hui** et **en 2028**, avec la ligne C du métro, la ligne B prolongée, le tram de la Ligne Aéroport et deux haltes TER prévisionnelles, pour voir le temps gagné.
 
 > Le scénario 2028 est une **projection** : les lignes futures sont simulées à partir de chiffres publics, sur le calendrier actuel. Les durées sont indicatives.
 
