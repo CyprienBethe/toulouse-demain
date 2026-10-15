@@ -1,5 +1,5 @@
 {
-  "recorded_at": "2026-10-15T20:21:49+00:00",
+  "recorded_at": "2026-10-15T20:27:32+00:00",
   "query": "\nquery Plan($origin: PlanLabeledLocationInput!, $destination: PlanLabeledLocationInput!,\n           $dateTime: PlanDateTimeInput!, $modes: PlanModesInput, $preferences: PlanPreferencesInput) {\n  planConnection(origin: $origin, destination: $destination, dateTime: $dateTime,\n                 modes: $modes, preferences: $preferences, first: 3) {\n    searchDateTime\n    routingErrors { code description }\n    edges {\n      node {\n        start\n        end\n        duration\n        numberOfTransfers\n        walkDistance\n        walkTime\n        waitingTime\n        legs {\n          mode\n          transitLeg\n          start { scheduledTime estimated { time delay } }\n          end { scheduledTime estimated { time delay } }\n          duration\n          distance\n          headsign\n          from { name lat lon stop { gtfsId } }\n          to { name lat lon stop { gtfsId } }\n          agency { gtfsId name }\n          route { gtfsId shortName longName color textColor }\n          legGeometry { points }\n        }\n      }\n    }\n  }\n}\n",
   "requests": [
     {
@@ -1186,27 +1186,27 @@
               },
               {
                 "node": {
-                  "start": "2026-10-20T08:30:26+02:00",
+                  "start": "2026-10-20T08:31:06+02:00",
                   "end": "2026-10-20T09:02:15+02:00",
-                  "duration": 1909,
+                  "duration": 1869,
                   "numberOfTransfers": 0,
-                  "walkDistance": 1066.94,
-                  "walkTime": 963,
+                  "walkDistance": 1024.74,
+                  "walkTime": 923,
                   "waitingTime": 0,
                   "legs": [
                     {
                       "mode": "WALK",
                       "transitLeg": false,
                       "start": {
-                        "scheduledTime": "2026-10-20T08:30:26+02:00",
+                        "scheduledTime": "2026-10-20T08:31:06+02:00",
                         "estimated": null
                       },
                       "end": {
                         "scheduledTime": "2026-10-20T08:44:53+02:00",
                         "estimated": null
                       },
-                      "duration": 867.0,
-                      "distance": 984.89,
+                      "duration": 827.0,
+                      "distance": 942.69,
                       "headsign": null,
                       "from": {
                         "name": "Gare Matabiau",
@@ -1225,7 +1225,7 @@
                       "agency": null,
                       "route": null,
                       "legGeometry": {
-                        "points": "aydiGa|zG?F@D@J?H@FD^@L@F@FBH@HJn@@FFCDAVK|@]RINGFV@F@FRGRKJED@ND`@@@@??H?B?@?@?fAFB??GF?F@@???v@DF@Xd@NXBDBDDFh@~@JPrBlD@BBBBD??HLHNT^tA`Ch@~@^h@FJDI@AFIBCBEHMhAlBFHCDA@BFNRBCJMQ[LO@C@AAACG@?BFDFBDA?A@GHJPLTHN@@?@DDDHDHo@t@BFJKHO"
+                        "points": "aydiGa|zG?F@D@J?H@FD^@L@F@FBH@HJn@@FFCDAVK|@]RINGFV@F@FRGRKJED@ND`@@@@??H?B?@?@?fAFB??GF?F@@???v@DF@Xd@NXBDBDDFh@~@JPrBlD@BBBBD??HLHNT^tA`Ch@~@^h@FJDI@AFIBCBEHMhAlBFHCDA@BFNRBCJMQ[LO@C@AAACG@?BFDFBDA?A@GHJPLTHN@@?@DDDHOP??EL"
                       }
                     },
                     {

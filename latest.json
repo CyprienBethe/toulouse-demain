@@ -3,8 +3,8 @@
   "complete": true,
   "status": "SUCCÈS",
   "warnings": [],
-  "date": "2026-10-15 20:21 UTC",
-  "run_url": "https://github.com/CyprienBethe/toulouse-demain/actions/runs/38800719428",
+  "date": "2026-10-15 20:27 UTC",
+  "run_url": "https://github.com/CyprienBethe/toulouse-demain/actions/runs/38801486541",
   "outcomes": {
     "download": "success",
     "zone": "success",
@@ -23,7 +23,7 @@
       "bytes": 15997604,
       "sha256": "e50e70ecc3653c1b2d8c928e3060103113ceea9c8853d82c27e5a93400600cab",
       "last_modified": null,
-      "seconds": 3.7,
+      "seconds": 3.5,
       "attempts": 1,
       "page": "https://www.data.gouv.fr/datasets/tisseo-reseau-transport-urbain-toulousain"
     },
@@ -34,7 +34,7 @@
       "bytes": 5520576,
       "sha256": "5599d956aa87ac6e0437c29fb25daa9948560c05a0b32e4fd3f8a7e610c17c49",
       "last_modified": "Thu, 15 Oct 2026 20:00:05 GMT",
-      "seconds": 1.3,
+      "seconds": 1.6,
       "attempts": 1,
       "page": "https://www.data.gouv.fr/datasets/horaires-sncf"
     },
@@ -45,7 +45,7 @@
       "bytes": 362953335,
       "sha256": "8d68b6c8b88cf74fc6f3c12ced729498dc6d2856bdefbc63f61a0f883420c5b9",
       "last_modified": "Thu, 15 Oct 2026 01:51:47 GMT",
-      "seconds": 19.3,
+      "seconds": 23.5,
       "attempts": 1,
       "page": "https://download.geofabrik.de/europe/france.html"
     }
@@ -103,20 +103,20 @@
     "exit_code": 0,
     "oom_killed": false,
     "timed_out": false,
-    "duration_seconds": 150,
-    "peak_container_memory_bytes": 7351910268,
-    "max_live_heap_after_gc_mib": 1431,
-    "graph_bytes": 88081447
+    "duration_seconds": 146,
+    "peak_container_memory_bytes": 4485019598,
+    "max_live_heap_after_gc_mib": 1556,
+    "graph_bytes": 88086543
   },
   "otp_serve": {
     "image": "docker.io/opentripplanner/opentripplanner:2.10.0",
     "xmx": "6g",
     "ready": true,
     "startup_seconds": 11,
-    "peak_container_memory_during_startup_bytes": 1177894780,
+    "peak_container_memory_during_startup_bytes": 1178968522,
     "container_memory_when_ready_bytes": 1182189748,
-    "container_memory_after_queries_bytes": 1250909224,
-    "max_live_heap_after_gc_mib": 599
+    "container_memory_after_queries_bytes": 1245540515,
+    "max_live_heap_after_gc_mib": 808
   },
   "trips": {
     "departure": "2026-10-20T08:30:00+02:00",
@@ -198,7 +198,7 @@
         "mode": "transit",
         "results": {
           "actuel": {
-            "response_ms": 760,
+            "response_ms": 711,
             "routing_errors": [],
             "itineraries": [
               {
@@ -321,7 +321,7 @@
             ]
           },
           "2028": {
-            "response_ms": 265,
+            "response_ms": 254,
             "routing_errors": [],
             "itineraries": [
               {
@@ -471,7 +471,7 @@
         "mode": "transit",
         "results": {
           "actuel": {
-            "response_ms": 346,
+            "response_ms": 303,
             "routing_errors": [],
             "itineraries": [
               {
@@ -524,11 +524,11 @@
                 ]
               },
               {
-                "start": "2026-10-20T08:30:26+02:00",
+                "start": "2026-10-20T08:31:06+02:00",
                 "end": "2026-10-20T09:02:15+02:00",
-                "minutes": 32,
+                "minutes": 31,
                 "transfers": 0,
-                "walk_meters": 1067,
+                "walk_meters": 1025,
                 "legs": [
                   {
                     "mode": "WALK",
@@ -604,7 +604,7 @@
             ]
           },
           "2028": {
-            "response_ms": 218,
+            "response_ms": 197,
             "routing_errors": [],
             "itineraries": [
               {
@@ -764,7 +764,7 @@
         "mode": "transit",
         "results": {
           "actuel": {
-            "response_ms": 434,
+            "response_ms": 393,
             "routing_errors": [],
             "itineraries": [
               {
@@ -897,7 +897,7 @@
             ]
           },
           "2028": {
-            "response_ms": 275,
+            "response_ms": 351,
             "routing_errors": [],
             "itineraries": [
               {
@@ -1047,7 +1047,7 @@
         "mode": "transit",
         "results": {
           "actuel": {
-            "response_ms": 290,
+            "response_ms": 318,
             "routing_errors": [],
             "itineraries": [
               {
@@ -1198,7 +1198,7 @@
             ]
           },
           "2028": {
-            "response_ms": 212,
+            "response_ms": 253,
             "routing_errors": [],
             "itineraries": [
               {
@@ -1321,7 +1321,7 @@
         "mode": "walk",
         "results": {
           "actuel": {
-            "response_ms": 19,
+            "response_ms": 18,
             "routing_errors": [],
             "itineraries": [
               {
@@ -1373,12 +1373,12 @@
         "mode": "bicycle",
         "results": {
           "actuel": {
-            "response_ms": 127,
+            "response_ms": 132,
             "routing_errors": [],
             "itineraries": [
               {
                 "start": "2026-10-20T08:30:00+02:00",
-                "end": "2026-10-20T09:07:59+02:00",
+                "end": "2026-10-20T09:07:58+02:00",
                 "minutes": 38,
                 "transfers": 0,
                 "walk_meters": 0,
