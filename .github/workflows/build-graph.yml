@@ -128,6 +128,8 @@ jobs:
             build/venv-futur/bin/python scripts/build_gtfs_futur.py \
               --tisseo-gtfs build/raw/tisseo.gtfs.zip --sncf-gtfs build/otp/gtfs/sncf.gtfs.zip \
               --osm-dir build/futur-osm --output build/gtfs/futur.gtfs.zip
+            # Build report (halts, excluded lines, warnings), readable on the `rapports` branch.
+            cp build/gtfs/futur-rapport.md build/futur-osm/rapport_osm.md build/report/attachments/
             cp build/gtfs/futur.gtfs.zip build/otp/gtfs/futur.gtfs.zip
           } 2>&1 | tee build/report/logs/futur.log
 
