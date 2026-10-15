@@ -1,10 +1,10 @@
 <!-- toulouse-demain:graph-report -->
 ## Rapport de construction du graphe : SUCCÈS AVEC AVERTISSEMENTS
 
-- Date : 2026-10-15 21:35 UTC
-- Événement : `pull_request`, branche `3/merge`, commit `19b3ef2`
+- Date : 2026-10-15 21:41 UTC
+- Événement : `pull_request`, branche `3/merge`, commit `7f55cde`
 - Image OTP : `docker.io/opentripplanner/opentripplanner:2.10.0`
-- Exécution : https://github.com/CyprienBethe/toulouse-demain/actions/runs/38810500944
+- Exécution : https://github.com/CyprienBethe/toulouse-demain/actions/runs/38811244145
 - Durée depuis le début du workflow : 4 min 14 s
 
 ### Étapes
@@ -37,14 +37,14 @@ GTFS futur : 2,92 Mo, 8 lignes (C, B, Aéroport, K1, K13, C1, C3, K11), 144 arr�
 
 | Mesure | Valeur |
 | --- | --- |
-| Durée de construction du graphe | 2 min 16 s |
-| Mémoire max du conteneur pendant la construction (-Xmx12g) | 3,78 Go |
-| Tas Java vivant max après GC, construction | 1,67 Go |
+| Durée de construction du graphe | 2 min 21 s |
+| Mémoire max du conteneur pendant la construction (-Xmx12g) | 5,89 Go |
+| Tas Java vivant max après GC, construction | 1,50 Go |
 | Taille de graph.obj | 88,63 Mo |
-| Démarrage du serveur (chargement du graphe) | 11 s |
-| Mémoire du conteneur serveur prêt (-Xmx6g) | 1,20 Go |
-| Mémoire du conteneur serveur après les trajets | 1,27 Go |
-| Tas Java vivant max après GC, serveur | 840,96 Mo |
+| Démarrage du serveur (chargement du graphe) | 6 s |
+| Mémoire du conteneur serveur prêt (-Xmx6g) | 1,16 Go |
+| Mémoire du conteneur serveur après les trajets | 1,23 Go |
+| Tas Java vivant max après GC, serveur | 654,31 Mo |
 
 ### Trajets de référence (départ 2026-10-20T08:30:00+02:00)
 
@@ -71,11 +71,11 @@ GTFS futur : 2,92 Mo, 8 lignes (C, B, Aéroport, K1, K13, C1, C3, K11), 144 arr�
 - actuel : 33 min, 0 corresp., walk 8 min → BUS AERO (tisseo) → walk 0 min
 - actuel : 32 min, 0 corresp., walk 8 min → BUS AERO (tisseo) → walk 0 min
 - actuel : 26 min, 0 corresp., walk 8 min → BUS AERO (tisseo) → walk 0 min
-  (réponse en 762 ms)
+  (réponse en 786 ms)
 - 2028 : 38 min, 2 corresp., walk 0 min → SUBWAY A (tisseo) → walk 6 min → SUBWAY C (futur) → TRAM Aéroport (futur) → walk 1 min
 - 2028 : 36 min, 2 corresp., walk 0 min → SUBWAY A (tisseo) → walk 6 min → SUBWAY C (futur) → TRAM Aéroport (futur) → walk 1 min
 - 2028 : 44 min, 1 corresp., walk 18 min → SUBWAY C (futur) → TRAM Aéroport (futur) → walk 1 min
-  (réponse en 574 ms)
+  (réponse en 514 ms)
 
 **Gare Matabiau → Ramonville** (transit)
 - Départ : Toulouse Matabiau [sncf, 4 arrêt(s), 43.611206, 1.453616]
@@ -83,11 +83,11 @@ GTFS futur : 2,92 Mo, 8 lignes (C, B, Aéroport, K1, K13, C1, C3, K11), 144 arr�
 - actuel : 21 min, 1 corresp., RAIL K5 (sncf) → walk 4 min → SUBWAY B (tisseo) → walk 2 min
 - actuel : 32 min, 0 corresp., walk 14 min → SUBWAY B (tisseo) → walk 2 min
 - actuel : 31 min, 0 corresp., walk 1 min → BUS 27 (tisseo) → walk 0 min
-  (réponse en 208 ms)
+  (réponse en 240 ms)
 - 2028 : 21 min, 1 corresp., RAIL K5 (sncf) → walk 4 min → SUBWAY B (futur) → walk 3 min
 - 2028 : 32 min, 0 corresp., walk 13 min → SUBWAY B (futur) → walk 3 min
 - 2028 : 31 min, 0 corresp., walk 1 min → BUS 27 (tisseo) → walk 0 min
-  (réponse en 146 ms)
+  (réponse en 164 ms)
 
 **Colomiers gare → Labège** (transit)
 - Départ : Colomiers [sncf, 3 arrêt(s), 43.603734, 1.334221]
@@ -95,11 +95,11 @@ GTFS futur : 2,92 Mo, 8 lignes (C, B, Aéroport, K1, K13, C1, C3, K11), 144 arr�
 - actuel : 45 min, 1 corresp., RAIL C6 (sncf) → RAIL K3 (sncf)
 - actuel : 53 min, 2 corresp., RAIL C6 (sncf) → walk 4 min → SUBWAY B (tisseo) → walk 4 min → BUS 80 (tisseo) → walk 3 min
 - actuel : 68 min, 1 corresp., RAIL C6 (sncf) → RAIL C3 (sncf)
-  (réponse en 306 ms)
+  (réponse en 342 ms)
 - 2028 : 48 min, 0 corresp., walk 4 min → SUBWAY C (futur) → walk 10 min
 - 2028 : 48 min, 0 corresp., walk 4 min → SUBWAY C (futur) → walk 10 min
 - 2028 : 48 min, 0 corresp., walk 4 min → SUBWAY C (futur) → walk 10 min
-  (réponse en 247 ms)
+  (réponse en 254 ms)
 
 **Gare de Colomiers → Diagora (Labège)** (transit)
 - Départ : Colomiers [sncf, 3 arrêt(s), 43.603734, 1.334221]
@@ -107,11 +107,11 @@ GTFS futur : 2,92 Mo, 8 lignes (C, B, Aéroport, K1, K13, C1, C3, K11), 144 arr�
 - actuel : 53 min, 1 corresp., RAIL C6 (sncf) → RAIL K3 (sncf) → walk 8 min
 - actuel : 59 min, 2 corresp., RAIL C6 (sncf) → walk 4 min → SUBWAY B (tisseo) → walk 2 min → BUS 79 (tisseo) → walk 2 min
 - actuel : 76 min, 1 corresp., RAIL C6 (sncf) → RAIL C3 (sncf) → walk 8 min
-  (réponse en 260 ms)
+  (réponse en 269 ms)
 - 2028 : 38 min, 0 corresp., walk 4 min → SUBWAY C (futur)
 - 2028 : 38 min, 0 corresp., walk 4 min → SUBWAY C (futur)
 - 2028 : 38 min, 0 corresp., walk 4 min → SUBWAY C (futur)
-  (réponse en 201 ms)
+  (réponse en 214 ms)
 
 **La Vache (halte Route de Launaguet) → Gare Matabiau** (transit)
 - Départ : Route de Launaguet [futur, 2 arrêt(s), 43.633617, 1.434951]
@@ -119,10 +119,10 @@ GTFS futur : 2,92 Mo, 8 lignes (C, B, Aéroport, K1, K13, C1, C3, K11), 144 arr�
 - actuel : 51 min, 0 corresp., walk 51 min
 - actuel : 26 min, 0 corresp., walk 4 min → SUBWAY B (tisseo) → walk 14 min
 - actuel : 26 min, 0 corresp., walk 4 min → SUBWAY B (tisseo) → walk 14 min
-  (réponse en 161 ms)
+  (réponse en 157 ms)
 - 2028 : 4 min, 0 corresp., RAIL C1 (futur)
 - 2028 : 4 min, 0 corresp., RAIL C1 (futur)
-  (réponse en 102 ms)
+  (réponse en 100 ms)
 
 **Gare Matabiau → Labège-La Cadène** (transit)
 - Départ : Toulouse Matabiau [sncf, 4 arrêt(s), 43.611206, 1.453616]
@@ -130,23 +130,23 @@ GTFS futur : 2,92 Mo, 8 lignes (C, B, Aéroport, K1, K13, C1, C3, K11), 144 arr�
 - actuel : 48 min, 2 corresp., RAIL K5 (sncf) → walk 4 min → SUBWAY B (tisseo) → walk 4 min → BUS 80 (tisseo) → walk 3 min
 - actuel : 24 min, 1 corresp., RAIL K3 (sncf) → walk 3 min → BUS 80 (tisseo) → walk 3 min
 - actuel : 27 min, 0 corresp., RAIL K3 (sncf) → walk 18 min
-  (réponse en 109 ms)
+  (réponse en 111 ms)
 - 2028 : 27 min, 0 corresp., walk 7 min → SUBWAY C (futur)
 - 2028 : 27 min, 0 corresp., walk 7 min → SUBWAY C (futur)
 - 2028 : 27 min, 0 corresp., walk 7 min → SUBWAY C (futur)
-  (réponse en 97 ms)
+  (réponse en 95 ms)
 
 **Capitole → Gare Matabiau, marche seule** (walk)
 - Départ : Capitole [tisseo, 3 arrêt(s), 43.604465, 1.445537]
 - Arrivée : Toulouse Matabiau [sncf, 4 arrêt(s), 43.611206, 1.453616]
 - actuel : 17 min, 0 corresp., walk 17 min
-  (réponse en 16 ms)
+  (réponse en 15 ms)
 
 **Capitole → Aéroport Toulouse-Blagnac, vélo** (bicycle)
 - Départ : Capitole [tisseo, 3 arrêt(s), 43.604465, 1.445537]
 - Arrivée : Aéroport [tisseo, 4 arrêt(s), 43.631247, 1.374752]
 - actuel : 38 min, 0 corresp., bicycle 38 min
-  (réponse en 112 ms)
+  (réponse en 100 ms)
 
 </details>
 

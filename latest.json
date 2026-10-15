@@ -5,8 +5,8 @@
   "warnings": [
     "matabiau-labege-la-cadene / 2028 : aucun itinéraire ne monte ni ne descend à l'arrêt « ^labege la cadene$ » (futur)"
   ],
-  "date": "2026-10-15 21:35 UTC",
-  "run_url": "https://github.com/CyprienBethe/toulouse-demain/actions/runs/38810500944",
+  "date": "2026-10-15 21:41 UTC",
+  "run_url": "https://github.com/CyprienBethe/toulouse-demain/actions/runs/38811244145",
   "outcomes": {
     "download": "success",
     "zone": "success",
@@ -25,7 +25,7 @@
       "bytes": 15997604,
       "sha256": "e50e70ecc3653c1b2d8c928e3060103113ceea9c8853d82c27e5a93400600cab",
       "last_modified": null,
-      "seconds": 2.5,
+      "seconds": 3.0,
       "attempts": 1,
       "page": "https://www.data.gouv.fr/datasets/tisseo-reseau-transport-urbain-toulousain"
     },
@@ -36,7 +36,7 @@
       "bytes": 5520576,
       "sha256": "5599d956aa87ac6e0437c29fb25daa9948560c05a0b32e4fd3f8a7e610c17c49",
       "last_modified": "Thu, 15 Oct 2026 20:00:05 GMT",
-      "seconds": 1.1,
+      "seconds": 1.5,
       "attempts": 1,
       "page": "https://www.data.gouv.fr/datasets/horaires-sncf"
     },
@@ -47,7 +47,7 @@
       "bytes": 362953335,
       "sha256": "8d68b6c8b88cf74fc6f3c12ced729498dc6d2856bdefbc63f61a0f883420c5b9",
       "last_modified": "Thu, 15 Oct 2026 01:51:47 GMT",
-      "seconds": 19.7,
+      "seconds": 22.3,
       "attempts": 1,
       "page": "https://download.geofabrik.de/europe/france.html"
     }
@@ -75,7 +75,7 @@
     "input_bytes": 362953335,
     "output_bytes": 82606397,
     "bbox": "1.02706,43.30141,1.81453,43.83973",
-    "seconds": 10,
+    "seconds": 11,
     "osmium_version": "osmium version 1.16.0"
   },
   "sncf_kept": {
@@ -111,20 +111,20 @@
     "exit_code": 0,
     "oom_killed": false,
     "timed_out": false,
-    "duration_seconds": 136,
-    "peak_container_memory_bytes": 3784939929,
-    "max_live_heap_after_gc_mib": 1591,
-    "graph_bytes": 88633313
+    "duration_seconds": 141,
+    "peak_container_memory_bytes": 5891621388,
+    "max_live_heap_after_gc_mib": 1431,
+    "graph_bytes": 88633207
   },
   "otp_serve": {
     "image": "docker.io/opentripplanner/opentripplanner:2.10.0",
     "xmx": "6g",
     "ready": true,
-    "startup_seconds": 11,
-    "peak_container_memory_during_startup_bytes": 1197222133,
-    "container_memory_when_ready_bytes": 1201517101,
-    "container_memory_after_queries_bytes": 1267015352,
-    "max_live_heap_after_gc_mib": 802
+    "startup_seconds": 6,
+    "peak_container_memory_during_startup_bytes": 1143535042,
+    "container_memory_when_ready_bytes": 1163936137,
+    "container_memory_after_queries_bytes": 1226213163,
+    "max_live_heap_after_gc_mib": 624
   },
   "trips": {
     "departure": "2026-10-20T08:30:00+02:00",
@@ -218,7 +218,7 @@
         "mode": "transit",
         "results": {
           "actuel": {
-            "response_ms": 762,
+            "response_ms": 786,
             "routing_errors": [],
             "itineraries": [
               {
@@ -341,7 +341,7 @@
             ]
           },
           "2028": {
-            "response_ms": 574,
+            "response_ms": 514,
             "routing_errors": [],
             "itineraries": [
               {
@@ -556,7 +556,7 @@
         "mode": "transit",
         "results": {
           "actuel": {
-            "response_ms": 208,
+            "response_ms": 240,
             "routing_errors": [],
             "itineraries": [
               {
@@ -689,7 +689,7 @@
             ]
           },
           "2028": {
-            "response_ms": 146,
+            "response_ms": 164,
             "routing_errors": [],
             "itineraries": [
               {
@@ -849,7 +849,7 @@
         "mode": "transit",
         "results": {
           "actuel": {
-            "response_ms": 306,
+            "response_ms": 342,
             "routing_errors": [],
             "itineraries": [
               {
@@ -982,7 +982,7 @@
             ]
           },
           "2028": {
-            "response_ms": 247,
+            "response_ms": 254,
             "routing_errors": [],
             "itineraries": [
               {
@@ -1132,7 +1132,7 @@
         "mode": "transit",
         "results": {
           "actuel": {
-            "response_ms": 260,
+            "response_ms": 269,
             "routing_errors": [],
             "itineraries": [
               {
@@ -1283,7 +1283,7 @@
             ]
           },
           "2028": {
-            "response_ms": 201,
+            "response_ms": 214,
             "routing_errors": [],
             "itineraries": [
               {
@@ -1406,7 +1406,7 @@
         "mode": "transit",
         "results": {
           "actuel": {
-            "response_ms": 161,
+            "response_ms": 157,
             "routing_errors": [],
             "itineraries": [
               {
@@ -1509,7 +1509,7 @@
             ]
           },
           "2028": {
-            "response_ms": 102,
+            "response_ms": 100,
             "routing_errors": [],
             "itineraries": [
               {
@@ -1584,7 +1584,7 @@
         "mode": "transit",
         "results": {
           "actuel": {
-            "response_ms": 109,
+            "response_ms": 111,
             "routing_errors": [],
             "itineraries": [
               {
@@ -1736,7 +1736,7 @@
             ]
           },
           "2028": {
-            "response_ms": 97,
+            "response_ms": 95,
             "routing_errors": [],
             "itineraries": [
               {
@@ -1859,7 +1859,7 @@
         "mode": "walk",
         "results": {
           "actuel": {
-            "response_ms": 16,
+            "response_ms": 15,
             "routing_errors": [],
             "itineraries": [
               {
@@ -1911,7 +1911,7 @@
         "mode": "bicycle",
         "results": {
           "actuel": {
-            "response_ms": 112,
+            "response_ms": 100,
             "routing_errors": [],
             "itineraries": [
               {

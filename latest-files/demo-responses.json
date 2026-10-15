@@ -1,5 +1,5 @@
 {
-  "recorded_at": "2026-10-15T21:35:32+00:00",
+  "recorded_at": "2026-10-15T21:41:23+00:00",
   "query": "\nquery Plan($origin: PlanLabeledLocationInput!, $destination: PlanLabeledLocationInput!,\n           $dateTime: PlanDateTimeInput!, $modes: PlanModesInput, $preferences: PlanPreferencesInput) {\n  planConnection(origin: $origin, destination: $destination, dateTime: $dateTime,\n                 modes: $modes, preferences: $preferences, first: 3) {\n    searchDateTime\n    routingErrors { code description }\n    edges {\n      node {\n        start\n        end\n        duration\n        numberOfTransfers\n        walkDistance\n        walkTime\n        waitingTime\n        legs {\n          mode\n          transitLeg\n          start { scheduledTime estimated { time delay } }\n          end { scheduledTime estimated { time delay } }\n          duration\n          distance\n          headsign\n          from { name lat lon stop { gtfsId } }\n          to { name lat lon stop { gtfsId } }\n          agency { gtfsId name }\n          route { gtfsId shortName longName color textColor }\n          legGeometry { points }\n        }\n      }\n    }\n  }\n}\n",
   "requests": [
     {
