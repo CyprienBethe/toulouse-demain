@@ -78,3 +78,28 @@ test('aucune dépendance à l\'exécution', () => {
   assert.deepEqual(Object.keys(pkg.devDependencies), ['graphql']);
   assert.match(pkg.devDependencies.graphql, /^\d+\.\d+\.\d+$/, 'exact version');
 });
+
+test('le réseau 2028 annonce la Ligne Aéroport et le retrait de la navette, partout où ses lignes sont listées', () => {
+  const projection = /<div class="projection"[\s\S]*?<\/div>/.exec(html)[0];
+  const lead = /<p class="lead">[\s\S]*?<\/p>/.exec(html)[0];
+  const description = /<meta name="description" content="([^"]+)"/.exec(html)[1];
+  for (const text of [projection, lead, description]) {
+    assert.match(text, /ligne C/i);
+    assert.match(text, /Ligne Aéroport/);
+  }
+  for (const text of [projection, lead]) {
+    assert.match(text, /navette Aéroport est retirée|retire la navette Aéroport/);
+    assert.match(text, /deux haltes TER prévisionnelles/);
+  }
+  assert.match(html, /<span class="hyp-badge ter" aria-hidden="true">/);
+  assert.match(html, /<span class="hyp-badge aero" aria-hidden="true">/);
+  assert.match(css, /\.hyp-badge\.aero \{ background: #B39DDB; \}/);
+});
+
+test('chaque source citée [Sn] du panneau « Hypothèses et sources » est listée avec son lien', () => {
+  const panel = /<dialog class="hypotheses"[\s\S]*?<\/dialog>/.exec(html)[0];
+  const listed = new Set([...panel.matchAll(/<li>\[(S\d+)\][^<]*<a href="https:\/\/[^"]+">/g)].map((m) => m[1]));
+  const cited = new Set([...html.matchAll(/\[(S\d+)\]/g)].map((m) => m[1]));
+  for (const ref of cited) assert.ok(listed.has(ref), `${ref} cité mais absent de la liste des sources`);
+  for (let k = 11; k <= 21; k += 1) assert.ok(listed.has(`S${k}`), `S${k}`); // Ligne Aéroport, haltes TER
+});

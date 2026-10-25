@@ -42,6 +42,17 @@ Checks that make the script fail (exit code 1):
 - a walk (or bicycle) trip does not return a walk-only (or bicycle) itinerary;
 - a per-trip check of severity "failure" (config/reference-trips.json).
 Warnings are reported but do not fail the script.
+
+Per-trip checks ("checks" in config/reference-trips.json), each for one scenario:
+- "fastest_uses": {"feed", "line"}: the fastest itinerary has a leg on that line;
+- "never_uses_feed": "<feed>": no itinerary uses that feed;
+- "never_uses_line": {"feed", "line"}: no itinerary has a leg on that line
+  (for example a Tisséo line replaced in 2028 by a line of the future feed).
+- "uses_stop": {"feed", "pattern"}: at least one itinerary boards or alights a
+  vehicle of that feed at a stop whose normalized name matches the pattern
+  (for example a TER halt of the future feed).
+"line" is the route short name returned by OTP. Optional "requires_feed": the
+check is skipped (warning) when that feed is absent from the graph.
 """
 
 from __future__ import annotations
@@ -321,12 +332,20 @@ def summarize(node: dict) -> dict:
     }
 
 
-def evaluate_checks(trip: dict, results: dict) -> tuple[list[str], list[str]]:
-    """Per-trip checks from config/reference-trips.json: (failures, warnings)."""
+def evaluate_checks(trip: dict, results: dict, feeds_present: set[str] | None = None) -> tuple[list[str], list[str]]:
+    """Per-trip checks from config/reference-trips.json: (failures, warnings).
+
+    A check with "requires_feed" is skipped, with a warning, when that feed is not in the graph
+    (feeds_present; None = all present): without the future feed, scenario 2028 is today's network.
+    """
     failures: list[str] = []
     warnings: list[str] = []
     for check in trip.get("checks", []):
         scenario = check["scenario"]
+        required = check.get("requires_feed")
+        if required and feeds_present is not None and required not in feeds_present:
+            warnings.append(f"{trip['id']} / {scenario} : contrôle ignoré, le flux {required} est absent du graphe")
+            continue
         itineraries = (results.get(scenario) or {}).get("itineraries") or []
         problem = None
         if "fastest_uses" in check:
@@ -342,6 +361,18 @@ def evaluate_checks(trip: dict, results: dict) -> tuple[list[str], list[str]]:
             feed = check["never_uses_feed"]
             if any(feed in itinerary["feeds"] for itinerary in itineraries):
                 problem = f"un itinéraire emprunte le flux {feed}"
+        if "never_uses_line" in check:
+            unwanted = check["never_uses_line"]
+            if any(leg["feed"] == unwanted["feed"] and leg["line"] == unwanted["line"]
+                   for itinerary in itineraries for leg in itinerary["legs"]):
+                problem = f"un itinéraire emprunte la ligne {unwanted['line']} ({unwanted['feed']})"
+        if "uses_stop" in check:
+            wanted = check["uses_stop"]
+            pattern = re.compile(wanted["pattern"])
+            if not any(leg["feed"] == wanted["feed"] and any(pattern.search(normalize(leg[end] or ""))
+                                                             for end in ("from", "to"))
+                       for itinerary in itineraries for leg in itinerary["legs"]):
+                problem = f"aucun itinéraire ne monte ni ne descend à l'arrêt « {wanted['pattern']} » ({wanted['feed']})"
         if problem:
             message = f"{trip['id']} / {scenario} : {problem}"
             (failures if check.get("severity") == "failure" else warnings).append(message)
@@ -442,7 +473,8 @@ def main() -> int:
                 if not any(all(leg["feed"] is None for leg in i["legs"])
                            and any(leg["mode"] == expected for leg in i["legs"]) for i in itineraries):
                     failures.append(f"{trip['id']} : pas d'itinéraire en {trip['mode']} seul")
-        check_failures, check_warnings = evaluate_checks(trip, result["results"])
+        check_failures, check_warnings = evaluate_checks(
+            trip, result["results"], {feed for feed, agencies in agencies_by_feed.items() if agencies})
         failures += check_failures
         warnings += check_warnings
         output["trips"].append(result)

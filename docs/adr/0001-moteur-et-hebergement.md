@@ -66,17 +66,22 @@ preferences: { transit: { filters: [ { exclude: [ { agencies: ["futur:<agency_id
 
 Le scénario « 2028 » exclut les lignes Tisséo remplacées par une ligne du flux `futur`. **Décision de Cyprien (14/10/2026)** : la ligne B prolongée est modélisée en rames directes, comme l'annonce Tisséo. Le flux `futur` contient donc une copie de la ligne B actuelle, prolongée jusqu'à Labège ; la ligne B Tisséo est exclue en 2028 pour ne pas circuler deux fois.
 
-Contrat avec le data engineer : `build_gtfs_futur.py` écrit aussi `build/gtfs/scenario-2028.json`, de la forme `{"exclude_routes": ["tisseo:<route_id>", …]}`. Le CI ajoute ces lignes aux exclusions du scénario 2028, mais seulement si le flux `futur` est présent dans le graphe : sinon la ligne B resterait sans remplaçante. Il vérifie que chaque ligne existe (sinon avertissement). Il publie ce fichier avec le graphe, ainsi que `scenario-filters.json` : les filtres exacts, avec les vrais identifiants, à envoyer pour chaque scénario.
+**Décision de Cyprien (15/10/2026)** : la Ligne Aéroport (tram Blagnac ↔ Aéroport) entre dans le flux `futur`, et la navette Aéroport de Tisséo (`route_short_name` `AERO`) est retirée du scénario 2028. Mécanisme générique, côté data engineer : `data/futur/parametres.yaml` liste les lignes Tisséo remplacées (`lignes_tisseo_remplacees`) par leur `route_short_name` ; `build_gtfs_futur.py` les résout en `route_id` dans le GTFS Tisséo et **s'arrête** si un nom désigne zéro ou plusieurs lignes, plutôt que de ne rien exclure en silence (détail : `docs/hypotheses-reseau-2028.md`, §7.5).
+
+Contrat avec le data engineer : `build_gtfs_futur.py` écrit aussi `build/gtfs/scenario-2028.json`, de la forme `{"exclude_routes": ["tisseo:<route_id>", …]}` (ligne B recopiée, puis lignes remplacées ; format inchangé le 15/10/2026). Il peut aussi contenir des lignes `sncf:<route_id>` : les lignes TER recopiées dans le flux `futur` avec une halte prévisionnelle (décision de Cyprien du 15/10/2026, `docs/hypotheses-reseau-2028.md` §8) ; le script reçoit pour cela le GTFS SNCF filtré (`--sncf-gtfs`). Les filtres d'OTP portent sur des lignes, pas sur des courses : une ligne qui passe par une halte est recopiée en entier. Le CI ajoute ces lignes aux exclusions du scénario 2028, mais seulement si le flux `futur` est présent dans le graphe : sinon la ligne B resterait sans remplaçante. Il vérifie que chaque ligne existe (sinon avertissement). Il publie ce fichier avec le graphe, ainsi que `scenario-filters.json` : les filtres exacts, avec les vrais identifiants, à envoyer pour chaque scénario.
 
 Les règles sont écrites une seule fois, dans `config/scenarios.json` ; le front-end doit envoyer les mêmes filtres. Contrôles du CI :
 - aucun itinéraire « actuel » n'emprunte le flux `futur`, sinon **échec** ;
-- en 2028, le trajet le plus rapide de Colomiers gare à Labège emprunte la ligne C, sinon **avertissement**.
+- en 2028, le trajet le plus rapide de Colomiers gare à Labège emprunte la ligne C, sinon **avertissement** ;
+- en 2028, aucun itinéraire de Capitole à l'aéroport n'emprunte la navette `AERO`, sinon **échec** (contrôle ignoré si le flux `futur` est absent) ; le plus rapide emprunte la Ligne Aéroport, sinon **avertissement**.
 
 **Modes à envoyer (correction après le premier passage du CI).** Lors de ce passage, tous les trajets en transports en commun ont échoué, dans les deux scénarios, avec l'erreur `Cannot invoke "java.util.Map.containsKey(Object)" because "modesArgs" is null` [S28]. Cause, lue dans le code d'OTP 2.10.0 [S29] : quand l'argument `modes` est envoyé avec la valeur `null`, OTP le lit sans vérifier qu'il est vide. Le schéma accepte pourtant cette valeur. Règle :
 - ne jamais envoyer de variable `null` ;
 - pour un trajet en transports en commun, envoyer des modes explicites : accès, sortie et correspondances à pied ; suggestion à pied seul autorisée ; modes de transport `BUS`, `TRAM`, `SUBWAY`, `RAIL` et `GONDOLA` (`request` dans `config/scenarios.json`).
 
 Le CI vérifie à chaque construction que cette liste couvre tous les modes présents dans le graphe (sinon avertissement). Des tests (`scripts/tests/`) valident les requêtes et les variables contre le schéma officiel 2.10.0 [S2].
+
+**Sur une pull request** (et toute branche autre que la branche principale), un GTFS futur en échec **fait échouer le workflow** (dernière étape, après la publication du rapport, et titre « ÉCHEC » du rapport) : une coche verte ne doit jamais cacher un scénario 2028 absent (correction du 15/10/2026). Le succès partiel ci-dessous ne vaut que pour la branche principale et la construction hebdomadaire.
 
 **Si le GTFS futur échoue**, le graphe est construit sans lui : OTP ignore une source absente, d'après la lecture du code par le QA. Le CI calcule alors les trajets avec `--allow-missing-feed futur` : l'absence du flux devient un avertissement et le graphe du réseau actuel est publié. Le rapport affiche « succès partiel ».
 

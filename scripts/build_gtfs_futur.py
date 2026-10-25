@@ -5,12 +5,22 @@ Contract (fixed with the architect):
 
     python scripts/build_gtfs_futur.py --tisseo-gtfs <tisseo.zip> --output build/gtfs/futur.gtfs.zip
 
-``--tisseo-gtfs`` is optional. The routing engine loads the output under the feed id ``futur``.
+``--tisseo-gtfs`` is optional, and so is ``--sncf-gtfs <sncf.gtfs.zip>`` (the SNCF GTFS already
+filtered to the zone, for the TER halts). The routing engine loads the output under the feed id
+``futur``.
+
+TER halts (``haltes_ter``, data/futur/haltes_ter.csv), with the SNCF GTFS: the SNCF lines whose
+trains call at the two neighbouring stations of a halt are copied in this feed, the halt inserted
+in those trains (time in proportion to the distance, plus a dwell that delays the rest of the
+trip), and scenario 2028 excludes the original SNCF lines. A halt already served in the SNCF GTFS
+is never duplicated.
 
 Inputs
-    data/futur/stations_ligne_c.csv, data/futur/stations_ligne_b_prolongee.csv (stations, in order)
+    data/futur/stations_*.csv (stations of each line, in order; metro C, B extension, Ligne Aéroport tram)
     data/futur/parametres.yaml (headways, service hours, travel times; see docs/hypotheses-reseau-2028.md)
     build/futur-osm/ (optional): positions and track produced by scripts/extract_futur_osm.py
+
+Each line is a metro (route_type 1, default) or a tram (``route_type: 0``).
 
 Station positions, by priority: the CSV, then the OSM extraction, then the Tisséo stop named in
 column ``arret_tisseo_reference``. A station without any position stops the build (exit code 2):
@@ -22,6 +32,10 @@ nearest existing stops. Line B is copied (same stops, times and shapes) as route
 feed, and enough of its trains run on to Labège Madron to give the extension headway; scenario
 2028 then excludes the Tisséo line B (scenario-2028.json). Without it: a standalone 21-day
 calendar, the default parameters and a Ramonville – Labège Madron shuttle.
+
+Scenario 2028 also excludes the Tisséo lines listed in ``lignes_tisseo_remplacees`` (for example
+the airport shuttle, replaced by the Ligne Aéroport): each route_short_name is resolved to its
+route_id in the Tisséo GTFS, and the build stops (exit code 2) if it matches no route or several.
 
 Output, in the folder of --output: the GTFS zip (data derived under ODbL), scenario-2028.json
 and a Markdown report.
@@ -62,6 +76,13 @@ MAX_HOP_M = 4000
 NIGHT_CUT_S = 4 * 3600
 # Line B extension: a gap longer than this between two trains starts a new grid of extended trains.
 RUN_GAP_S = 30 * 60
+# GTFS route_type values a future line may have.
+ROUTE_TYPES = {0: "tram", 1: "métro"}
+# TER halts: pseudo line id (OSM extraction, identifiers), and the guards.
+TER_LINE_ID = "TER"
+HALT_DETOUR_RATIO = 1.5  # d(A, halt) + d(halt, B) must stay below 1.5 × d(A, B) + 300 m
+HALT_DETOUR_SLACK_M = 300
+DIAGNOSTIC_RADIUS_M = 5000  # error messages list the SNCF stations served within this distance
 
 
 class BuildError(Exception):
@@ -162,6 +183,9 @@ class Station:
     source: str
     anchor: tuple[str, bool] | None
     origin: str = ""  # where the position used in the feed comes from (filled at build time)
+    between: tuple = ()  # TER halt only: candidates for the two neighbouring SNCF stations (two lists)
+    announced: int | None = None  # TER halt only: trains per day announced (for the report)
+    all_pairs: bool = False  # TER halt only: every train calling at one candidate per side in a row stops
 
 
 def load_params(path: Path) -> dict:
@@ -188,7 +212,43 @@ def load_params(path: Path) -> dict:
                 raise BuildError(f"profil {profile} : période « {period} » sans coefficient")
             if parse_hhmm(start) >= parse_hhmm(end):
                 raise BuildError(f"profil {profile} : fenêtre {start}-{end} vide")
+    line_ids = [line["id"] for line in params["lignes"]]
+    if len(line_ids) != len(set(line_ids)):
+        raise BuildError(f"identifiants de ligne en double : {line_ids}")
+    for line in params["lignes"]:
+        if route_type(line) not in ROUTE_TYPES:
+            raise BuildError(f"ligne {line['id']} : route_type {line.get('route_type')!r} non pris en charge "
+                             f"({', '.join(f'{k} = {v}' for k, v in ROUTE_TYPES.items())})")
+    haltes = params.get("haltes_ter")
+    if haltes:
+        for key in ("stations", "haltes"):
+            if key not in haltes:
+                raise BuildError(f"haltes_ter : clé « {key} » manquante")
+        for h in haltes["haltes"]:
+            between = h.get("entre") or []
+            sides = [[side] if isinstance(side, str) else list(side or []) for side in between]
+            if (len(sides) != 2 or not all(sides) or not all(isinstance(c, str) and c.strip() for s in sides for c in s)
+                    or {normalize_name(c) for c in sides[0]} & {normalize_name(c) for c in sides[1]}):
+                raise BuildError(f"haltes_ter : la halte {h.get('station')} doit avoir deux côtés (« entre »), chacun "
+                                 f"une gare ou une liste de gares candidates, sans gare commune ; pas {between}")
+            if h.get("desserte", "premiere_paire") not in ("premiere_paire", "toutes_paires"):
+                raise BuildError(f"haltes_ter : « desserte » de la halte {h.get('station')} doit valoir "
+                                 f"« premiere_paire » ou « toutes_paires », pas {h.get('desserte')!r}")
+    for item in params.get("lignes_tisseo_remplacees") or []:
+        if not str(item.get("ligne", "")).strip():
+            raise BuildError(f"lignes_tisseo_remplacees : « ligne » (route_short_name Tisséo) manquante dans {item}")
+        if item.get("remplacee_par") not in line_ids:
+            raise BuildError(f"lignes_tisseo_remplacees : la ligne Tisséo {item['ligne']} est remplacée par "
+                             f"« {item.get('remplacee_par')} », absente de « lignes » {line_ids}")
     return params
+
+
+def route_type(line: dict) -> int:
+    """GTFS route_type of a future line: 1 (metro) unless the parameters say otherwise."""
+    try:
+        return int(line.get("route_type", 1))
+    except (TypeError, ValueError):
+        return -1
 
 
 def resolve_path(value: str, base: Path) -> Path:
@@ -196,7 +256,7 @@ def resolve_path(value: str, base: Path) -> Path:
     return path if path.is_absolute() else base / path
 
 
-def load_stations(csv_path: Path, line_id: str) -> list[Station]:
+def load_stations(csv_path: Path, line_id: str, min_count: int = 2) -> list[Station]:
     stations = []
     with open(csv_path, encoding="utf-8", newline="") as fh:
         for row in csv.DictReader(fh):
@@ -220,9 +280,28 @@ def load_stations(csv_path: Path, line_id: str) -> list[Station]:
     stations.sort(key=lambda s: s.order)
     if [s.order for s in stations] != list(range(1, len(stations) + 1)):
         raise BuildError(f"{csv_path.name} : la colonne « ordre » doit aller de 1 à {len(stations)} sans trou")
-    if len(stations) < 2:
-        raise BuildError(f"{csv_path.name} : au moins deux stations sont nécessaires")
+    if len(stations) < min_count:
+        raise BuildError(f"{csv_path.name} : au moins {min_count} stations sont nécessaires")
     return stations
+
+
+def load_haltes(params, base: Path) -> list[Station]:
+    """TER halts of haltes_ter (parametres.yaml), with their CSV row and their two neighbours."""
+    cfg = params.get("haltes_ter")
+    if not cfg:
+        return []
+    csv_path = resolve_path(cfg["stations"], base)
+    by_name = {normalize_name(s.name): s for s in load_stations(csv_path, TER_LINE_ID, min_count=1)}
+    out = []
+    for item in cfg["haltes"]:
+        st = by_name.get(normalize_name(item["station"]))
+        if st is None:
+            raise BuildError(f"haltes_ter : la halte « {item['station']} » est absente de {csv_path.name}")
+        st.between = tuple([side] if isinstance(side, str) else list(side) for side in item["entre"])
+        st.announced = item.get("trains_par_jour_annonces")
+        st.all_pairs = item.get("desserte", "premiere_paire") == "toutes_paires"
+        out.append(st)
+    return out
 
 
 def load_osm_outputs(osm_dir: Path | None):
@@ -364,6 +443,11 @@ class TisseoGtfs:
         if self.ref_trips:
             return sum(1 for svc in self.ref_trips.values() if svc in services)
         return sum(1 for t in self.trips if t["service_id"] in services)
+
+    def routes_named(self, short_name: str) -> list[dict]:
+        """Routes whose route_short_name is this one (case and surrounding spaces ignored)."""
+        target = short_name.strip().casefold()
+        return [r for r in self.routes if (r.get("route_short_name") or "").strip().casefold() == target]
 
     def find_stop(self, name: str) -> dict | None:
         """Tisséo stop with this name, preferring stations served by the metro."""
@@ -865,10 +949,431 @@ def build_b_direct(params, line, tisseo: TisseoGtfs, tables, platform_id, coeffi
     }
 
 
+# --------------------------------------------------------------------------- TER halts
+
+
+class SncfGtfs(TisseoGtfs):
+    """The SNCF GTFS already filtered to the zone (scripts/filter_gtfs_sncf.py): small, read at once."""
+
+    def load(self, ref_line: str = "") -> None:  # noqa: ARG002 (same signature as the Tisséo reader)
+        self.stops = {s["stop_id"]: s for s in self.rows("stops.txt")}
+        self.routes = {r["route_id"]: r for r in self.rows("routes.txt")}
+        self.trips = {t["trip_id"]: t for t in self.rows("trips.txt")}
+        self.stop_times: dict[str, list[dict]] = defaultdict(list)
+        for row in self.rows("stop_times.txt"):
+            self.stop_times[row["trip_id"]].append(row)
+        for rows in self.stop_times.values():
+            rows.sort(key=lambda r: int(r["stop_sequence"]))
+        self.served = {r["stop_id"] for rows in self.stop_times.values() for r in rows}
+        self.services_by_date = self._services_by_date()
+
+    def name_of(self, stop_id: str) -> str:
+        return self.stops.get(stop_id, {}).get("stop_name", "")
+
+    def stops_named(self, name: str, motif: str = "") -> set[str]:
+        """Served stops whose own name, or whose parent station's name, is this one.
+
+        Accents, case and punctuation are ignored. Without an exact match, a name that contains it
+        is accepted ("Lalande-Église" for "Toulouse Lalande Église"), but only if it is one name.
+        motif: only stops whose stop_id contains it (SNCF: "Train TER", not the coaches nor the TGV).
+        """
+        target = normalize_name(name)
+        names = {}
+        for sid in self.served:
+            if motif and motif not in sid:
+                continue
+            stop = self.stops.get(sid, {})
+            for candidate in (stop.get("stop_name", ""), self.name_of(stop.get("parent_station", ""))):
+                if candidate:
+                    names.setdefault(normalize_name(candidate), set()).add(sid)
+        if target in names:
+            return names[target]
+        close = {k: v for k, v in names.items() if target and target in k}
+        if len(close) > 1:
+            raise BuildError(f"gare « {name} » ambiguë dans le GTFS SNCF {self.path.name} : "
+                             + ", ".join(sorted({self.name_of(next(iter(v))) for v in close.values()})))
+        return next(iter(close.values()), set())
+
+    def position(self, stop_ids: set[str]) -> tuple[float, float]:
+        pts = [(float(self.stops[s]["stop_lat"]), float(self.stops[s]["stop_lon"])) for s in stop_ids]
+        return sum(p[0] for p in pts) / len(pts), sum(p[1] for p in pts) / len(pts)
+
+
+def is_rail_route(route: dict) -> bool:
+    """GTFS route_type of a train: 2, or 100 to 117 (extended railway types)."""
+    try:
+        value = int(route.get("route_type", ""))
+    except ValueError:
+        return False
+    return value == 2 or 100 <= value <= 117
+
+
+def consecutive_calls(sncf, a_ids: set[str], b_ids: set[str]) -> list[tuple[str, int, bool]]:
+    """(trip, index of the first row, True if A then B) for the trains calling at A and B in a row."""
+    out = []
+    for tid, rows in sncf.stop_times.items():
+        if not is_rail_route(sncf.routes.get(sncf.trips.get(tid, {}).get("route_id"), {})):
+            continue  # SNCF coaches (OCECar) also call at these stations: never a halt for them
+        for i in range(len(rows) - 1):
+            s, t = rows[i]["stop_id"], rows[i + 1]["stop_id"]
+            if s in a_ids and t in b_ids:
+                out.append((tid, i, True))
+            elif s in b_ids and t in a_ids:
+                out.append((tid, i, False))
+    return out
+
+
+def sncf_diagnostic(sncf, halt, motif: str, radius_m: float = DIAGNOSTIC_RADIUS_M) -> str:
+    """Served SNCF stations near the halt, and the stations next to the candidates in the trains."""
+    trips: dict[str, set[str]] = defaultdict(set)
+    ids: dict[str, set[str]] = defaultdict(set)
+    around: dict[str, Counter] = defaultdict(Counter)
+    for tid, rows in sncf.stop_times.items():
+        if not is_rail_route(sncf.routes.get(sncf.trips.get(tid, {}).get("route_id"), {})):
+            continue
+        names = [sncf.name_of(r["stop_id"]) for r in rows]
+        for k, (row, name) in enumerate(zip(rows, names)):
+            trips[name].add(tid)
+            ids[name].add(row["stop_id"])
+            for j in (k - 1, k + 1):
+                if 0 <= j < len(rows):
+                    around[name][names[j]] += 1
+
+    def dist(name):
+        if halt.lat is None:
+            return None
+        return min(haversine_m(halt.lat, halt.lon, float(sncf.stops[s]["stop_lat"]), float(sncf.stops[s]["stop_lon"]))
+                   for s in ids[name])
+
+    def label(name):
+        d = dist(name)
+        kind = "" if not motif or any(motif in s for s in ids[name]) else f", aucun arrêt « {motif} »"
+        return f"{name} ({'?' if d is None else f'{d:.0f} m'}, {len(trips[name])} course(s){kind})"
+
+    out = []
+    if halt.lat is not None:
+        near = sorted((n for n in trips if dist(n) <= radius_m), key=dist)
+        out.append(f"gares SNCF desservies par des trains à moins de {radius_m / 1000:.0f} km de {halt.name} : "
+                   + (", ".join(label(n) for n in near) or "aucune"))
+    seen = set()
+    for side in halt.between:
+        for cand in side:
+            target = normalize_name(cand)
+            for name in trips:
+                if target and target in normalize_name(name) and name not in seen:
+                    seen.add(name)
+                    nxt = ", ".join(f"{label(n)} × {c}" for n, c in around[name].most_common(8))
+                    out.append(f"gares juste avant ou après {name} dans les trains : {nxt}")
+    return "\n".join(f"  - {line}" for line in out)
+
+
+def resolve_halte_positions(haltes, osm_positions, lines, tisseo: TisseoGtfs | None) -> None:
+    """Position of each TER halt: CSV, OSM extraction, then a neighbouring station (future line or Tisséo).
+
+    A halt left without a position is not added (warning in the report): it never blocks the feed.
+    """
+    future = {normalize_name(st.name): st for line in lines for st in line["stations"] if st.lat is not None}
+    for st in haltes:
+        if st.lat is not None:
+            st.origin = f"CSV : {st.precision}"
+            continue
+        osm = osm_positions.get((TER_LINE_ID, st.order))
+        if osm:
+            st.lat, st.lon = osm["lat"], osm["lon"]
+            st.origin = f"OpenStreetMap ({osm['source']}) : {osm['precision']}"
+            continue
+        if not st.anchor:
+            continue
+        name, _ = st.anchor
+        near = future.get(normalize_name(name))
+        if near is not None:
+            st.lat, st.lon = near.lat, near.lon
+            st.origin = (f"station future voisine « {near.name} » (ligne {near.line_id}) : approximative "
+                         "(la halte est annoncée à côté)")
+        elif tisseo is not None and (stop := tisseo.find_stop(name)):
+            st.lat, st.lon = float(stop["stop_lat"]), float(stop["stop_lon"])
+            st.origin = (f"GTFS Tisséo, arrêt {stop['stop_id']} « {stop['stop_name']} » : approximative "
+                         "(la halte est annoncée à côté)")
+
+
+def build_ter_haltes(params, haltes, sncf: SncfGtfs | None, tables, agency_id, notes) -> dict:
+    """Add the TER halts to copies of the SNCF lines that run past them.
+
+    For each halt: the trains that call at its two neighbouring stations one after the other are
+    the ones that will stop at the halt (hypothesis). Every trip of their SNCF routes is copied in
+    this feed (same stops and times); the halt is inserted in the matching trips, at a time split
+    in proportion to the distance, followed by a dwell that delays the rest of the trip. Scenario
+    2028 then excludes the original SNCF routes (scenario-2028.json).
+    Loud failures: a neighbour missing from the SNCF GTFS, or no train calling at both.
+    Skipped with a warning: a halt without a position, too far from its neighbours, or already
+    served in the SNCF GTFS (it may open before 2028: never duplicated).
+    """
+    cfg = params.get("haltes_ter") or {}
+    result = {"haltes": [], "excluded": [], "copied_trips": 0}
+    if not haltes:
+        return result
+    if sncf is None:
+        notes.append("Sans GTFS SNCF (--sncf-gtfs), haltes TER non ajoutées : "
+                     + ", ".join(h.name for h in haltes) + ".")
+        result["haltes"] = [{"name": h.name, "status": "non ajoutée (pas de GTFS SNCF)"} for h in haltes]
+        return result
+    prefix = params["flux"]["prefixe_id"]
+    tag = f"{prefix}SNCF_"
+    dwell = int(cfg.get("temps_arret_s", 60))
+    radius = float(cfg.get("rayon_deja_desservie_m", 150))
+    motif = cfg.get("motif_arrets_sncf") or ""
+    if motif and not any(motif in sid for sid in sncf.served):
+        raise BuildError(f"haltes_ter : aucun arrêt desservi du GTFS SNCF {sncf.path.name} n'a « {motif} » dans son "
+                         "stop_id (motif_arrets_sncf) : le format des identifiants SNCF a changé ?\n"
+                         + sncf_diagnostic(sncf, haltes[0], ""))
+    inserts: dict[str, list[tuple[int, Station, float]]] = defaultdict(list)  # trip -> (index, halt, share)
+    added = []
+    for h in haltes:
+        info = {"name": h.name, "announced": h.announced, "origin": h.origin,
+                "between": " – ".join(" / ".join(side) for side in h.between)}
+        result["haltes"].append(info)
+        same = sorted({sncf.name_of(s) for s in sncf.served if normalize_name(sncf.name_of(s)) == normalize_name(h.name)})
+        near = []
+        if h.lat is not None:
+            candidates = {normalize_name(c) for side in h.between for c in side}
+            near = sorted({sncf.name_of(s) for s in sncf.served
+                           if normalize_name(sncf.name_of(s)) not in candidates
+                           and haversine_m(h.lat, h.lon, float(sncf.stops[s]["stop_lat"]),
+                                           float(sncf.stops[s]["stop_lon"])) <= radius} - set(same))
+        if same or near:
+            info["status"] = f"déjà desservie dans le GTFS SNCF actuel ({', '.join(same + near)}) : non ajoutée"
+            notes.append(f"Halte TER {h.name} déjà desservie dans le GTFS SNCF ({', '.join(same + near)}) : "
+                         "non dupliquée dans le scénario 2028.")
+            continue
+        if h.lat is None:
+            info["status"] = "sans position vérifiable : non ajoutée"
+            notes.append(f"Halte TER {h.name} sans position vérifiable (CSV, OSM, station voisine) : non ajoutée.")
+            continue
+        # Neighbours: the first pair of candidates (side A first) with trains calling at both in a row.
+        chosen, tried, pairs = None, [], []
+        try:
+            for a_name in h.between[0]:
+                a_ids = sncf.stops_named(a_name, motif)
+                if not a_ids:
+                    tried.append(f"{a_name} : non desservie")
+                    continue
+                for b_name in h.between[1]:
+                    b_ids = sncf.stops_named(b_name, motif)
+                    calls = consecutive_calls(sncf, a_ids, b_ids) if b_ids else []
+                    tried.append(f"{a_name} → {b_name} : "
+                                 + (f"{len(calls)} passage(s) de train" if b_ids else f"{b_name} non desservie"))
+                    if calls:
+                        pairs.append((a_name, a_ids, b_name, b_ids, calls))
+                        if not h.all_pairs:
+                            break
+                if pairs and not h.all_pairs:
+                    break
+            if pairs:
+                chosen = pairs[0]
+        except BuildError as exc:
+            raise BuildError(f"halte TER « {h.name} » : {exc}\n" + sncf_diagnostic(sncf, h, motif)) from exc
+        if chosen is None:
+            raise BuildError(
+                f"halte TER « {h.name} » : aucun train du GTFS SNCF {sncf.path.name} ne dessert successivement "
+                f"deux des gares voisines candidates (« entre » dans parametres.yaml). Rien n'est recopié ni exclu "
+                f"au hasard. Essais : {' ; '.join(tried)}.\n" + sncf_diagnostic(sncf, h, motif))
+        if h.all_pairs:
+            info["between"] = " ; ".join(f"{a} – {b} ({len(c)})" for a, _, b, _, c in pairs)
+            notes.append(f"Halte TER {h.name} : desserte « toutes_paires », tout train qui s'arrête successivement "
+                         f"à une gare de chaque côté s'arrête à la halte ({' ; '.join(tried)}).")
+        else:
+            a_name, a_ids, b_name, b_ids, calls = chosen
+            info["between"] = f"{a_name} – {b_name}"
+            if (a_name, b_name) != (h.between[0][0], h.between[1][0]):
+                notes.append(f"Halte TER {h.name} : gares voisines de repli retenues, {a_name} et {b_name} "
+                             f"({' ; '.join(tried)}).")
+        planned, doubtful = [], []
+        for a_name, a_ids, b_name, b_ids, calls in (pairs if h.all_pairs else [chosen]):
+            pa, pb = sncf.position(a_ids), sncf.position(b_ids)
+            d_a, d_b, d_ab = haversine_m(*pa, h.lat, h.lon), haversine_m(h.lat, h.lon, *pb), haversine_m(*pa, *pb)
+            info.setdefault("distances", (d_a, d_b))
+            if d_a + d_b > HALT_DETOUR_RATIO * d_ab + HALT_DETOUR_SLACK_M:
+                doubtful.append(f"{d_a:.0f} m de {a_name} et {d_b:.0f} m de {b_name}, à {d_ab:.0f} m l'une de l'autre")
+                continue
+            planned.extend((tid, i, (d_a if a_first else d_b) / (d_a + d_b)) for tid, i, a_first in calls)
+        if doubtful:
+            notes.append(f"Halte TER {h.name} : paire(s) de gares écartée(s), position hors de la ligne : "
+                         + " ; ".join(doubtful) + ".")
+        if not planned:
+            info["status"] = "position hors de la ligne : non ajoutée"
+            notes.append(f"Halte TER {h.name} : position douteuse pour toutes les paires de gares, halte non ajoutée.")
+            continue
+        seen = set()
+        for tid, i, ratio in planned:
+            if (tid, i) in seen:
+                continue
+            seen.add((tid, i))
+            inserts[tid].append((i, h, ratio))
+        info["status"] = "ajoutée"
+        added.append(h)
+    if not added:
+        return result
+
+    routes = sorted({sncf.trips[t]["route_id"] for t in inserts})
+    copied = [t for t in sncf.trips.values() if t["route_id"] in routes and t["trip_id"] in sncf.stop_times]
+
+    # Routes, stops, the halt stops
+    for rid in routes:
+        r = sncf.routes.get(rid, {})
+        tables["routes.txt"].append({
+            "route_id": f"{tag}{rid}", "agency_id": agency_id,
+            "route_short_name": r.get("route_short_name", ""), "route_long_name": r.get("route_long_name", ""),
+            "route_desc": "Ligne SNCF recopiée du GTFS SNCF (ODbL), avec halte(s) TER prévisionnelle(s) ajoutée(s)",
+            "route_type": r.get("route_type", "2") or "2",
+            "route_color": (r.get("route_color") or "").upper(), "route_text_color": (r.get("route_text_color") or "").upper(),
+        })
+        result["excluded"].append({"route": f"sncf:{rid}", "nom_court": r.get("route_short_name", ""),
+                                   "nom_long": r.get("route_long_name", ""),
+                                   "remplacee_par": "copie avec halte(s) " + ", ".join(h.name for h in added)})
+    used = {r["stop_id"] for t in copied for r in sncf.stop_times[t["trip_id"]]}
+    parents = {sncf.stops[s].get("parent_station") for s in used if s in sncf.stops} - {"", None}
+    for sid in sorted(used | {p for p in parents if p in sncf.stops}):
+        stop = sncf.stops[sid]
+        parent = stop.get("parent_station", "")
+        tables["stops.txt"].append({
+            "stop_id": f"{tag}{sid}", "stop_name": stop["stop_name"],
+            "stop_lat": f"{float(stop['stop_lat']):.6f}", "stop_lon": f"{float(stop['stop_lon']):.6f}",
+            "location_type": (stop.get("location_type") or "0").strip() or "0",
+            "parent_station": f"{tag}{parent}" if parent in sncf.stops else "",
+            "stop_desc": "Arrêt recopié du GTFS SNCF (ODbL)",
+        })
+    halt_stop = {}
+    for h in added:
+        parent_id, platform = f"{prefix}STA_{slug(h.name)}", f"{prefix}TER_{slug(h.name)}"
+        halt_stop[h.name] = platform
+        for sid, loc, par in ((parent_id, "1", ""), (platform, "0", parent_id)):
+            tables["stops.txt"].append({
+                "stop_id": sid, "stop_name": h.name, "stop_lat": f"{h.lat:.6f}", "stop_lon": f"{h.lon:.6f}",
+                "location_type": loc, "parent_station": par,
+                "stop_desc": f"Halte TER prévisionnelle (simulation Toulouse Demain). Position : {h.origin}"[:500],
+            })
+
+    # Trips and stop times: the halt after row i, the rest of the trip delayed by the dwell.
+    shapes = {t.get("shape_id", "") for t in copied} - {""}
+    per_halt_trips: dict[str, set[str]] = defaultdict(set)
+    skipped = Counter()
+    for trip in copied:
+        tid = trip["trip_id"]
+        rows = sncf.stop_times[tid]
+        at = {i: (h, share) for i, h, share in inserts.get(tid, [])}
+        out, shift = [], 0
+        for i, row in enumerate(rows):
+            arr = parse_hhmm(row["arrival_time"] or row["departure_time"]) + shift
+            dep = parse_hhmm(row["departure_time"] or row["arrival_time"]) + shift
+            out.append({"trip_id": f"{tag}{tid}", "arrival_time": fmt_time(arr), "departure_time": fmt_time(dep),
+                        "stop_id": f"{tag}{row['stop_id']}", "pickup_type": row.get("pickup_type", ""),
+                        "drop_off_type": row.get("drop_off_type", "")})
+            if i in at:
+                h, share = at[i]
+                nxt = parse_hhmm(rows[i + 1]["arrival_time"] or rows[i + 1]["departure_time"]) + shift
+                halt_arr = dep + int(round((nxt - dep) * share))
+                if not dep < halt_arr < nxt:
+                    skipped[h.name] += 1  # same minute at both neighbours: no room for a stop
+                    continue
+                out.append({"trip_id": f"{tag}{tid}", "arrival_time": fmt_time(halt_arr),
+                            "departure_time": fmt_time(halt_arr + dwell), "stop_id": halt_stop[h.name],
+                            "pickup_type": "0", "drop_off_type": "0"})
+                shift += dwell
+                per_halt_trips[h.name].add(tid)
+        for seq, row in enumerate(out, start=1):
+            row["stop_sequence"] = str(seq)
+        tables["stop_times.txt"] += out
+        tables["trips.txt"].append({
+            "route_id": f"{tag}{trip['route_id']}", "service_id": f"{tag}{trip['service_id']}",
+            "trip_id": f"{tag}{tid}", "trip_headsign": trip.get("trip_headsign", ""),
+            "direction_id": trip.get("direction_id", ""),
+            "shape_id": f"{tag}{trip['shape_id']}" if trip.get("shape_id") in shapes else "",
+        })
+    services = {t["service_id"] for t in copied}
+    calendar, calendar_dates = sncf.calendar_rows(services)
+    for row in calendar:
+        tables["calendar.txt"].append({"service_id": f"{tag}{row['service_id']}", **{d: row.get(d, "0") for d in GTFS_WEEKDAYS},
+                                       "start_date": row["start_date"], "end_date": row["end_date"]})
+    for row in calendar_dates:
+        tables["calendar_dates.txt"].append({"service_id": f"{tag}{row['service_id']}", "date": row["date"],
+                                             "exception_type": row["exception_type"]})
+    for sid, points in sncf.shapes_for(shapes).items():
+        cum, prev = 0.0, None
+        for seq, p in enumerate(points, start=1):
+            cum += haversine_m(*prev, *p) if prev else 0.0
+            tables["shapes.txt"].append({"shape_id": f"{tag}{sid}", "shape_pt_lat": f"{p[0]:.6f}",
+                                         "shape_pt_lon": f"{p[1]:.6f}", "shape_pt_sequence": str(seq),
+                                         "shape_dist_traveled": f"{cum:.1f}"})
+            prev = p
+
+    # Trains per day at each halt (weekdays: median), to compare with the announced figure.
+    trips_by_service: dict[str, list[str]] = defaultdict(list)
+    for trip in copied:
+        trips_by_service[trip["service_id"]].append(trip["trip_id"])
+    for info in result["haltes"]:
+        if info.get("status") != "ajoutée":
+            continue
+        mine = per_halt_trips[info["name"]]
+        counts = [sum(1 for svc in svcs for t in trips_by_service.get(svc, []) if t in mine)
+                  for day, svcs in sorted(sncf.services_by_date.items()) if day.weekday() < 5]
+        counts = [n for n in counts if n > 0]
+        info["trips"] = len(mine)
+        info["per_weekday"] = statistics.median(counts) if counts else 0
+        info["skipped"] = skipped[info["name"]]
+    result["copied_trips"] = len(copied)
+    result["dwell"] = dwell
+    return result
+
+
+# --------------------------------------------------------------------------- replaced Tisséo lines
+
+
+def resolve_replaced_lines(params, lines, tisseo: TisseoGtfs | None, notes: list[str]) -> list[dict]:
+    """Tisséo routes listed in lignes_tisseo_remplacees, resolved to their real route_id.
+
+    The name must designate exactly one route of the Tisséo GTFS: otherwise the build stops, so
+    that a renamed or duplicated line is never left running (or wrongly removed) in silence.
+    Without the Tisséo GTFS nothing can be resolved: nothing is excluded, and the report says so.
+    """
+    items = params.get("lignes_tisseo_remplacees") or []
+    by_id = {line["id"]: line for line in lines}
+    if tisseo is None:
+        if items:
+            notes.append("Sans GTFS Tisséo, lignes Tisséo remplacées non résolues, donc non exclues : "
+                         + ", ".join(str(i["ligne"]) for i in items) + ".")
+        return []
+    out = []
+    for item in items:
+        name = str(item["ligne"]).strip()
+        matches = tisseo.routes_named(name)
+        if len(matches) != 1:
+            if matches:
+                found = "; ".join(f"{r['route_id']} « {r.get('route_long_name', '')} »" for r in matches)
+                problem = f"désigne {len(matches)} lignes ({found})"
+            else:
+                close = sorted({r.get("route_short_name", "").strip() for r in tisseo.routes
+                                if normalize_name(name) in normalize_name(r.get("route_short_name", ""))
+                                or normalize_name(name) in normalize_name(r.get("route_long_name", ""))} - {""})
+                problem = "ne correspond à aucune ligne" + (f" (noms voisins : {', '.join(close)})" if close else "")
+            raise BuildError(
+                f"lignes_tisseo_remplacees : le route_short_name « {name} » {problem} dans le GTFS Tisséo "
+                f"{tisseo.path.name}. Corrigez data/futur/parametres.yaml : aucune ligne n'est exclue au hasard."
+            )
+        route = matches[0]
+        out.append({
+            "route": f"tisseo:{route['route_id']}",
+            "nom_court": route.get("route_short_name", "").strip(),
+            "nom_long": route.get("route_long_name", "").strip(),
+            "remplacee_par": by_id[item["remplacee_par"]]["nom_court"],
+        })
+    return out
+
+
 # --------------------------------------------------------------------------- feed assembly
 
 
-def build_feed(params, lines, tisseo: TisseoGtfs | None, start: dt.date, osm_used: bool):
+def build_feed(params, lines, tisseo: TisseoGtfs | None, start: dt.date, osm_used: bool,
+               haltes=(), sncf: SncfGtfs | None = None):
     notes: list[str] = []
     prefix = params["flux"]["prefixe_id"]
     dwell = int(params["temps_arret_s"])
@@ -901,6 +1406,7 @@ def build_feed(params, lines, tisseo: TisseoGtfs | None, start: dt.date, osm_use
                 direct = line
             else:
                 notes.append(f"Ligne {line['nom_court']} du GTFS Tisséo introuvable : prolongement simulé en navette.")
+    replaced = resolve_replaced_lines(params, lines, tisseo, notes)
     cal_start, cal_end, assigned = build_calendar(params, tisseo, start)
 
     tables: dict[str, list[dict]] = defaultdict(list)
@@ -971,7 +1477,7 @@ def build_feed(params, lines, tisseo: TisseoGtfs | None, start: dt.date, osm_use
                     "route_short_name": line["nom_court"],
                     "route_long_name": line["nom_long"],
                     "route_desc": "Ligne en projet : horaires simulés, voir les hypothèses du projet Toulouse Demain",
-                    "route_type": "1",
+                    "route_type": str(route_type(line)),
                     "route_color": line.get("couleur", ""),
                     "route_text_color": line.get("couleur_texte", ""),
                 }
@@ -1053,6 +1559,9 @@ def build_feed(params, lines, tisseo: TisseoGtfs | None, start: dt.date, osm_use
 
         if line is direct:
             direct_info = build_b_direct(params, line, tisseo, tables, platform_id, coefficients, assigned, agency_id)
+
+    # TER halts (copies of the SNCF lines that run past them)
+    ter = build_ter_haltes(params, haltes, sncf, tables, agency_id, notes)
 
     # Calendar
     default = {WEEKDAYS_FR.index(d): s["id"] for s in params["services"] for d in s["jours"]}
@@ -1137,6 +1646,17 @@ def build_feed(params, lines, tisseo: TisseoGtfs | None, start: dt.date, osm_use
     if tisseo is not None:
         check_collisions(tables, tisseo)
 
+    # Tisséo routes excluded from scenario 2028 (scenario-2028.json): line B when it is copied, then the list.
+    excluded = []
+    if direct_info:
+        excluded += [{"route": r, "nom_court": direct["prolongement_tisseo"]["ligne"], "nom_long": "",
+                      "remplacee_par": f"{direct['nom_court']} (recopiée et prolongée)"}
+                     for r in direct_info["exclude_routes"]]
+    for item in replaced + ter["excluded"]:
+        if item["route"] in {e["route"] for e in excluded}:
+            raise BuildError(f"lignes_tisseo_remplacees : {item['route']} ({item['nom_court']}) est déjà exclue")
+        excluded.append(item)
+
     context = {
         "notes": notes,
         "coefficients": coefficients,
@@ -1146,6 +1666,8 @@ def build_feed(params, lines, tisseo: TisseoGtfs | None, start: dt.date, osm_use
         "calendar": (cal_start, cal_end, exceptions),
         "dwell": dwell,
         "direct": direct_info,
+        "excluded": excluded,
+        "ter": ter,
     }
     return tables, context
 
@@ -1175,7 +1697,7 @@ def write_zip(tables: dict[str, list[dict]], output: Path) -> None:
             rows = tables[name]
             if not rows:
                 continue
-            columns = list(rows[0].keys())
+            columns = list(dict.fromkeys(k for row in rows for k in row))  # union, in order of appearance
             buf = io.StringIO()
             writer = csv.DictWriter(buf, fieldnames=columns, lineterminator="\n")
             writer.writeheader()
@@ -1237,8 +1759,34 @@ def write_report(path: Path, params, lines, context, tisseo: TisseoGtfs | None, 
         for period, value in sorted(direct["achieved"].items()):
             out.append(f"  - {period} : {fmt_minsec(value)} en moyenne")
         out.append("")
+    out.append("## Lignes Tisséo exclues du scénario 2028 (scenario-2028.json)")
+    out.append("")
+    if context["excluded"]:
+        out.append("| Ligne Tisséo | route_id | Nom long | Remplacée par |")
+        out.append("| --- | --- | --- | --- |")
+        for e in context["excluded"]:
+            out.append(f"| {e['nom_court']} | {e['route']} | {e['nom_long'] or '-'} | {e['remplacee_par']} |")
+    else:
+        out.append("Aucune.")
+    out.append("")
+    ter = context.get("ter") or {}
+    if ter.get("haltes"):
+        out.append("## Haltes TER prévisionnelles")
+        out.append("")
+        out.append(f"Temps d'arrêt en halte : {ter.get('dwell', '-')} s ; courses SNCF recopiées : "
+                   f"{ter.get('copied_trips', 0)}.")
+        out.append("")
+        out.append("| Halte | Entre | Statut | Position | Courses avec arrêt | Trains par jour de semaine (médiane) | Annoncés |")
+        out.append("| --- | --- | --- | --- | --- | --- | --- |")
+        for h in ter["haltes"]:
+            out.append(f"| {h['name']} | {h.get('between', '-')} | {h['status']} | {h.get('origin') or '-'} | "
+                       f"{h.get('trips', '-')} | {h.get('per_weekday', '-')} | {h.get('announced') or '-'} |")
+            if h.get("skipped"):
+                warnings.append(f"Halte TER {h['name']} : {h['skipped']} course(s) sans arrêt possible "
+                                "(même minute aux deux gares voisines)")
+        out.append("")
     for line in lines:
-        out.append(f"## Ligne {line['nom_court']} ({line['id']})")
+        out.append(f"## Ligne {line['nom_court']} ({line['id']}, {ROUTE_TYPES[route_type(line)]})")
         out.append("")
         out.append("| # | Station | lat | lon | Position |")
         out.append("| --- | --- | --- | --- | --- |")
@@ -1291,7 +1839,9 @@ def write_report(path: Path, params, lines, context, tisseo: TisseoGtfs | None, 
                 tisseo_modes = [c for c in st.connections.split(";") if c.strip().startswith(("Métro A", "Métro B", "Tram"))]
                 tisseo_modes = [c for c in tisseo_modes if "prolongement" not in c]
                 if tisseo_modes and not near:
-                    warnings.append(f"{st.name} : correspondance attendue mais aucun arrêt Tisséo à moins de {radius} m")
+                    warnings.append(f"Ligne {line['id']}, {st.name} : correspondance attendue "
+                                    f"({', '.join(c.strip() for c in tisseo_modes)}) mais aucun arrêt Tisséo "
+                                    f"à moins de {radius} m")
                 out.append(f"| {line['id']} | {st.name} | {st.connections or '-'} | {', '.join(near) or '-'} |")
         out.append("")
     counts = {name: len(rows) for name, rows in sorted(tables.items())}
@@ -1339,15 +1889,21 @@ def run(args) -> int:
         )
     for line in lines:
         line["polylines"] = hop_polylines(line, osm_traces)
+    haltes = load_haltes(params, base)
+    resolve_halte_positions(haltes, osm_positions, lines, tisseo)
+    sncf = None
+    if args.sncf_gtfs:
+        sncf = SncfGtfs(Path(args.sncf_gtfs))
+        sncf.load()
 
     start = dt.date.fromisoformat(args.start_date) if args.start_date else dt.date.today()
     osm_used = bool(osm_positions) or bool(osm_traces)
-    tables, context = build_feed(params, lines, tisseo, start, osm_used)
+    tables, context = build_feed(params, lines, tisseo, start, osm_used, haltes, sncf)
 
     output = Path(args.output)
     write_zip(tables, output)
     # Routes of the current network replaced by the futur feed in scenario 2028 (read by the CI).
-    excluded = context["direct"]["exclude_routes"] if context.get("direct") else []
+    excluded = [e["route"] for e in context["excluded"]]
     (output.parent / "scenario-2028.json").write_text(json.dumps({"exclude_routes": excluded}) + "\n", encoding="utf-8")
     report = output.with_name(output.name.split(".")[0] + "-rapport.md")
     warnings = write_report(report, params, lines, context, tisseo, osm_dir, tables)
@@ -1361,6 +1917,7 @@ def run(args) -> int:
 def parse_args(argv=None):
     parser = argparse.ArgumentParser(description="Construit le GTFS des lignes futures (scénario 2028).")
     parser.add_argument("--tisseo-gtfs", help="GTFS officiel Tisséo (zip), facultatif")
+    parser.add_argument("--sncf-gtfs", help="GTFS SNCF filtré à la zone (zip), facultatif : haltes TER")
     parser.add_argument("--output", default=str(DEFAULT_OUTPUT), help="zip GTFS à produire")
     parser.add_argument("--params", default=str(DEFAULT_PARAMS), help="fichier de paramètres YAML")
     parser.add_argument("--osm-dir", default=str(DEFAULT_OSM_DIR), help="sorties de extract_futur_osm.py (si présentes)")

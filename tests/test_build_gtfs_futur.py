@@ -136,12 +136,16 @@ def test_official_travel_times(standalone):
     assert time_between(c0, "Colomiers - Gare", "Matabiau Gare") == 17 * 60
     b0 = trips_of(tables, "FUT_B_EXT", "FUT_LUNMER", 0)[0]
     assert time_between(b0, "Ramonville", "Labège Madron") == 210
+    # Ligne Aéroport: 7 min from Blagnac (Tisséo 2024, press 2026), both directions
+    for direction, (a, b) in ((0, ("Blagnac", "Aéroport")), (1, ("Aéroport", "Blagnac"))):
+        tram = trips_of(tables, "FUT_AEROPORT", "FUT_LUNMER", direction)[0]
+        assert time_between(tram, a, b) == 7 * 60
 
 
 def test_peak_headway_and_service_hours(standalone):
     _, tables = standalone
     by_trip = stop_times_by_trip(tables)
-    for route, peak in (("FUT_C", 205), ("FUT_B_EXT", 300)):
+    for route, peak in (("FUT_C", 205), ("FUT_B_EXT", 300), ("FUT_AEROPORT", 300)):
         starts = sorted(seconds(by_trip[t][0]["departure_time"]) for t in trips_of(tables, route, "FUT_LUNMER", 0))
         assert starts[0] == bgf.parse_hhmm("05:15")
         assert starts[-1] <= bgf.parse_hhmm("24:00")
@@ -160,10 +164,31 @@ def test_internal_transfer_at_labege_madron(standalone):
     assert parents["FUT_C_LABEGE_MADRON"] == parents["FUT_B_EXT_LABEGE_MADRON"] == "FUT_STA_LABEGE_MADRON"
 
 
+def test_internal_transfer_at_blagnac(standalone):
+    """Ligne C ↔ Ligne Aéroport at Blagnac (pôle Jean Maga): one parent station, transfers both ways."""
+    _, tables = standalone
+    transfers = {(t["from_stop_id"], t["to_stop_id"]): t for t in tables["transfers.txt"]}
+    for pair in (("FUT_C_BLAGNAC", "FUT_AEROPORT_BLAGNAC"), ("FUT_AEROPORT_BLAGNAC", "FUT_C_BLAGNAC")):
+        assert transfers[pair]["transfer_type"] == "2" and transfers[pair]["min_transfer_time"] == "120"
+    parents = {s["stop_id"]: s["parent_station"] for s in tables["stops.txt"]}
+    assert parents["FUT_C_BLAGNAC"] == parents["FUT_AEROPORT_BLAGNAC"] == "FUT_STA_BLAGNAC"
+
+
+def test_airport_line_is_a_tram(standalone):
+    _, tables = standalone
+    routes = {r["route_id"]: r for r in tables["routes.txt"]}
+    tram = routes["FUT_AEROPORT"]
+    assert (tram["route_type"], tram["route_short_name"]) == ("0", "Aéroport")
+    assert tram["route_color"] == "B39DDB"
+    assert {routes[r]["route_type"] for r in ("FUT_C", "FUT_B_EXT")} == {"1"}
+    colours = [r["route_color"].upper() for r in routes.values()]
+    assert len(colours) == len(set(colours))  # each line its own colour
+
+
 def test_distances_are_plausible(standalone):
     _, tables = standalone
     by_trip = stop_times_by_trip(tables)
-    for route in ("FUT_C", "FUT_B_EXT"):
+    for route in ("FUT_C", "FUT_B_EXT", "FUT_AEROPORT"):
         rows = by_trip[trips_of(tables, route, "FUT_LUNMER", 0)[0]]
         dists = [float(r["shape_dist_traveled"]) for r in rows]
         hops = [b - a for a, b in zip(dists, dists[1:])]
@@ -172,8 +197,11 @@ def test_distances_are_plausible(standalone):
 
 def test_standalone_keeps_shuttle_and_excludes_nothing(standalone):
     out, tables = standalone
-    assert {r["route_id"] for r in tables["routes.txt"]} == {"FUT_C", "FUT_B_EXT"}
+    assert {r["route_id"] for r in tables["routes.txt"]} == {"FUT_C", "FUT_B_EXT", "FUT_AEROPORT"}
+    # Without the Tisséo GTFS the shuttle cannot be resolved: nothing is excluded, and the report says so.
     assert json.loads((out.parent / "scenario-2028.json").read_text()) == {"exclude_routes": []}
+    report = (out.parent / "futur-rapport.md").read_text(encoding="utf-8")
+    assert "non résolues, donc non exclues : AERO" in report
 
 
 def test_report_written(standalone):
@@ -186,7 +214,7 @@ def test_gtfs_kit_reads_feed(standalone):
     gk = pytest.importorskip("gtfs_kit")
     out, _ = standalone
     feed = gk.read_feed(out, dist_units="m")
-    assert set(feed.routes["route_short_name"]) == {"C", "B"}
+    assert set(feed.routes["route_short_name"]) == {"C", "B", "Aéroport"}
     stats = gk.compute_trip_stats(feed)
     c = stats[stats["route_id"] == "FUT_C"]
     assert (c["duration"] == 37 / 60).all()  # hours
@@ -297,9 +325,13 @@ def direct(tmp_path, positions):
 def test_b_direct_route_and_scenario_file(direct):
     out, tables, _ = direct
     routes = {r["route_id"]: r for r in tables["routes.txt"]}
-    assert set(routes) == {"FUT_C", "FUT_B"}  # no shuttle
+    assert set(routes) == {"FUT_C", "FUT_B", "FUT_AEROPORT"}  # no shuttle
     assert routes["FUT_B"]["route_short_name"] == "B"
-    assert json.loads((out.parent / "scenario-2028.json").read_text()) == {"exclude_routes": ["tisseo:LB"]}
+    # Line B (copied) and the airport shuttle AERO (replaced by the Ligne Aéroport), by their real route_id.
+    assert json.loads((out.parent / "scenario-2028.json").read_text()) == {
+        "exclude_routes": ["tisseo:LB", "tisseo:line:99"]}
+    report = (out.parent / "futur-rapport.md").read_text(encoding="utf-8")
+    assert "| AERO | tisseo:line:99 |" in report and "| Aéroport |" in report
     assert check_feed(tables) == []
 
 
@@ -407,3 +439,39 @@ def test_command_line_contract(tmp_path, positions):
     assert result.returncode == 0, result.stderr
     assert out.exists()
     assert (out.parent / "scenario-2028.json").exists()
+
+
+# ----------------------------------------------------------------------------- replaced Tisséo lines
+
+
+@pytest.mark.parametrize("names,expected", [((), "ne correspond à aucune ligne"),
+                                            (("AERO", "aero"), "désigne 2 lignes"),
+                                            (("AERO EXPRESS",), "noms voisins : AERO EXPRESS")])
+def test_replaced_line_must_match_exactly_one_route(tmp_path, positions, capsys, names, expected):
+    """A shuttle renamed, removed or duplicated in the Tisséo GTFS stops the build, loudly."""
+    tisseo = make_tisseo_zip(tmp_path / "tisseo.zip", positions, aero_routes=names)
+    osm_dir = write_osm_positions(tmp_path / "osm", positions)
+    out = tmp_path / "out" / "futur.gtfs.zip"
+    code = bgf.main(["--output", str(out), "--osm-dir", str(osm_dir), "--tisseo-gtfs", str(tisseo)])
+    err = capsys.readouterr().err
+    assert code == 2
+    assert "« AERO »" in err and expected in err
+    assert not out.exists() and not (out.parent / "scenario-2028.json").exists()
+
+
+def test_replaced_line_name_ignores_case(tmp_path, positions):
+    tisseo = make_tisseo_zip(tmp_path / "tisseo.zip", positions, aero_routes=("Aero",))
+    out, _ = build(tmp_path, positions, tisseo=tisseo)
+    assert "tisseo:line:99" in json.loads((out.parent / "scenario-2028.json").read_text())["exclude_routes"]
+
+
+@pytest.mark.parametrize("mutate,expected", [
+    (lambda p: p["lignes_tisseo_remplacees"][0].update(remplacee_par="NOPE"), "absente de « lignes »"),
+    (lambda p: p["lignes_tisseo_remplacees"][0].update(ligne=" "), "manquante"),
+    (lambda p: p["lignes"][2].update(route_type=3), "route_type 3 non pris en charge"),
+])
+def test_params_validation(params_copy, tmp_path, capsys, mutate, expected):
+    params = params_copy(mutate)
+    assert bgf.main(["--params", str(params), "--output", str(tmp_path / "f.zip"),
+                     "--osm-dir", str(tmp_path / "absent")]) == 2
+    assert expected in capsys.readouterr().err

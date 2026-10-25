@@ -39,7 +39,8 @@ def real_lines():
 
 
 def synthetic_positions():
-    """{(line, order): (lat, lon)}: line C eastwards with 1.2-1.5 km hops, B_EXT southwards to Labège Madron."""
+    """{(line, order): (lat, lon)}: line C eastwards with 1.2-1.5 km hops, B_EXT southwards to Labège Madron,
+    AEROPORT northwards from Blagnac (2.2 km)."""
     lines = real_lines()
     pos, east = {}, 0.0
     for st in lines["C"]:
@@ -50,6 +51,10 @@ def synthetic_positions():
     n = len(lines["B_EXT"])
     for st in lines["B_EXT"]:
         pos[("B_EXT", st.order)] = offset(end, 0, -1350 * (n - st.order))
+    blagnac = next(s for s in lines["C"] if s.name == "Blagnac")
+    start = pos[("C", blagnac.order)]
+    for st in lines["AEROPORT"]:
+        pos[("AEROPORT", st.order)] = offset(start, 0, 2200 * (st.order - 1))
     return pos
 
 
@@ -109,13 +114,16 @@ def departures(windows, first, last):
     return out
 
 
-def make_tisseo_zip(path: Path, positions: dict, extra_stops=(), night_next_day=False, extra_service_date=None):
+def make_tisseo_zip(path: Path, positions: dict, extra_stops=(), night_next_day=False, extra_service_date=None,
+                    aero_routes=("AERO",)):
     """Synthetic Tisséo-like GTFS: metro B Borderouge - Université - Ramonville with known headways,
-    shapes, metro A, a bus stop.
+    shapes, metro A, a bus stop, and the airport shuttle route (short name "AERO", no trip needed).
 
     night_next_day: adds Thursday/Friday/Saturday night trips (00:20 to 02:20) coded on the next
     date's service with times below 24:00, as some feeds do.
     extra_service_date: "YYYYMMDD" with extra peak trains (07:01 to 08:59, every 2 min) on that day only.
+    aero_routes: route_short_name of each airport shuttle route to write (several, or none, to test
+    the lignes_tisseo_remplacees checks).
     """
     lines = real_lines()
     by_name = {st.name: positions[(lid, st.order)] for lid, sts in lines.items() for st in sts}
@@ -181,6 +189,8 @@ def make_tisseo_zip(path: Path, positions: dict, extra_stops=(), night_next_day=
             {"route_id": "LA", "agency_id": "TISSEO", "route_short_name": "A", "route_type": 1},
             {"route_id": "LB", "agency_id": "TISSEO", "route_short_name": "B", "route_type": 1},
             {"route_id": "BUS", "agency_id": "TISSEO", "route_short_name": "14", "route_type": 3},
+            *({"route_id": f"line:{99 + k}", "agency_id": "TISSEO", "route_short_name": name, "route_type": 3}
+              for k, name in enumerate(aero_routes)),
         ],
         "trips.txt": trips,
         "stop_times.txt": stop_times,
@@ -210,6 +220,108 @@ def make_tisseo_zip(path: Path, positions: dict, extra_stops=(), night_next_day=
     return path
 
 
+def sncf_positions(positions):
+    """Synthetic SNCF stations around the anchors of the two TER halts (La Vache, Labège - Gare)."""
+    lines = real_lines()
+    by_name = {st.name: positions[(lid, st.order)] for lid, sts in lines.items() for st in sts}
+    la_vache = offset(by_name["La Vache Gare - Le Grand marché"], 80, 0)  # the Tisséo stop of make_tisseo_zip
+    cadene = by_name["Labège - Gare"]
+    return {
+        "Montauban": offset(la_vache, -1500, 15_000),
+        "Lalande-Église": offset(la_vache, -200, 2000),
+        "Toulouse Matabiau": offset(la_vache, 300, -2500),
+        "Labège Innopole": offset(cadene, -800, 300),
+        "Labège Village": offset(cadene, 900, 200),
+        "Escalquens": offset(cadene, 3000, -500),
+        "Colomiers": offset(ORIGIN, -500, 300),
+    }
+
+
+def make_sncf_zip(path: Path, positions: dict, served_halt=None, drop_stations=(), express_only=False, rename=None,
+                  skip_village=False):
+    """Synthetic filtered SNCF GTFS (calendar_dates only, as the SNCF feed), StopArea + StopPoint.
+
+    NORD: Montauban - Lalande-Église - Toulouse Matabiau (and back) every hour 06:00-21:00, plus
+    one express train Montauban - Toulouse Matabiau at 07:30. SUD: Toulouse Matabiau - Labège
+    Innopole - Labège Village - Escalquens (and back), every hour. OUEST: Colomiers - Matabiau.
+    served_halt: name of an extra stop served by the NORD trains between Lalande and Matabiau
+    (the halt already opened). drop_stations: stations left out. express_only: NORD trains end at
+    Lalande-Église, so that no train calls at Lalande-Église then Matabiau. rename: {name: name
+    written in stops.txt}, for example to test the fallback neighbours. skip_village: extra SUDX
+    trains Toulouse Matabiau - Labège Innopole - Escalquens, every hour, that skip Labège Village.
+    """
+    rename = rename or {}
+    pos = sncf_positions(positions)
+    if served_halt:
+        pos[served_halt] = offset(pos["Lalande-Église"], 400, -3000)
+    names = [n for n in pos if n not in drop_stations]
+    sid = {n: f"StopPoint:OCETrain TER-{87_000_000 + k}" for k, n in enumerate(names)}
+    stops = []
+    for n in names:
+        stops.append({"stop_id": f"StopArea:OCE{87_000_000 + names.index(n)}", "stop_name": rename.get(n, n),
+                      "stop_lat": f"{pos[n][0]:.6f}", "stop_lon": f"{pos[n][1]:.6f}", "location_type": "1",
+                      "parent_station": ""})
+        stops.append({"stop_id": sid[n], "stop_name": rename.get(n, n), "stop_lat": f"{pos[n][0]:.6f}",
+                      "stop_lon": f"{pos[n][1]:.6f}", "location_type": "0",
+                      "parent_station": f"StopArea:OCE{87_000_000 + names.index(n)}"})
+    nord = [("Montauban", 0), ("Lalande-Église", 1500), ("Toulouse Matabiau", 2100)]
+    if served_halt:
+        nord.insert(2, (served_halt, 1800))
+    if express_only:  # NORD trains end at Lalande-Église; only the express goes on to Matabiau
+        nord = nord[:2]
+    patterns = {
+        "NORD": nord,
+        "SUD": [("Toulouse Matabiau", 0), ("Labège Innopole", 600), ("Labège Village", 840), ("Escalquens", 1080)],
+        "OUEST": [("Colomiers", 0), ("Toulouse Matabiau", 900)],
+        "CAR": [("Labège Innopole", 0), ("Labège Village", 420)],  # an SNCF coach (route_type 3)
+    }
+    if skip_village:
+        patterns["SUDX"] = [("Toulouse Matabiau", 0), ("Labège Innopole", 600), ("Escalquens", 1000)]
+    patterns = {r: ([n for n, _ in calls if n not in drop_stations], [o for n, o in calls if n not in drop_stations])
+                for r, calls in patterns.items()}
+    trips, stop_times = [], []
+    for route, (seq, offsets) in patterns.items():
+        for direction, (order, offs) in enumerate(((seq, offsets), (seq[::-1], [offsets[-1] - o for o in offsets[::-1]]))):
+            for hour in range(6, 22):
+                tid = f"OCESN{route}{direction}{hour:02d}F"
+                trips.append({"route_id": f"FR:Line::{route}:", "service_id": "000001", "trip_id": tid,
+                              "trip_headsign": order[-1], "direction_id": direction})
+                for k, (n, o) in enumerate(zip(order, offs), start=1):
+                    t = bgf.fmt_time(hour * 3600 + o)
+                    stop_times.append({"trip_id": tid, "arrival_time": t, "departure_time": t, "stop_id": sid[n],
+                                       "stop_sequence": k - 1, "pickup_type": 0, "drop_off_type": 0})
+    if "Lalande-Église" not in drop_stations:
+        trips.append({"route_id": "FR:Line::NORD:", "service_id": "000001", "trip_id": "OCESNEXPRESS",
+                      "trip_headsign": "Toulouse Matabiau", "direction_id": 1})
+        for k, (n, t) in enumerate((("Montauban", "07:30:00"), ("Toulouse Matabiau", "07:55:00"))):
+            stop_times.append({"trip_id": "OCESNEXPRESS", "arrival_time": t, "departure_time": t, "stop_id": sid[n],
+                               "stop_sequence": k, "pickup_type": 0, "drop_off_type": 0})
+    files = {
+        "agency.txt": [{"agency_id": "1187", "agency_name": "SNCF (test)", "agency_url": "https://example.org",
+                        "agency_timezone": "Europe/Paris"}],
+        "stops.txt": stops,
+        "routes.txt": [{"route_id": f"FR:Line::{r}:", "agency_id": "1187", "route_short_name": short,
+                        "route_long_name": f"Ligne {r} (test)", "route_type": 3 if r == "CAR" else 2,
+                        "route_color": "0749FF",
+                        "route_text_color": "FFFFFF"}
+                       for r, short in (("NORD", "K1"), ("SUD", "C3"), ("OUEST", "C6"), ("CAR", "Car"), ("SUDX", "C9"))
+                       if r in patterns],
+        "trips.txt": trips,
+        "stop_times.txt": stop_times,
+        # Monday 19 to Friday 23 October 2026.
+        "calendar_dates.txt": [{"service_id": "000001", "date": f"202610{d}", "exception_type": 1}
+                               for d in range(19, 24)],
+    }
+    with zipfile.ZipFile(path, "w") as zf:
+        for name, rows in files.items():
+            buf = io.StringIO()
+            writer = csv.DictWriter(buf, fieldnames=list(rows[0].keys()), lineterminator="\n")
+            writer.writeheader()
+            writer.writerows(rows)
+            zf.writestr(name, buf.getvalue())
+    return path
+
+
 @pytest.fixture
 def positions():
     return synthetic_positions()
@@ -222,6 +334,7 @@ def params_copy(tmp_path):
         params = yaml.safe_load(PARAMS.read_text(encoding="utf-8"))
         for line in params["lignes"]:
             line["stations"] = str(REPO_ROOT / line["stations"])
+        params["haltes_ter"]["stations"] = str(REPO_ROOT / params["haltes_ter"]["stations"])
         if mutate:
             mutate(params)
         path = tmp_path / "parametres.yaml"

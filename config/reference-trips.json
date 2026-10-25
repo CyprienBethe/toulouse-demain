@@ -13,7 +13,28 @@
       "mode": "transit",
       "scenarios": ["actuel", "2028"],
       "from": [{"feed": "tisseo", "pattern": "^capitole$"}],
-      "to": [{"feed": "tisseo", "pattern": "^aeroport\\b"}]
+      "to": [{"feed": "tisseo", "pattern": "^aeroport\\b"}],
+      "checks": [
+        {
+          "scenario": "2028",
+          "never_uses_line": {"feed": "tisseo", "line": "AERO"},
+          "requires_feed": "futur",
+          "severity": "failure",
+          "_explication": "En 2028, la navette Aéroport (route_short_name AERO dans le GTFS Tisséo) est retirée, remplacée par la Ligne Aéroport (décision de Cyprien, 15/10/2026). Si un itinéraire l'emprunte, l'exclusion de scenario-2028.json ne marche pas : échec. Contrôle ignoré si le flux futur est absent (le scénario 2028 est alors le réseau actuel)."
+        },
+        {
+          "scenario": "2028",
+          "fastest_uses": {"feed": "futur", "line": "Aéroport"},
+          "severity": "warning",
+          "_explication": "Sans navette, le trajet le plus rapide doit emprunter la Ligne Aéroport (tram du flux futur, depuis la station Blagnac de la ligne C ou le T1), sinon avertissement."
+        },
+        {
+          "scenario": "actuel",
+          "never_uses_feed": "futur",
+          "severity": "failure",
+          "_explication": "Le réseau actuel ne doit jamais emprunter le flux futur."
+        }
+      ]
     },
     {
       "id": "matabiau-ramonville",
@@ -75,6 +96,68 @@
           "fastest_uses": {"feed": "futur", "line": "C"},
           "severity": "warning",
           "_explication": "Diagora est une station de la ligne C : en 2028, le trajet le plus rapide doit l'emprunter (sinon avertissement)."
+        },
+        {
+          "scenario": "actuel",
+          "never_uses_feed": "futur",
+          "severity": "failure",
+          "_explication": "Le réseau actuel ne doit jamais emprunter le flux futur."
+        }
+      ]
+    },
+    {
+      "id": "launaguet-matabiau",
+      "label": "La Vache (halte Route de Launaguet) → Gare Matabiau",
+      "_explication": "Halte TER prévisionnelle Route de Launaguet (docs/hypotheses-reseau-2028.md, §8). Départ : la halte du flux futur ; sinon (halte non ajoutée) l'arrêt Tisséo La Vache, voisin de la halte. Le même point de départ sert aux deux scénarios.",
+      "mode": "transit",
+      "scenarios": ["actuel", "2028"],
+      "from": [
+        {"feed": "futur", "pattern": "^route de launaguet$"},
+        {"feed": "sncf", "pattern": "^route de launaguet$"},
+        {"feed": "tisseo", "pattern": "^la vache$"}
+      ],
+      "to": [
+        {"feed": "sncf", "pattern": "matabiau"},
+        {"feed": "tisseo", "pattern": "^marengo sncf$"}
+      ],
+      "checks": [
+        {
+          "scenario": "2028",
+          "uses_stop": {"feed": "futur", "pattern": "^route de launaguet$"},
+          "requires_feed": "futur",
+          "severity": "warning",
+          "_explication": "En 2028, au moins un itinéraire doit prendre le TER à la halte Route de Launaguet (sinon avertissement : halte non ajoutée, déjà dans le GTFS SNCF, ou moins rapide que le métro)."
+        },
+        {
+          "scenario": "actuel",
+          "never_uses_feed": "futur",
+          "severity": "failure",
+          "_explication": "Le réseau actuel ne doit jamais emprunter le flux futur."
+        }
+      ]
+    },
+    {
+      "id": "matabiau-labege-la-cadene",
+      "label": "Gare Matabiau → Labège-La Cadène",
+      "_explication": "Halte TER prévisionnelle Labège-La Cadène (§8), au terminus de la ligne C. Arrivée : la halte du flux futur ; sinon la station Labège - Gare de la ligne C ; en dernier recours la gare de Labège-Innopole.",
+      "mode": "transit",
+      "scenarios": ["actuel", "2028"],
+      "from": [
+        {"feed": "sncf", "pattern": "matabiau"},
+        {"feed": "tisseo", "pattern": "^marengo sncf$"}
+      ],
+      "to": [
+        {"feed": "futur", "pattern": "^labege la cadene$"},
+        {"feed": "futur", "pattern": "^labege gare$"},
+        {"feed": "sncf", "pattern": "labege innopole"}
+      ],
+      "checks": [
+        {
+          "scenario": "2028",
+          "uses_stop": {"feed": "futur", "pattern": "^labege la cadene$"},
+          "requires_feed": "futur",
+          "severity": "warning",
+          "_explication": "En 2028, au moins un itinéraire doit descendre du TER à Labège-La Cadène (sinon avertissement)."
         },
         {
           "scenario": "actuel",

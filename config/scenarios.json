@@ -18,7 +18,7 @@
       "label": "Réseau 2028",
       "exclude_feeds": [],
       "exclude_routes": [],
-      "_exclude_routes": "Complété en CI par build/gtfs/scenario-2028.json (produit par le script du data engineer) : les lignes Tisséo remplacées par une ligne du flux futur, par exemple la ligne B actuelle, recopiée et prolongée dans le flux futur."
+      "_exclude_routes": "Complété en CI par build/gtfs/scenario-2028.json (produit par le script du data engineer) : les lignes Tisséo remplacées par une ligne du flux futur : la ligne B actuelle, recopiée et prolongée dans le flux futur, et la navette Aéroport (AERO), remplacée par la Ligne Aéroport (data/futur/parametres.yaml, lignes_tisseo_remplacees) ; et les lignes SNCF recopiées avec une halte TER prévisionnelle (haltes_ter)."
     }
   }
 }
