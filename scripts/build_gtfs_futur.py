@@ -185,6 +185,7 @@ class Station:
     origin: str = ""  # where the position used in the feed comes from (filled at build time)
     between: tuple = ()  # TER halt only: candidates for the two neighbouring SNCF stations (two lists)
     announced: int | None = None  # TER halt only: trains per day announced (for the report)
+    all_pairs: bool = False  # TER halt only: every train calling at one candidate per side in a row stops
 
 
 def load_params(path: Path) -> dict:
@@ -230,6 +231,9 @@ def load_params(path: Path) -> dict:
                     or {normalize_name(c) for c in sides[0]} & {normalize_name(c) for c in sides[1]}):
                 raise BuildError(f"haltes_ter : la halte {h.get('station')} doit avoir deux côtés (« entre »), chacun "
                                  f"une gare ou une liste de gares candidates, sans gare commune ; pas {between}")
+            if h.get("desserte", "premiere_paire") not in ("premiere_paire", "toutes_paires"):
+                raise BuildError(f"haltes_ter : « desserte » de la halte {h.get('station')} doit valoir "
+                                 f"« premiere_paire » ou « toutes_paires », pas {h.get('desserte')!r}")
     for item in params.get("lignes_tisseo_remplacees") or []:
         if not str(item.get("ligne", "")).strip():
             raise BuildError(f"lignes_tisseo_remplacees : « ligne » (route_short_name Tisséo) manquante dans {item}")
@@ -295,6 +299,7 @@ def load_haltes(params, base: Path) -> list[Station]:
             raise BuildError(f"haltes_ter : la halte « {item['station']} » est absente de {csv_path.name}")
         st.between = tuple([side] if isinstance(side, str) else list(side) for side in item["entre"])
         st.announced = item.get("trains_par_jour_annonces")
+        st.all_pairs = item.get("desserte", "premiere_paire") == "toutes_paires"
         out.append(st)
     return out
 
@@ -1145,7 +1150,7 @@ def build_ter_haltes(params, haltes, sncf: SncfGtfs | None, tables, agency_id, n
             notes.append(f"Halte TER {h.name} sans position vérifiable (CSV, OSM, station voisine) : non ajoutée.")
             continue
         # Neighbours: the first pair of candidates (side A first) with trains calling at both in a row.
-        chosen, tried = None, []
+        chosen, tried, pairs = None, [], []
         try:
             for a_name in h.between[0]:
                 a_ids = sncf.stops_named(a_name, motif)
@@ -1158,10 +1163,13 @@ def build_ter_haltes(params, haltes, sncf: SncfGtfs | None, tables, agency_id, n
                     tried.append(f"{a_name} → {b_name} : "
                                  + (f"{len(calls)} passage(s) de train" if b_ids else f"{b_name} non desservie"))
                     if calls:
-                        chosen = (a_name, a_ids, b_name, b_ids, calls)
-                        break
-                if chosen:
+                        pairs.append((a_name, a_ids, b_name, b_ids, calls))
+                        if not h.all_pairs:
+                            break
+                if pairs and not h.all_pairs:
                     break
+            if pairs:
+                chosen = pairs[0]
         except BuildError as exc:
             raise BuildError(f"halte TER « {h.name} » : {exc}\n" + sncf_diagnostic(sncf, h, motif)) from exc
         if chosen is None:
@@ -1169,21 +1177,38 @@ def build_ter_haltes(params, haltes, sncf: SncfGtfs | None, tables, agency_id, n
                 f"halte TER « {h.name} » : aucun train du GTFS SNCF {sncf.path.name} ne dessert successivement "
                 f"deux des gares voisines candidates (« entre » dans parametres.yaml). Rien n'est recopié ni exclu "
                 f"au hasard. Essais : {' ; '.join(tried)}.\n" + sncf_diagnostic(sncf, h, motif))
-        a_name, a_ids, b_name, b_ids, calls = chosen
-        info["between"] = f"{a_name} – {b_name}"
-        if (a_name, b_name) != (h.between[0][0], h.between[1][0]):
-            notes.append(f"Halte TER {h.name} : gares voisines de repli retenues, {a_name} et {b_name} "
-                         f"({' ; '.join(tried)}).")
-        pa, pb = sncf.position(a_ids), sncf.position(b_ids)
-        d_a, d_b, d_ab = haversine_m(*pa, h.lat, h.lon), haversine_m(h.lat, h.lon, *pb), haversine_m(*pa, *pb)
-        info["distances"] = (d_a, d_b)
-        if d_a + d_b > HALT_DETOUR_RATIO * d_ab + HALT_DETOUR_SLACK_M:
-            info["status"] = f"position hors de la ligne ({d_a:.0f} m + {d_b:.0f} m pour {d_ab:.0f} m) : non ajoutée"
-            notes.append(f"Halte TER {h.name} : position à {d_a:.0f} m de {a_name} et {d_b:.0f} m de {b_name}, "
-                         f"qui sont à {d_ab:.0f} m l'une de l'autre : position douteuse, halte non ajoutée.")
+        if h.all_pairs:
+            info["between"] = " ; ".join(f"{a} – {b} ({len(c)})" for a, _, b, _, c in pairs)
+            notes.append(f"Halte TER {h.name} : desserte « toutes_paires », tout train qui s'arrête successivement "
+                         f"à une gare de chaque côté s'arrête à la halte ({' ; '.join(tried)}).")
+        else:
+            a_name, a_ids, b_name, b_ids, calls = chosen
+            info["between"] = f"{a_name} – {b_name}"
+            if (a_name, b_name) != (h.between[0][0], h.between[1][0]):
+                notes.append(f"Halte TER {h.name} : gares voisines de repli retenues, {a_name} et {b_name} "
+                             f"({' ; '.join(tried)}).")
+        planned, doubtful = [], []
+        for a_name, a_ids, b_name, b_ids, calls in (pairs if h.all_pairs else [chosen]):
+            pa, pb = sncf.position(a_ids), sncf.position(b_ids)
+            d_a, d_b, d_ab = haversine_m(*pa, h.lat, h.lon), haversine_m(h.lat, h.lon, *pb), haversine_m(*pa, *pb)
+            info.setdefault("distances", (d_a, d_b))
+            if d_a + d_b > HALT_DETOUR_RATIO * d_ab + HALT_DETOUR_SLACK_M:
+                doubtful.append(f"{d_a:.0f} m de {a_name} et {d_b:.0f} m de {b_name}, à {d_ab:.0f} m l'une de l'autre")
+                continue
+            planned.extend((tid, i, (d_a if a_first else d_b) / (d_a + d_b)) for tid, i, a_first in calls)
+        if doubtful:
+            notes.append(f"Halte TER {h.name} : paire(s) de gares écartée(s), position hors de la ligne : "
+                         + " ; ".join(doubtful) + ".")
+        if not planned:
+            info["status"] = "position hors de la ligne : non ajoutée"
+            notes.append(f"Halte TER {h.name} : position douteuse pour toutes les paires de gares, halte non ajoutée.")
             continue
-        for tid, i, a_first in calls:
-            inserts[tid].append((i, h, (d_a if a_first else d_b) / (d_a + d_b)))
+        seen = set()
+        for tid, i, ratio in planned:
+            if (tid, i) in seen:
+                continue
+            seen.add((tid, i))
+            inserts[tid].append((i, h, ratio))
         info["status"] = "ajoutée"
         added.append(h)
     if not added:

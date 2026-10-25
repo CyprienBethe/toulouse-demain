@@ -116,7 +116,7 @@ def test_osm_position_comes_first(tmp_path, positions):
 def test_report_compares_trains_per_day_with_the_announcement(ter):
     _, _, report = ter
     # 16 trains per direction stop at Labège-La Cadène on each weekday; SNCF G&C announces 42.
-    assert "| Labège-La Cadène | Labège Innopole – Labège Village | ajoutée |" in report
+    assert "| Labège-La Cadène | Labège Innopole – Labège Village (32) | ajoutée |" in report
     line = next(l for l in report.splitlines() if l.startswith("| Labège-La Cadène"))
     assert line.endswith("| 32 | 32 | 42 |")
     assert "| AERO | tisseo:line:99 |" in report and "| C3 | sncf:FR:Line::SUD: |" in report
@@ -171,7 +171,7 @@ def test_fallback_neighbour_is_used_and_reported(tmp_path, positions):
     assert LAUNAGUET in [r["stop_id"] for r in by_trip(tables)["FUT_SNCF_OCESNNORD008F"]]
     # Labège Village not served: Escalquens, the next one, is used (SUD trains call at Innopole then Escalquens).
     _, _, report = build(tmp_path / "b", positions, {"drop_stations": ("Labège Village",)})
-    assert "| Labège-La Cadène | Labège Innopole – Escalquens | ajoutée |" in report
+    assert "| Labège-La Cadène | Labège Innopole – Escalquens (32) | ajoutée |" in report
 
 
 def test_coaches_and_other_stop_ids_are_ignored(tmp_path, positions, capsys):
@@ -198,3 +198,32 @@ def test_without_sncf_gtfs_no_halt(tmp_path, positions):
     assert bgf.main(["--output", str(out), "--osm-dir", str(osm_dir), "--start-date", "2026-10-19"]) == 0
     report = (tmp_path / "futur-rapport.md").read_text(encoding="utf-8")
     assert "haltes TER non ajoutées" in report
+
+
+def test_all_pairs_halt_also_gets_the_trains_skipping_the_next_station(tmp_path, positions):
+    """« toutes_paires » (La Cadène, decision of 25/10/2026): SUDX trains call at Labège Innopole then
+    Escalquens, skipping Labège Village; they stop at the halt too, at the right time and only once."""
+    out, tables, report = build(tmp_path, positions, {"skip_village": True})
+    assert check_feed(tables) == []
+    assert "| Labège-La Cadène | Labège Innopole – Labège Village (32) ; Labège Innopole – Escalquens (32) | ajoutée |" in report
+    line = next(l for l in report.splitlines() if l.startswith("| Labège-La Cadène"))
+    assert line.endswith("| 64 | 64 | 42 |")
+    rows = by_trip(tables)
+    sudx = [tid for tid in rows if "SUDX" in tid]
+    assert len(sudx) == 32
+    for tid in sudx:
+        stops = [r["stop_id"] for r in rows[tid]]
+        assert stops.count(CADENE) == 1
+        i = stops.index(CADENE)
+        times = [seconds(r["arrival_time"]) for r in rows[tid]]
+        assert times == sorted(times) and times[i - 1] < times[i] < times[i + 1]
+    # A train never stops twice at the halt, even when two pairs match the same leg.
+    for tid, trip_rows in rows.items():
+        assert [r["stop_id"] for r in trip_rows].count(CADENE) <= 1
+
+
+def test_desserte_value_is_checked(params_copy):
+    def mutate(params):
+        params["haltes_ter"]["haltes"][1]["desserte"] = "toutes"
+    with pytest.raises(bgf.BuildError, match="premiere_paire"):
+        bgf.load_params(params_copy(mutate))

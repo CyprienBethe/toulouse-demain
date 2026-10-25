@@ -131,7 +131,8 @@ def test_ter_halts_are_consistent():
     ]
     # Fallback neighbours, in the order of the line away from the halt.
     assert haltes[0].between[0][-1] == "Castelnau-d'Estrétefonds"
-    assert haltes[1].between[1] == ["Labège Village", "Escalquens"]
+    assert haltes[1].between == (["Labège Innopole", "Montaudran"], ["Labège Village", "Escalquens", "Montlaur", "Baziège"])
+    assert (haltes[0].all_pairs, haltes[1].all_pairs) == (False, True)  # 42 trains/day targeted at La Cadène
     assert params["haltes_ter"]["motif_arrets_sncf"] == "Train TER"
     with open(REPO_ROOT / "data" / "futur" / "haltes_ter.csv", encoding="utf-8", newline="") as fh:
         assert all(row["remarques"].startswith("PRÉVISIONNEL") for row in csv.DictReader(fh))

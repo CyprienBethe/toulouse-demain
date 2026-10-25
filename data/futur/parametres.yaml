@@ -89,6 +89,8 @@ haltes_ter:
   # « entre » : les deux côtés de la halte, chacun une liste de gares dans l'ordre de la ligne en
   # s'éloignant de la halte. La première paire desservie successivement par des trains l'emporte,
   # le rapport dit laquelle (noms du GTFS SNCF, accents et ponctuation ignorés) [§8.2].
+  # « desserte » : « premiere_paire » (défaut, ci-dessus) ou « toutes_paires » : toutes les paires
+  # (une gare de chaque côté) desservies successivement par un train comptent.
   haltes:
     - station: "Route de Launaguet"
       entre:
@@ -96,9 +98,13 @@ haltes_ter:
         - ["Lalande-Église", "Lacourtensourt", "Fenouillet - Saint-Alban", "Saint-Jory", "Castelnau-d'Estrétefonds"]
         - ["Toulouse Matabiau"]
     - station: "Labège-La Cadène"
+      # Décision de Cyprien (25/10/2026) : viser les 42 trains par jour annoncés. Tout train qui
+      # s'arrête successivement à une gare de chaque côté s'arrête à la halte (« toutes_paires »),
+      # y compris ceux qui sautent Labège Village ; les trains directs depuis Matabiau, non [§8.2].
+      desserte: "toutes_paires"
       entre:
-        - ["Labège Innopole"]                # FAIT : Wikipédia, ligne 10 Toulouse – Narbonne
-        - ["Labège Village", "Escalquens"]   # FAIT : Wikipédia (Labège-Innopole → Labège-Village ; Escalquens ensuite, ligne 25)
+        - ["Labège Innopole", "Montaudran"]  # FAIT : Wikipédia, ligne 10 Toulouse – Narbonne, côté Toulouse
+        - ["Labège Village", "Escalquens", "Montlaur", "Baziège"]   # FAIT : Wikipédia, gares suivantes côté Narbonne
       trains_par_jour_annonces: 42         # FAIT : SNCF Gares & Connexions, 16/12/2024 (comparé dans le rapport)
 
 # Intervalle d'une période = intervalle de pointe × coefficient.

@@ -237,7 +237,8 @@ def sncf_positions(positions):
     }
 
 
-def make_sncf_zip(path: Path, positions: dict, served_halt=None, drop_stations=(), express_only=False, rename=None):
+def make_sncf_zip(path: Path, positions: dict, served_halt=None, drop_stations=(), express_only=False, rename=None,
+                  skip_village=False):
     """Synthetic filtered SNCF GTFS (calendar_dates only, as the SNCF feed), StopArea + StopPoint.
 
     NORD: Montauban - Lalande-Église - Toulouse Matabiau (and back) every hour 06:00-21:00, plus
@@ -246,7 +247,8 @@ def make_sncf_zip(path: Path, positions: dict, served_halt=None, drop_stations=(
     served_halt: name of an extra stop served by the NORD trains between Lalande and Matabiau
     (the halt already opened). drop_stations: stations left out. express_only: NORD trains end at
     Lalande-Église, so that no train calls at Lalande-Église then Matabiau. rename: {name: name
-    written in stops.txt}, for example to test the fallback neighbours.
+    written in stops.txt}, for example to test the fallback neighbours. skip_village: extra SUDX
+    trains Toulouse Matabiau - Labège Innopole - Escalquens, every hour, that skip Labège Village.
     """
     rename = rename or {}
     pos = sncf_positions(positions)
@@ -273,6 +275,8 @@ def make_sncf_zip(path: Path, positions: dict, served_halt=None, drop_stations=(
         "OUEST": [("Colomiers", 0), ("Toulouse Matabiau", 900)],
         "CAR": [("Labège Innopole", 0), ("Labège Village", 420)],  # an SNCF coach (route_type 3)
     }
+    if skip_village:
+        patterns["SUDX"] = [("Toulouse Matabiau", 0), ("Labège Innopole", 600), ("Escalquens", 1000)]
     patterns = {r: ([n for n, _ in calls if n not in drop_stations], [o for n, o in calls if n not in drop_stations])
                 for r, calls in patterns.items()}
     trips, stop_times = [], []
@@ -300,7 +304,8 @@ def make_sncf_zip(path: Path, positions: dict, served_halt=None, drop_stations=(
                         "route_long_name": f"Ligne {r} (test)", "route_type": 3 if r == "CAR" else 2,
                         "route_color": "0749FF",
                         "route_text_color": "FFFFFF"}
-                       for r, short in (("NORD", "K1"), ("SUD", "C3"), ("OUEST", "C6"), ("CAR", "Car"))],
+                       for r, short in (("NORD", "K1"), ("SUD", "C3"), ("OUEST", "C6"), ("CAR", "Car"), ("SUDX", "C9"))
+                       if r in patterns],
         "trips.txt": trips,
         "stop_times.txt": stop_times,
         # Monday 19 to Friday 23 October 2026.
