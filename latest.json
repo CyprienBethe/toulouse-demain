@@ -3,8 +3,8 @@
   "complete": true,
   "status": "SUCCÈS",
   "warnings": [],
-  "date": "2026-10-26 08:58 UTC",
-  "run_url": "https://github.com/CyprienBethe/toulouse-demain/actions/runs/40295049625",
+  "date": "2026-11-02 11:06 UTC",
+  "run_url": "https://github.com/CyprienBethe/toulouse-demain/actions/runs/41432940228",
   "outcomes": {
     "download": "success",
     "zone": "success",
@@ -20,10 +20,10 @@
       "url": "https://www.data.gouv.fr/api/1/datasets/r/64318177-f5b5-4144-a6be-2d0f22d26c77",
       "final_url": "https://data.toulouse-metropole.fr/explore/dataset/tisseo-gtfs/files/fc1dda89077cf37e4f7521760e0ef4e9/download/",
       "file": "build/raw/tisseo.gtfs.zip",
-      "bytes": 14244812,
-      "sha256": "c03629fe5f130ecf650fe00392343937a05d25ce4689940cf9fd2d50d77e4d6c",
+      "bytes": 10984010,
+      "sha256": "8bf05dc49c7b8bea76963fa951f0f000de542adbbca2a689244392697a7a7751",
       "last_modified": null,
-      "seconds": 3.7,
+      "seconds": 3.3,
       "attempts": 1,
       "page": "https://www.data.gouv.fr/datasets/tisseo-reseau-transport-urbain-toulousain"
     },
@@ -31,21 +31,21 @@
       "url": "https://eu.ftp.opendatasoft.com/sncf/plandata/Export_OpenData_SNCF_GTFS_NewTripId.zip",
       "final_url": "https://eu.ftp.opendatasoft.com/sncf/plandata/Export_OpenData_SNCF_GTFS_NewTripId.zip",
       "file": "build/raw/sncf-national.gtfs.zip",
-      "bytes": 5355134,
-      "sha256": "d404a8e1e663115f387dac86237840ba3fa92ec3e87e26171ade9d0b11a823b1",
-      "last_modified": "Sun, 25 Oct 2026 20:49:52 GMT",
-      "seconds": 2.1,
+      "bytes": 5612996,
+      "sha256": "12a4455a4c1aaa7050dfb482c8b192a78b4535ed3f1b9e08e12f84266b991c79",
+      "last_modified": "Sun, 01 Nov 2026 21:10:00 GMT",
+      "seconds": 1.6,
       "attempts": 1,
       "page": "https://www.data.gouv.fr/datasets/horaires-sncf"
     },
     "osm": {
       "url": "https://download.geofabrik.de/europe/france/midi-pyrenees-latest.osm.pbf",
-      "final_url": "https://download.geofabrik.de/europe/france/midi-pyrenees-261025.osm.pbf",
+      "final_url": "https://download.geofabrik.de/europe/france/midi-pyrenees-261101.osm.pbf",
       "file": "build/raw/midi-pyrenees-latest.osm.pbf",
-      "bytes": 363511147,
-      "sha256": "45d72c5081c688c33a644a0f11f2190f5e748a3c7cc59b7ae9977bc76f580bad",
-      "last_modified": "Mon, 26 Oct 2026 01:16:29 GMT",
-      "seconds": 81.7,
+      "bytes": 363804019,
+      "sha256": "3264d048080f30276bb33e76b6242467107d37a31251c39a50de5da950f5f488",
+      "last_modified": "Mon, 02 Nov 2026 08:33:26 GMT",
+      "seconds": 352.3,
       "attempts": 1,
       "page": "https://download.geofabrik.de/europe/france.html"
     }
@@ -64,29 +64,29 @@
       1.6905428807781353,
       43.74990182866533
     ],
-    "stop_count": 5725,
+    "stop_count": 5713,
     "buffer_km": 10.0,
     "stops_span_km": 43.5,
     "source": "stops.txt du GTFS Tisséo"
   },
   "osm": {
-    "input_bytes": 363511147,
-    "output_bytes": 82670772,
+    "input_bytes": 363804019,
+    "output_bytes": 82721187,
     "bbox": "1.02706,43.30141,1.81453,43.83973",
-    "seconds": 10,
+    "seconds": 11,
     "osmium_version": "osmium version 1.16.0"
   },
   "sncf_kept": {
-    "trips": 1369,
+    "trips": 1367,
     "routes": 22,
-    "services": 311,
+    "services": 309,
     "shapes": 0,
-    "stops": 121,
+    "stops": 112,
     "agencies": 2
   },
   "futur": {
     "present": true,
-    "bytes": 2624035,
+    "bytes": 1781180,
     "agency.txt": 1,
     "routes.txt": 2,
     "routes": [
@@ -94,7 +94,7 @@
       "B"
     ],
     "stops.txt": 105,
-    "trips.txt": 12772
+    "trips.txt": 8532
   },
   "otp_build": {
     "image": "docker.io/opentripplanner/opentripplanner:2.10.0",
@@ -103,23 +103,23 @@
     "exit_code": 0,
     "oom_killed": false,
     "timed_out": false,
-    "duration_seconds": 286,
-    "peak_container_memory_bytes": 4081292673,
-    "max_live_heap_after_gc_mib": 1397,
-    "graph_bytes": 86715529
+    "duration_seconds": 86,
+    "peak_container_memory_bytes": 3519725699,
+    "max_live_heap_after_gc_mib": 1510,
+    "graph_bytes": 82770575
   },
   "otp_serve": {
     "image": "docker.io/opentripplanner/opentripplanner:2.10.0",
     "xmx": "6g",
     "ready": true,
-    "startup_seconds": 11,
-    "peak_container_memory_during_startup_bytes": 1122060206,
-    "container_memory_when_ready_bytes": 1126355173,
-    "container_memory_after_queries_bytes": 1200443359,
-    "max_live_heap_after_gc_mib": 691
+    "startup_seconds": 6,
+    "peak_container_memory_during_startup_bytes": 1039558246,
+    "container_memory_when_ready_bytes": 1056964608,
+    "container_memory_after_queries_bytes": 1134945107,
+    "max_live_heap_after_gc_mib": 471
   },
   "trips": {
-    "departure": "2026-10-27T08:30:00+01:00",
+    "departure": "2026-11-03T08:30:00+01:00",
     "feeds": {
       "tisseo": 1,
       "futur": 1,
@@ -198,15 +198,15 @@
         "mode": "transit",
         "results": {
           "actuel": {
-            "response_ms": 769,
+            "response_ms": 733,
             "routing_errors": [],
             "itineraries": [
               {
-                "start": "2026-10-27T08:35:22+01:00",
-                "end": "2026-10-27T09:08:25+01:00",
-                "minutes": 33,
+                "start": "2026-11-03T08:37:22+01:00",
+                "end": "2026-11-03T09:14:08+01:00",
+                "minutes": 37,
                 "transfers": 0,
-                "walk_meters": 531,
+                "walk_meters": 508,
                 "legs": [
                   {
                     "mode": "WALK",
@@ -224,7 +224,7 @@
                     "feed": "tisseo",
                     "from": "Jeanne d'Arc",
                     "to": "Aéroport",
-                    "minutes": 25
+                    "minutes": 29
                   },
                   {
                     "mode": "WALK",
@@ -241,11 +241,11 @@
                 ]
               },
               {
-                "start": "2026-10-27T08:50:22+01:00",
-                "end": "2026-10-27T09:22:25+01:00",
-                "minutes": 32,
+                "start": "2026-11-03T08:52:22+01:00",
+                "end": "2026-11-03T09:26:08+01:00",
+                "minutes": 34,
                 "transfers": 0,
-                "walk_meters": 531,
+                "walk_meters": 508,
                 "legs": [
                   {
                     "mode": "WALK",
@@ -263,7 +263,7 @@
                     "feed": "tisseo",
                     "from": "Jeanne d'Arc",
                     "to": "Aéroport",
-                    "minutes": 24
+                    "minutes": 26
                   },
                   {
                     "mode": "WALK",
@@ -280,11 +280,11 @@
                 ]
               },
               {
-                "start": "2026-10-27T09:05:22+01:00",
-                "end": "2026-10-27T09:31:25+01:00",
-                "minutes": 26,
+                "start": "2026-11-03T09:06:22+01:00",
+                "end": "2026-11-03T09:34:08+01:00",
+                "minutes": 28,
                 "transfers": 0,
-                "walk_meters": 531,
+                "walk_meters": 508,
                 "legs": [
                   {
                     "mode": "WALK",
@@ -302,7 +302,7 @@
                     "feed": "tisseo",
                     "from": "Jeanne d'Arc",
                     "to": "Aéroport",
-                    "minutes": 18
+                    "minutes": 20
                   },
                   {
                     "mode": "WALK",
@@ -321,15 +321,15 @@
             ]
           },
           "2028": {
-            "response_ms": 268,
+            "response_ms": 228,
             "routing_errors": [],
             "itineraries": [
               {
-                "start": "2026-10-27T08:35:22+01:00",
-                "end": "2026-10-27T09:08:25+01:00",
-                "minutes": 33,
+                "start": "2026-11-03T08:37:22+01:00",
+                "end": "2026-11-03T09:14:08+01:00",
+                "minutes": 37,
                 "transfers": 0,
-                "walk_meters": 531,
+                "walk_meters": 508,
                 "legs": [
                   {
                     "mode": "WALK",
@@ -347,7 +347,7 @@
                     "feed": "tisseo",
                     "from": "Jeanne d'Arc",
                     "to": "Aéroport",
-                    "minutes": 25
+                    "minutes": 29
                   },
                   {
                     "mode": "WALK",
@@ -364,11 +364,11 @@
                 ]
               },
               {
-                "start": "2026-10-27T08:50:22+01:00",
-                "end": "2026-10-27T09:22:25+01:00",
-                "minutes": 32,
+                "start": "2026-11-03T08:52:22+01:00",
+                "end": "2026-11-03T09:26:08+01:00",
+                "minutes": 34,
                 "transfers": 0,
-                "walk_meters": 531,
+                "walk_meters": 508,
                 "legs": [
                   {
                     "mode": "WALK",
@@ -386,7 +386,7 @@
                     "feed": "tisseo",
                     "from": "Jeanne d'Arc",
                     "to": "Aéroport",
-                    "minutes": 24
+                    "minutes": 26
                   },
                   {
                     "mode": "WALK",
@@ -403,11 +403,11 @@
                 ]
               },
               {
-                "start": "2026-10-27T09:05:22+01:00",
-                "end": "2026-10-27T09:31:25+01:00",
-                "minutes": 26,
+                "start": "2026-11-03T09:06:22+01:00",
+                "end": "2026-11-03T09:34:08+01:00",
+                "minutes": 28,
                 "transfers": 0,
-                "walk_meters": 531,
+                "walk_meters": 508,
                 "legs": [
                   {
                     "mode": "WALK",
@@ -425,7 +425,7 @@
                     "feed": "tisseo",
                     "from": "Jeanne d'Arc",
                     "to": "Aéroport",
-                    "minutes": 18
+                    "minutes": 20
                   },
                   {
                     "mode": "WALK",
@@ -471,15 +471,15 @@
         "mode": "transit",
         "results": {
           "actuel": {
-            "response_ms": 359,
+            "response_ms": 310,
             "routing_errors": [],
             "itineraries": [
               {
-                "start": "2026-10-27T08:31:00+01:00",
-                "end": "2026-10-27T08:51:52+01:00",
+                "start": "2026-11-03T08:31:00+01:00",
+                "end": "2026-11-03T08:51:36+01:00",
                 "minutes": 21,
                 "transfers": 1,
-                "walk_meters": 298,
+                "walk_meters": 297,
                 "legs": [
                   {
                     "mode": "RAIL",
@@ -524,11 +524,11 @@
                 ]
               },
               {
-                "start": "2026-10-27T08:33:05+01:00",
-                "end": "2026-10-27T09:02:52+01:00",
-                "minutes": 30,
-                "transfers": 1,
-                "walk_meters": 466,
+                "start": "2026-11-03T08:30:28+01:00",
+                "end": "2026-11-03T09:01:36+01:00",
+                "minutes": 31,
+                "transfers": 0,
+                "walk_meters": 1023,
                 "legs": [
                   {
                     "mode": "WALK",
@@ -536,26 +536,8 @@
                     "route": null,
                     "feed": null,
                     "from": "Gare Matabiau",
-                    "to": "Marengo-SNCF",
-                    "minutes": 6
-                  },
-                  {
-                    "mode": "SUBWAY",
-                    "line": "A",
-                    "route": "tisseo:line:61",
-                    "feed": "tisseo",
-                    "from": "Marengo-SNCF",
                     "to": "Jean Jaurès",
-                    "minutes": 1
-                  },
-                  {
-                    "mode": "WALK",
-                    "line": null,
-                    "route": null,
-                    "feed": null,
-                    "from": "Jean Jaurès",
-                    "to": "Jean Jaurès",
-                    "minutes": 2
+                    "minutes": 14
                   },
                   {
                     "mode": "SUBWAY",
@@ -581,11 +563,11 @@
                 ]
               },
               {
-                "start": "2026-10-27T08:31:03+01:00",
-                "end": "2026-10-27T09:02:52+01:00",
-                "minutes": 32,
+                "start": "2026-11-03T08:31:43+01:00",
+                "end": "2026-11-03T09:02:51+01:00",
+                "minutes": 31,
                 "transfers": 0,
-                "walk_meters": 1067,
+                "walk_meters": 1023,
                 "legs": [
                   {
                     "mode": "WALK",
@@ -622,15 +604,15 @@
             ]
           },
           "2028": {
-            "response_ms": 231,
+            "response_ms": 244,
             "routing_errors": [],
             "itineraries": [
               {
-                "start": "2026-10-27T08:31:00+01:00",
-                "end": "2026-10-27T08:51:52+01:00",
+                "start": "2026-11-03T08:31:00+01:00",
+                "end": "2026-11-03T08:52:10+01:00",
                 "minutes": 21,
                 "transfers": 1,
-                "walk_meters": 187,
+                "walk_meters": 186,
                 "legs": [
                   {
                     "mode": "RAIL",
@@ -675,11 +657,11 @@
                 ]
               },
               {
-                "start": "2026-10-27T08:30:27+01:00",
-                "end": "2026-10-27T09:02:52+01:00",
+                "start": "2026-11-03T08:31:02+01:00",
+                "end": "2026-11-03T09:03:25+01:00",
                 "minutes": 32,
                 "transfers": 0,
-                "walk_meters": 910,
+                "walk_meters": 908,
                 "legs": [
                   {
                     "mode": "WALK",
@@ -714,11 +696,11 @@
                 ]
               },
               {
-                "start": "2026-10-27T08:32:46+01:00",
-                "end": "2026-10-27T09:03:26+01:00",
-                "minutes": 31,
+                "start": "2026-11-03T08:32:17+01:00",
+                "end": "2026-11-03T09:04:40+01:00",
+                "minutes": 32,
                 "transfers": 0,
-                "walk_meters": 99,
+                "walk_meters": 908,
                 "legs": [
                   {
                     "mode": "WALK",
@@ -726,17 +708,17 @@
                     "route": null,
                     "feed": null,
                     "from": "Gare Matabiau",
-                    "to": "Matabiau Gare SNCF",
-                    "minutes": 1
+                    "to": "Jean Jaurès",
+                    "minutes": 13
                   },
                   {
-                    "mode": "BUS",
-                    "line": "27",
-                    "route": "tisseo:line:76",
-                    "feed": "tisseo",
-                    "from": "Matabiau Gare SNCF",
+                    "mode": "SUBWAY",
+                    "line": "B",
+                    "route": "futur:FUT_B",
+                    "feed": "futur",
+                    "from": "Jean Jaurès",
                     "to": "Ramonville",
-                    "minutes": 29
+                    "minutes": 16
                   },
                   {
                     "mode": "WALK",
@@ -745,11 +727,11 @@
                     "feed": null,
                     "from": "Ramonville",
                     "to": "Ramonville",
-                    "minutes": 0
+                    "minutes": 3
                   }
                 ],
                 "feeds": [
-                  "tisseo"
+                  "futur"
                 ]
               }
             ]
@@ -766,11 +748,11 @@
           ]
         },
         "to": {
-          "lat": 43.555881,
-          "lon": 1.47712,
+          "lat": 43.555887,
+          "lon": 1.477101,
           "feed": "tisseo",
           "pattern": "^ramonville$",
-          "matched_stops": 11,
+          "matched_stops": 12,
           "matched_names": [
             "Ramonville"
           ]
@@ -782,12 +764,12 @@
         "mode": "transit",
         "results": {
           "actuel": {
-            "response_ms": 412,
+            "response_ms": 402,
             "routing_errors": [],
             "itineraries": [
               {
-                "start": "2026-10-27T08:43:00+01:00",
-                "end": "2026-10-27T09:28:00+01:00",
+                "start": "2026-11-03T08:43:00+01:00",
+                "end": "2026-11-03T09:28:00+01:00",
                 "minutes": 45,
                 "transfers": 1,
                 "walk_meters": 0,
@@ -816,9 +798,9 @@
                 ]
               },
               {
-                "start": "2026-10-27T09:15:00+01:00",
-                "end": "2026-10-27T10:08:07+01:00",
-                "minutes": 53,
+                "start": "2026-11-03T09:15:00+01:00",
+                "end": "2026-11-03T10:12:07+01:00",
+                "minutes": 57,
                 "transfers": 2,
                 "walk_meters": 677,
                 "legs": [
@@ -883,8 +865,8 @@
                 ]
               },
               {
-                "start": "2026-10-27T09:15:00+01:00",
-                "end": "2026-10-27T10:23:00+01:00",
+                "start": "2026-11-03T09:15:00+01:00",
+                "end": "2026-11-03T10:23:00+01:00",
                 "minutes": 68,
                 "transfers": 1,
                 "walk_meters": 0,
@@ -915,12 +897,12 @@
             ]
           },
           "2028": {
-            "response_ms": 317,
+            "response_ms": 269,
             "routing_errors": [],
             "itineraries": [
               {
-                "start": "2026-10-27T08:30:25+01:00",
-                "end": "2026-10-27T09:18:46+01:00",
+                "start": "2026-11-03T08:30:25+01:00",
+                "end": "2026-11-03T09:18:46+01:00",
                 "minutes": 48,
                 "transfers": 0,
                 "walk_meters": 707,
@@ -958,8 +940,8 @@
                 ]
               },
               {
-                "start": "2026-10-27T08:33:50+01:00",
-                "end": "2026-10-27T09:22:11+01:00",
+                "start": "2026-11-03T08:33:50+01:00",
+                "end": "2026-11-03T09:22:11+01:00",
                 "minutes": 48,
                 "transfers": 0,
                 "walk_meters": 707,
@@ -997,8 +979,8 @@
                 ]
               },
               {
-                "start": "2026-10-27T08:37:15+01:00",
-                "end": "2026-10-27T09:25:36+01:00",
+                "start": "2026-11-03T08:37:15+01:00",
+                "end": "2026-11-03T09:25:36+01:00",
                 "minutes": 48,
                 "transfers": 0,
                 "walk_meters": 707,
@@ -1043,7 +1025,7 @@
           "lon": 1.334221,
           "feed": "sncf",
           "pattern": "^colomiers$",
-          "matched_stops": 3,
+          "matched_stops": 2,
           "matched_names": [
             "Colomiers"
           ]
@@ -1065,12 +1047,12 @@
         "mode": "transit",
         "results": {
           "actuel": {
-            "response_ms": 359,
+            "response_ms": 291,
             "routing_errors": [],
             "itineraries": [
               {
-                "start": "2026-10-27T08:43:00+01:00",
-                "end": "2026-10-27T09:35:57+01:00",
+                "start": "2026-11-03T08:43:00+01:00",
+                "end": "2026-11-03T09:35:57+01:00",
                 "minutes": 53,
                 "transfers": 1,
                 "walk_meters": 581,
@@ -1108,9 +1090,94 @@
                 ]
               },
               {
-                "start": "2026-10-27T09:15:00+01:00",
-                "end": "2026-10-27T10:13:35+01:00",
-                "minutes": 59,
+                "start": "2026-11-03T08:55:00+01:00",
+                "end": "2026-11-03T10:02:35+01:00",
+                "minutes": 68,
+                "transfers": 3,
+                "walk_meters": 598,
+                "legs": [
+                  {
+                    "mode": "RAIL",
+                    "line": "C16",
+                    "route": "sncf:FR:Line::53865649-1C74-4657-9123-DA7EDE71D3DB:",
+                    "feed": "sncf",
+                    "from": "Colomiers",
+                    "to": "Saint-Cyprien Arènes",
+                    "minutes": 14
+                  },
+                  {
+                    "mode": "WALK",
+                    "line": null,
+                    "route": null,
+                    "feed": null,
+                    "from": "Saint-Cyprien Arènes",
+                    "to": "Arènes",
+                    "minutes": 4
+                  },
+                  {
+                    "mode": "BUS",
+                    "line": "34",
+                    "route": "tisseo:line:73",
+                    "feed": "tisseo",
+                    "from": "Arènes",
+                    "to": "Saint Agne SNCF",
+                    "minutes": 13
+                  },
+                  {
+                    "mode": "WALK",
+                    "line": null,
+                    "route": null,
+                    "feed": null,
+                    "from": "Saint Agne SNCF",
+                    "to": "Saint Agne SNCF",
+                    "minutes": 3
+                  },
+                  {
+                    "mode": "SUBWAY",
+                    "line": "B",
+                    "route": "tisseo:line:69",
+                    "feed": "tisseo",
+                    "from": "Saint Agne SNCF",
+                    "to": "Ramonville",
+                    "minutes": 7
+                  },
+                  {
+                    "mode": "WALK",
+                    "line": null,
+                    "route": null,
+                    "feed": null,
+                    "from": "Ramonville",
+                    "to": "Ramonville",
+                    "minutes": 2
+                  },
+                  {
+                    "mode": "BUS",
+                    "line": "79",
+                    "route": "tisseo:line:51",
+                    "feed": "tisseo",
+                    "from": "Ramonville",
+                    "to": "Tolosane",
+                    "minutes": 14
+                  },
+                  {
+                    "mode": "WALK",
+                    "line": null,
+                    "route": null,
+                    "feed": null,
+                    "from": "Tolosane",
+                    "to": "Diagora (Labège)",
+                    "minutes": 2
+                  }
+                ],
+                "feeds": [
+                  "sncf",
+                  "tisseo"
+                ]
+              },
+              {
+                "start": "2026-11-03T09:15:00+01:00",
+                "end": "2026-11-03T10:15:35+01:00",
+                "minutes": 61,
                 "transfers": 2,
                 "walk_meters": 456,
                 "legs": [
@@ -1173,55 +1240,16 @@
                   "sncf",
                   "tisseo"
                 ]
-              },
-              {
-                "start": "2026-10-27T09:15:00+01:00",
-                "end": "2026-10-27T10:30:57+01:00",
-                "minutes": 76,
-                "transfers": 1,
-                "walk_meters": 581,
-                "legs": [
-                  {
-                    "mode": "RAIL",
-                    "line": "C6",
-                    "route": "sncf:FR:Line::DDEF5935-0332-4ED5-B499-5C664AF7CF05:",
-                    "feed": "sncf",
-                    "from": "Colomiers",
-                    "to": "Toulouse Matabiau",
-                    "minutes": 21
-                  },
-                  {
-                    "mode": "RAIL",
-                    "line": "C3",
-                    "route": "sncf:FR:Line::52D5BA37-0A0E-43ED-AB0D-DAF12888D586:",
-                    "feed": "sncf",
-                    "from": "Toulouse Matabiau",
-                    "to": "Labège Innopole",
-                    "minutes": 9
-                  },
-                  {
-                    "mode": "WALK",
-                    "line": null,
-                    "route": null,
-                    "feed": null,
-                    "from": "Labège Innopole",
-                    "to": "Diagora (Labège)",
-                    "minutes": 8
-                  }
-                ],
-                "feeds": [
-                  "sncf"
-                ]
               }
             ]
           },
           "2028": {
-            "response_ms": 248,
+            "response_ms": 245,
             "routing_errors": [],
             "itineraries": [
               {
-                "start": "2026-10-27T08:30:25+01:00",
-                "end": "2026-10-27T09:08:49+01:00",
+                "start": "2026-11-03T08:30:25+01:00",
+                "end": "2026-11-03T09:08:49+01:00",
                 "minutes": 38,
                 "transfers": 0,
                 "walk_meters": 126,
@@ -1250,8 +1278,8 @@
                 ]
               },
               {
-                "start": "2026-10-27T08:33:50+01:00",
-                "end": "2026-10-27T09:12:14+01:00",
+                "start": "2026-11-03T08:33:50+01:00",
+                "end": "2026-11-03T09:12:14+01:00",
                 "minutes": 38,
                 "transfers": 0,
                 "walk_meters": 126,
@@ -1280,8 +1308,8 @@
                 ]
               },
               {
-                "start": "2026-10-27T08:37:15+01:00",
-                "end": "2026-10-27T09:15:39+01:00",
+                "start": "2026-11-03T08:37:15+01:00",
+                "end": "2026-11-03T09:15:39+01:00",
                 "minutes": 38,
                 "transfers": 0,
                 "walk_meters": 126,
@@ -1317,7 +1345,7 @@
           "lon": 1.334221,
           "feed": "sncf",
           "pattern": "^colomiers$",
-          "matched_stops": 3,
+          "matched_stops": 2,
           "matched_names": [
             "Colomiers"
           ]
@@ -1339,12 +1367,12 @@
         "mode": "walk",
         "results": {
           "actuel": {
-            "response_ms": 22,
+            "response_ms": 18,
             "routing_errors": [],
             "itineraries": [
               {
-                "start": "2026-10-27T08:30:00+01:00",
-                "end": "2026-10-27T08:46:49+01:00",
+                "start": "2026-11-03T08:30:00+01:00",
+                "end": "2026-11-03T08:46:49+01:00",
                 "minutes": 17,
                 "transfers": 0,
                 "walk_meters": 1184,
@@ -1391,12 +1419,12 @@
         "mode": "bicycle",
         "results": {
           "actuel": {
-            "response_ms": 118,
+            "response_ms": 122,
             "routing_errors": [],
             "itineraries": [
               {
-                "start": "2026-10-27T08:30:00+01:00",
-                "end": "2026-10-27T09:07:59+01:00",
+                "start": "2026-11-03T08:30:00+01:00",
+                "end": "2026-11-03T09:07:59+01:00",
                 "minutes": 38,
                 "transfers": 0,
                 "walk_meters": 0,
