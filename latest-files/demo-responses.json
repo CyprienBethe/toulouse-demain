@@ -1,5 +1,5 @@
 {
-  "recorded_at": "2026-11-02T11:06:42+00:00",
+  "recorded_at": "2026-11-09T11:30:10+00:00",
   "query": "\nquery Plan($origin: PlanLabeledLocationInput!, $destination: PlanLabeledLocationInput!,\n           $dateTime: PlanDateTimeInput!, $modes: PlanModesInput, $preferences: PlanPreferencesInput) {\n  planConnection(origin: $origin, destination: $destination, dateTime: $dateTime,\n                 modes: $modes, preferences: $preferences, first: 3) {\n    searchDateTime\n    routingErrors { code description }\n    edges {\n      node {\n        start\n        end\n        duration\n        numberOfTransfers\n        walkDistance\n        walkTime\n        waitingTime\n        legs {\n          mode\n          transitLeg\n          start { scheduledTime estimated { time delay } }\n          end { scheduledTime estimated { time delay } }\n          duration\n          distance\n          headsign\n          from { name lat lon stop { gtfsId } }\n          to { name lat lon stop { gtfsId } }\n          agency { gtfsId name }\n          route { gtfsId shortName longName color textColor }\n          legGeometry { points }\n        }\n      }\n    }\n  }\n}\n",
   "requests": [
     {
@@ -26,7 +26,7 @@
           }
         },
         "dateTime": {
-          "earliestDeparture": "2026-11-03T08:30:00+01:00"
+          "earliestDeparture": "2026-11-10T08:30:00+01:00"
         },
         "modes": {
           "direct": [
@@ -80,28 +80,28 @@
       "response": {
         "data": {
           "planConnection": {
-            "searchDateTime": "2026-11-03T08:30:00+01:00",
+            "searchDateTime": "2026-11-10T08:30:00+01:00",
             "routingErrors": [],
             "edges": [
               {
                 "node": {
-                  "start": "2026-11-03T08:37:22+01:00",
-                  "end": "2026-11-03T09:14:08+01:00",
-                  "duration": 2206,
+                  "start": "2026-11-10T08:37:22+01:00",
+                  "end": "2026-11-10T09:14:25+01:00",
+                  "duration": 2223,
                   "numberOfTransfers": 0,
-                  "walkDistance": 507.73,
-                  "walkTime": 466,
+                  "walkDistance": 531.01,
+                  "walkTime": 483,
                   "waitingTime": 0,
                   "legs": [
                     {
                       "mode": "WALK",
                       "transitLeg": false,
                       "start": {
-                        "scheduledTime": "2026-11-03T08:37:22+01:00",
+                        "scheduledTime": "2026-11-10T08:37:22+01:00",
                         "estimated": null
                       },
                       "end": {
-                        "scheduledTime": "2026-11-03T08:45:00+01:00",
+                        "scheduledTime": "2026-11-10T08:45:00+01:00",
                         "estimated": null
                       },
                       "duration": 458.0,
@@ -131,11 +131,11 @@
                       "mode": "BUS",
                       "transitLeg": true,
                       "start": {
-                        "scheduledTime": "2026-11-03T08:45:00+01:00",
+                        "scheduledTime": "2026-11-10T08:45:00+01:00",
                         "estimated": null
                       },
                       "end": {
-                        "scheduledTime": "2026-11-03T09:14:00+01:00",
+                        "scheduledTime": "2026-11-10T09:14:00+01:00",
                         "estimated": null
                       },
                       "duration": 1740.0,
@@ -176,15 +176,15 @@
                       "mode": "WALK",
                       "transitLeg": false,
                       "start": {
-                        "scheduledTime": "2026-11-03T09:14:00+01:00",
+                        "scheduledTime": "2026-11-10T09:14:00+01:00",
                         "estimated": null
                       },
                       "end": {
-                        "scheduledTime": "2026-11-03T09:14:08+01:00",
+                        "scheduledTime": "2026-11-10T09:14:25+01:00",
                         "estimated": null
                       },
-                      "duration": 8.0,
-                      "distance": 9.8,
+                      "duration": 25.0,
+                      "distance": 33.08,
                       "headsign": null,
                       "from": {
                         "name": "Aéroport",
@@ -203,7 +203,7 @@
                       "agency": null,
                       "route": null,
                       "legGeometry": {
-                        "points": "yuhiGinkGMQ"
+                        "points": "sthiGsmkGUK]["
                       }
                     }
                   ]
@@ -211,23 +211,23 @@
               },
               {
                 "node": {
-                  "start": "2026-11-03T08:52:22+01:00",
-                  "end": "2026-11-03T09:26:08+01:00",
-                  "duration": 2026,
+                  "start": "2026-11-10T08:52:22+01:00",
+                  "end": "2026-11-10T09:26:25+01:00",
+                  "duration": 2043,
                   "numberOfTransfers": 0,
-                  "walkDistance": 507.73,
-                  "walkTime": 466,
+                  "walkDistance": 531.01,
+                  "walkTime": 483,
                   "waitingTime": 0,
                   "legs": [
                     {
                       "mode": "WALK",
                       "transitLeg": false,
                       "start": {
-                        "scheduledTime": "2026-11-03T08:52:22+01:00",
+                        "scheduledTime": "2026-11-10T08:52:22+01:00",
                         "estimated": null
                       },
                       "end": {
-                        "scheduledTime": "2026-11-03T09:00:00+01:00",
+                        "scheduledTime": "2026-11-10T09:00:00+01:00",
                         "estimated": null
                       },
                       "duration": 458.0,
@@ -257,11 +257,11 @@
                       "mode": "BUS",
                       "transitLeg": true,
                       "start": {
-                        "scheduledTime": "2026-11-03T09:00:00+01:00",
+                        "scheduledTime": "2026-11-10T09:00:00+01:00",
                         "estimated": null
                       },
                       "end": {
-                        "scheduledTime": "2026-11-03T09:26:00+01:00",
+                        "scheduledTime": "2026-11-10T09:26:00+01:00",
                         "estimated": null
                       },
                       "duration": 1560.0,
@@ -302,15 +302,15 @@
                       "mode": "WALK",
                       "transitLeg": false,
                       "start": {
-                        "scheduledTime": "2026-11-03T09:26:00+01:00",
+                        "scheduledTime": "2026-11-10T09:26:00+01:00",
                         "estimated": null
                       },
                       "end": {
-                        "scheduledTime": "2026-11-03T09:26:08+01:00",
+                        "scheduledTime": "2026-11-10T09:26:25+01:00",
                         "estimated": null
                       },
-                      "duration": 8.0,
-                      "distance": 9.8,
+                      "duration": 25.0,
+                      "distance": 33.08,
                       "headsign": null,
                       "from": {
                         "name": "Aéroport",
@@ -329,7 +329,7 @@
                       "agency": null,
                       "route": null,
                       "legGeometry": {
-                        "points": "yuhiGinkGMQ"
+                        "points": "sthiGsmkGUK]["
                       }
                     }
                   ]
@@ -337,23 +337,23 @@
               },
               {
                 "node": {
-                  "start": "2026-11-03T09:06:22+01:00",
-                  "end": "2026-11-03T09:34:08+01:00",
-                  "duration": 1666,
+                  "start": "2026-11-10T09:06:22+01:00",
+                  "end": "2026-11-10T09:34:25+01:00",
+                  "duration": 1683,
                   "numberOfTransfers": 0,
-                  "walkDistance": 507.73,
-                  "walkTime": 466,
+                  "walkDistance": 531.01,
+                  "walkTime": 483,
                   "waitingTime": 0,
                   "legs": [
                     {
                       "mode": "WALK",
                       "transitLeg": false,
                       "start": {
-                        "scheduledTime": "2026-11-03T09:06:22+01:00",
+                        "scheduledTime": "2026-11-10T09:06:22+01:00",
                         "estimated": null
                       },
                       "end": {
-                        "scheduledTime": "2026-11-03T09:14:00+01:00",
+                        "scheduledTime": "2026-11-10T09:14:00+01:00",
                         "estimated": null
                       },
                       "duration": 458.0,
@@ -383,11 +383,11 @@
                       "mode": "BUS",
                       "transitLeg": true,
                       "start": {
-                        "scheduledTime": "2026-11-03T09:14:00+01:00",
+                        "scheduledTime": "2026-11-10T09:14:00+01:00",
                         "estimated": null
                       },
                       "end": {
-                        "scheduledTime": "2026-11-03T09:34:00+01:00",
+                        "scheduledTime": "2026-11-10T09:34:00+01:00",
                         "estimated": null
                       },
                       "duration": 1200.0,
@@ -428,15 +428,15 @@
                       "mode": "WALK",
                       "transitLeg": false,
                       "start": {
-                        "scheduledTime": "2026-11-03T09:34:00+01:00",
+                        "scheduledTime": "2026-11-10T09:34:00+01:00",
                         "estimated": null
                       },
                       "end": {
-                        "scheduledTime": "2026-11-03T09:34:08+01:00",
+                        "scheduledTime": "2026-11-10T09:34:25+01:00",
                         "estimated": null
                       },
-                      "duration": 8.0,
-                      "distance": 9.8,
+                      "duration": 25.0,
+                      "distance": 33.08,
                       "headsign": null,
                       "from": {
                         "name": "Aéroport",
@@ -455,7 +455,7 @@
                       "agency": null,
                       "route": null,
                       "legGeometry": {
-                        "points": "yuhiGinkGMQ"
+                        "points": "sthiGsmkGUK]["
                       }
                     }
                   ]
@@ -490,7 +490,7 @@
           }
         },
         "dateTime": {
-          "earliestDeparture": "2026-11-03T08:30:00+01:00"
+          "earliestDeparture": "2026-11-10T08:30:00+01:00"
         },
         "modes": {
           "direct": [
@@ -544,28 +544,28 @@
       "response": {
         "data": {
           "planConnection": {
-            "searchDateTime": "2026-11-03T08:30:00+01:00",
+            "searchDateTime": "2026-11-10T08:30:00+01:00",
             "routingErrors": [],
             "edges": [
               {
                 "node": {
-                  "start": "2026-11-03T08:37:22+01:00",
-                  "end": "2026-11-03T09:14:08+01:00",
-                  "duration": 2206,
+                  "start": "2026-11-10T08:37:22+01:00",
+                  "end": "2026-11-10T09:14:25+01:00",
+                  "duration": 2223,
                   "numberOfTransfers": 0,
-                  "walkDistance": 507.73,
-                  "walkTime": 466,
+                  "walkDistance": 531.01,
+                  "walkTime": 483,
                   "waitingTime": 0,
                   "legs": [
                     {
                       "mode": "WALK",
                       "transitLeg": false,
                       "start": {
-                        "scheduledTime": "2026-11-03T08:37:22+01:00",
+                        "scheduledTime": "2026-11-10T08:37:22+01:00",
                         "estimated": null
                       },
                       "end": {
-                        "scheduledTime": "2026-11-03T08:45:00+01:00",
+                        "scheduledTime": "2026-11-10T08:45:00+01:00",
                         "estimated": null
                       },
                       "duration": 458.0,
@@ -595,11 +595,11 @@
                       "mode": "BUS",
                       "transitLeg": true,
                       "start": {
-                        "scheduledTime": "2026-11-03T08:45:00+01:00",
+                        "scheduledTime": "2026-11-10T08:45:00+01:00",
                         "estimated": null
                       },
                       "end": {
-                        "scheduledTime": "2026-11-03T09:14:00+01:00",
+                        "scheduledTime": "2026-11-10T09:14:00+01:00",
                         "estimated": null
                       },
                       "duration": 1740.0,
@@ -640,15 +640,15 @@
                       "mode": "WALK",
                       "transitLeg": false,
                       "start": {
-                        "scheduledTime": "2026-11-03T09:14:00+01:00",
+                        "scheduledTime": "2026-11-10T09:14:00+01:00",
                         "estimated": null
                       },
                       "end": {
-                        "scheduledTime": "2026-11-03T09:14:08+01:00",
+                        "scheduledTime": "2026-11-10T09:14:25+01:00",
                         "estimated": null
                       },
-                      "duration": 8.0,
-                      "distance": 9.8,
+                      "duration": 25.0,
+                      "distance": 33.08,
                       "headsign": null,
                       "from": {
                         "name": "Aéroport",
@@ -667,7 +667,7 @@
                       "agency": null,
                       "route": null,
                       "legGeometry": {
-                        "points": "yuhiGinkGMQ"
+                        "points": "sthiGsmkGUK]["
                       }
                     }
                   ]
@@ -675,23 +675,23 @@
               },
               {
                 "node": {
-                  "start": "2026-11-03T08:52:22+01:00",
-                  "end": "2026-11-03T09:26:08+01:00",
-                  "duration": 2026,
+                  "start": "2026-11-10T08:52:22+01:00",
+                  "end": "2026-11-10T09:26:25+01:00",
+                  "duration": 2043,
                   "numberOfTransfers": 0,
-                  "walkDistance": 507.73,
-                  "walkTime": 466,
+                  "walkDistance": 531.01,
+                  "walkTime": 483,
                   "waitingTime": 0,
                   "legs": [
                     {
                       "mode": "WALK",
                       "transitLeg": false,
                       "start": {
-                        "scheduledTime": "2026-11-03T08:52:22+01:00",
+                        "scheduledTime": "2026-11-10T08:52:22+01:00",
                         "estimated": null
                       },
                       "end": {
-                        "scheduledTime": "2026-11-03T09:00:00+01:00",
+                        "scheduledTime": "2026-11-10T09:00:00+01:00",
                         "estimated": null
                       },
                       "duration": 458.0,
@@ -721,11 +721,11 @@
                       "mode": "BUS",
                       "transitLeg": true,
                       "start": {
-                        "scheduledTime": "2026-11-03T09:00:00+01:00",
+                        "scheduledTime": "2026-11-10T09:00:00+01:00",
                         "estimated": null
                       },
                       "end": {
-                        "scheduledTime": "2026-11-03T09:26:00+01:00",
+                        "scheduledTime": "2026-11-10T09:26:00+01:00",
                         "estimated": null
                       },
                       "duration": 1560.0,
@@ -766,15 +766,15 @@
                       "mode": "WALK",
                       "transitLeg": false,
                       "start": {
-                        "scheduledTime": "2026-11-03T09:26:00+01:00",
+                        "scheduledTime": "2026-11-10T09:26:00+01:00",
                         "estimated": null
                       },
                       "end": {
-                        "scheduledTime": "2026-11-03T09:26:08+01:00",
+                        "scheduledTime": "2026-11-10T09:26:25+01:00",
                         "estimated": null
                       },
-                      "duration": 8.0,
-                      "distance": 9.8,
+                      "duration": 25.0,
+                      "distance": 33.08,
                       "headsign": null,
                       "from": {
                         "name": "Aéroport",
@@ -793,7 +793,7 @@
                       "agency": null,
                       "route": null,
                       "legGeometry": {
-                        "points": "yuhiGinkGMQ"
+                        "points": "sthiGsmkGUK]["
                       }
                     }
                   ]
@@ -801,23 +801,23 @@
               },
               {
                 "node": {
-                  "start": "2026-11-03T09:06:22+01:00",
-                  "end": "2026-11-03T09:34:08+01:00",
-                  "duration": 1666,
+                  "start": "2026-11-10T09:06:22+01:00",
+                  "end": "2026-11-10T09:34:25+01:00",
+                  "duration": 1683,
                   "numberOfTransfers": 0,
-                  "walkDistance": 507.73,
-                  "walkTime": 466,
+                  "walkDistance": 531.01,
+                  "walkTime": 483,
                   "waitingTime": 0,
                   "legs": [
                     {
                       "mode": "WALK",
                       "transitLeg": false,
                       "start": {
-                        "scheduledTime": "2026-11-03T09:06:22+01:00",
+                        "scheduledTime": "2026-11-10T09:06:22+01:00",
                         "estimated": null
                       },
                       "end": {
-                        "scheduledTime": "2026-11-03T09:14:00+01:00",
+                        "scheduledTime": "2026-11-10T09:14:00+01:00",
                         "estimated": null
                       },
                       "duration": 458.0,
@@ -847,11 +847,11 @@
                       "mode": "BUS",
                       "transitLeg": true,
                       "start": {
-                        "scheduledTime": "2026-11-03T09:14:00+01:00",
+                        "scheduledTime": "2026-11-10T09:14:00+01:00",
                         "estimated": null
                       },
                       "end": {
-                        "scheduledTime": "2026-11-03T09:34:00+01:00",
+                        "scheduledTime": "2026-11-10T09:34:00+01:00",
                         "estimated": null
                       },
                       "duration": 1200.0,
@@ -892,15 +892,15 @@
                       "mode": "WALK",
                       "transitLeg": false,
                       "start": {
-                        "scheduledTime": "2026-11-03T09:34:00+01:00",
+                        "scheduledTime": "2026-11-10T09:34:00+01:00",
                         "estimated": null
                       },
                       "end": {
-                        "scheduledTime": "2026-11-03T09:34:08+01:00",
+                        "scheduledTime": "2026-11-10T09:34:25+01:00",
                         "estimated": null
                       },
-                      "duration": 8.0,
-                      "distance": 9.8,
+                      "duration": 25.0,
+                      "distance": 33.08,
                       "headsign": null,
                       "from": {
                         "name": "Aéroport",
@@ -919,7 +919,7 @@
                       "agency": null,
                       "route": null,
                       "legGeometry": {
-                        "points": "yuhiGinkGMQ"
+                        "points": "sthiGsmkGUK]["
                       }
                     }
                   ]
@@ -948,13 +948,13 @@
           "label": "Ramonville",
           "location": {
             "coordinate": {
-              "latitude": 43.555887,
-              "longitude": 1.477101
+              "latitude": 43.555883,
+              "longitude": 1.477122
             }
           }
         },
         "dateTime": {
-          "earliestDeparture": "2026-11-03T08:30:00+01:00"
+          "earliestDeparture": "2026-11-10T08:30:00+01:00"
         },
         "modes": {
           "direct": [
@@ -1008,28 +1008,28 @@
       "response": {
         "data": {
           "planConnection": {
-            "searchDateTime": "2026-11-03T08:30:00+01:00",
+            "searchDateTime": "2026-11-10T08:30:00+01:00",
             "routingErrors": [],
             "edges": [
               {
                 "node": {
-                  "start": "2026-11-03T08:31:00+01:00",
-                  "end": "2026-11-03T08:51:36+01:00",
-                  "duration": 1236,
+                  "start": "2026-11-10T08:31:00+01:00",
+                  "end": "2026-11-10T08:51:37+01:00",
+                  "duration": 1237,
                   "numberOfTransfers": 1,
-                  "walkDistance": 296.68,
-                  "walkTime": 362,
+                  "walkDistance": 298.26,
+                  "walkTime": 363,
                   "waitingTime": 188,
                   "legs": [
                     {
                       "mode": "RAIL",
                       "transitLeg": true,
                       "start": {
-                        "scheduledTime": "2026-11-03T08:31:00+01:00",
+                        "scheduledTime": "2026-11-10T08:31:00+01:00",
                         "estimated": null
                       },
                       "end": {
-                        "scheduledTime": "2026-11-03T08:35:00+01:00",
+                        "scheduledTime": "2026-11-10T08:35:00+01:00",
                         "estimated": null
                       },
                       "duration": 240.0,
@@ -1070,11 +1070,11 @@
                       "mode": "WALK",
                       "transitLeg": false,
                       "start": {
-                        "scheduledTime": "2026-11-03T08:35:00+01:00",
+                        "scheduledTime": "2026-11-10T08:35:00+01:00",
                         "estimated": null
                       },
                       "end": {
-                        "scheduledTime": "2026-11-03T08:39:27+01:00",
+                        "scheduledTime": "2026-11-10T08:39:27+01:00",
                         "estimated": null
                       },
                       "duration": 267.0,
@@ -1106,11 +1106,11 @@
                       "mode": "SUBWAY",
                       "transitLeg": true,
                       "start": {
-                        "scheduledTime": "2026-11-03T08:42:35+01:00",
+                        "scheduledTime": "2026-11-10T08:42:35+01:00",
                         "estimated": null
                       },
                       "end": {
-                        "scheduledTime": "2026-11-03T08:50:01+01:00",
+                        "scheduledTime": "2026-11-10T08:50:01+01:00",
                         "estimated": null
                       },
                       "duration": 446.0,
@@ -1151,15 +1151,15 @@
                       "mode": "WALK",
                       "transitLeg": false,
                       "start": {
-                        "scheduledTime": "2026-11-03T08:50:01+01:00",
+                        "scheduledTime": "2026-11-10T08:50:01+01:00",
                         "estimated": null
                       },
                       "end": {
-                        "scheduledTime": "2026-11-03T08:51:36+01:00",
+                        "scheduledTime": "2026-11-10T08:51:37+01:00",
                         "estimated": null
                       },
-                      "duration": 95.0,
-                      "distance": 80.47,
+                      "duration": 96.0,
+                      "distance": 82.05,
                       "headsign": null,
                       "from": {
                         "name": "Ramonville",
@@ -1171,14 +1171,14 @@
                       },
                       "to": {
                         "name": "Ramonville",
-                        "lat": 43.555887,
-                        "lon": 1.477101,
+                        "lat": 43.555883,
+                        "lon": 1.477122,
                         "stop": null
                       },
                       "agency": null,
                       "route": null,
                       "legGeometry": {
-                        "points": "i~yhGkj_H?q@BAE_@?EA?K@CWAOQDAQ"
+                        "points": "i~yhGkj_H?q@BAE_@?EA?K@CWAOQDAU"
                       }
                     }
                   ]
@@ -1186,27 +1186,27 @@
               },
               {
                 "node": {
-                  "start": "2026-11-03T08:30:28+01:00",
-                  "end": "2026-11-03T09:01:36+01:00",
-                  "duration": 1868,
+                  "start": "2026-11-10T08:31:03+01:00",
+                  "end": "2026-11-10T09:02:52+01:00",
+                  "duration": 1909,
                   "numberOfTransfers": 0,
-                  "walkDistance": 1023.1600000000001,
-                  "walkTime": 922,
+                  "walkDistance": 1066.94,
+                  "walkTime": 963,
                   "waitingTime": 0,
                   "legs": [
                     {
                       "mode": "WALK",
                       "transitLeg": false,
                       "start": {
-                        "scheduledTime": "2026-11-03T08:30:28+01:00",
+                        "scheduledTime": "2026-11-10T08:31:03+01:00",
                         "estimated": null
                       },
                       "end": {
-                        "scheduledTime": "2026-11-03T08:44:15+01:00",
+                        "scheduledTime": "2026-11-10T08:45:30+01:00",
                         "estimated": null
                       },
-                      "duration": 827.0,
-                      "distance": 942.69,
+                      "duration": 867.0,
+                      "distance": 984.89,
                       "headsign": null,
                       "from": {
                         "name": "Gare Matabiau",
@@ -1225,18 +1225,18 @@
                       "agency": null,
                       "route": null,
                       "legGeometry": {
-                        "points": "aydiGa|zG?F@D@J?H@FD^@L@F@FBH@HJn@@FFCDAVK|@]RINGFV@F@FRGRKJED@ND`@@@@??H?B?@?@?fAFB??GF?F@@???v@DF@Xd@NXBDBDDFh@~@JPrBlD@BBBBD??HLHNT^tA`Ch@~@^h@FJDI@AFIBCBEHMhAlBFHCDA@BFNRBCJMQ[LO@C@AAACG@?BFDFBDA?A@GHJPLTHN@@?@DDDHOP??EL"
+                        "points": "aydiGa|zG?F@D@J?H@FD^@L@F@FBH@HJn@@FFCDAVK|@]RINGFV@F@FRGRKJED@ND`@@@@??H?B?@?@?fAFB??GF?F@@???v@DF@Xd@NXBDBDDFh@~@JPrBlD@BBBBD??HLHNT^tA`Ch@~@^h@FJDI@AFIBCBEHMhAlBFHCDA@BFNRBCJMQ[LO@C@AAACG@?BFDFBDA?A@GHJPLTHN@@?@DDDHDHo@t@BFJKHO"
                       }
                     },
                     {
                       "mode": "SUBWAY",
                       "transitLeg": true,
                       "start": {
-                        "scheduledTime": "2026-11-03T08:44:15+01:00",
+                        "scheduledTime": "2026-11-10T08:45:30+01:00",
                         "estimated": null
                       },
                       "end": {
-                        "scheduledTime": "2026-11-03T09:00:01+01:00",
+                        "scheduledTime": "2026-11-10T09:01:16+01:00",
                         "estimated": null
                       },
                       "duration": 946.0,
@@ -1277,15 +1277,15 @@
                       "mode": "WALK",
                       "transitLeg": false,
                       "start": {
-                        "scheduledTime": "2026-11-03T09:00:01+01:00",
+                        "scheduledTime": "2026-11-10T09:01:16+01:00",
                         "estimated": null
                       },
                       "end": {
-                        "scheduledTime": "2026-11-03T09:01:36+01:00",
+                        "scheduledTime": "2026-11-10T09:02:52+01:00",
                         "estimated": null
                       },
-                      "duration": 95.0,
-                      "distance": 80.47,
+                      "duration": 96.0,
+                      "distance": 82.05,
                       "headsign": null,
                       "from": {
                         "name": "Ramonville",
@@ -1297,14 +1297,14 @@
                       },
                       "to": {
                         "name": "Ramonville",
-                        "lat": 43.555887,
-                        "lon": 1.477101,
+                        "lat": 43.555883,
+                        "lon": 1.477122,
                         "stop": null
                       },
                       "agency": null,
                       "route": null,
                       "legGeometry": {
-                        "points": "i~yhGkj_H?q@BAE_@?EA?K@CWAOQDAQ"
+                        "points": "i~yhGkj_H?q@BAE_@?EA?K@CWAOQDAU"
                       }
                     }
                   ]
@@ -1312,33 +1312,114 @@
               },
               {
                 "node": {
-                  "start": "2026-11-03T08:31:43+01:00",
-                  "end": "2026-11-03T09:02:51+01:00",
-                  "duration": 1868,
-                  "numberOfTransfers": 0,
-                  "walkDistance": 1023.1600000000001,
-                  "walkTime": 922,
-                  "waitingTime": 0,
+                  "start": "2026-11-10T08:34:05+01:00",
+                  "end": "2026-11-10T09:04:07+01:00",
+                  "duration": 1802,
+                  "numberOfTransfers": 1,
+                  "walkDistance": 465.73,
+                  "walkTime": 594,
+                  "waitingTime": 180,
                   "legs": [
                     {
                       "mode": "WALK",
                       "transitLeg": false,
                       "start": {
-                        "scheduledTime": "2026-11-03T08:31:43+01:00",
+                        "scheduledTime": "2026-11-10T08:34:05+01:00",
                         "estimated": null
                       },
                       "end": {
-                        "scheduledTime": "2026-11-03T08:45:30+01:00",
+                        "scheduledTime": "2026-11-10T08:40:02+01:00",
                         "estimated": null
                       },
-                      "duration": 827.0,
-                      "distance": 942.69,
+                      "duration": 357.0,
+                      "distance": 253.81,
                       "headsign": null,
                       "from": {
                         "name": "Gare Matabiau",
                         "lat": 43.611206,
                         "lon": 1.453616,
                         "stop": null
+                      },
+                      "to": {
+                        "name": "Marengo-SNCF",
+                        "lat": 43.6101499,
+                        "lon": 1.4555264,
+                        "stop": {
+                          "gtfsId": "tisseo:stop_point:SP_2916"
+                        }
+                      },
+                      "agency": null,
+                      "route": null,
+                      "legGeometry": {
+                        "points": "aydiGa|zGAM@?HAFA@??MCSAGEi@Ca@C_@AMr@ONs@ROBCFEDUBGNQNSBC@DRZT[FIDGFGDIAC"
+                      }
+                    },
+                    {
+                      "mode": "SUBWAY",
+                      "transitLeg": true,
+                      "start": {
+                        "scheduledTime": "2026-11-10T08:40:02+01:00",
+                        "estimated": null
+                      },
+                      "end": {
+                        "scheduledTime": "2026-11-10T08:41:24+01:00",
+                        "estimated": null
+                      },
+                      "duration": 82.0,
+                      "distance": 761.0,
+                      "headsign": "Basso Cambo",
+                      "from": {
+                        "name": "Marengo-SNCF",
+                        "lat": 43.6101499,
+                        "lon": 1.4555264,
+                        "stop": {
+                          "gtfsId": "tisseo:stop_point:SP_2916"
+                        }
+                      },
+                      "to": {
+                        "name": "Jean Jaurès",
+                        "lat": 43.6055902,
+                        "lon": 1.4485189,
+                        "stop": {
+                          "gtfsId": "tisseo:stop_point:SP_147"
+                        }
+                      },
+                      "agency": {
+                        "gtfsId": "tisseo:network:1",
+                        "name": "Tisséo"
+                      },
+                      "route": {
+                        "gtfsId": "tisseo:line:61",
+                        "shortName": "A",
+                        "longName": "Basso Cambo / Balma - Gramont",
+                        "color": "db001b",
+                        "textColor": "ffffff"
+                      },
+                      "legGeometry": {
+                        "points": "grdiGkh{Gr@jAh@|@`@p@n@dAd@v@d@t@h@~@h@z@h@|@r@jA^l@^n@`A~AfAfBnAvBZh@PZR^JVVf@JVJRN\\N\\HTPd@N\\"
+                      }
+                    },
+                    {
+                      "mode": "WALK",
+                      "transitLeg": false,
+                      "start": {
+                        "scheduledTime": "2026-11-10T08:41:24+01:00",
+                        "estimated": null
+                      },
+                      "end": {
+                        "scheduledTime": "2026-11-10T08:43:45+01:00",
+                        "estimated": null
+                      },
+                      "duration": 141.0,
+                      "distance": 129.87,
+                      "headsign": null,
+                      "from": {
+                        "name": "Jean Jaurès",
+                        "lat": 43.6055902,
+                        "lon": 1.4485189,
+                        "stop": {
+                          "gtfsId": "tisseo:stop_point:SP_147"
+                        }
                       },
                       "to": {
                         "name": "Jean Jaurès",
@@ -1351,18 +1432,18 @@
                       "agency": null,
                       "route": null,
                       "legGeometry": {
-                        "points": "aydiGa|zG?F@D@J?H@FD^@L@F@FBH@HJn@@FFCDAVK|@]RINGFV@F@FRGRKJED@ND`@@@@??H?B?@?@?fAFB??GF?F@@???v@DF@Xd@NXBDBDDFh@~@JPrBlD@BBBBD??HLHNT^tA`Ch@~@^h@FJDI@AFIBCBEHMhAlBFHCDA@BFNRBCJMQ[LO@C@AAACG@?BFDFBDA?A@GHJPLTHN@@?@DDDHOP??EL"
+                        "points": "ayciG{azGXVJRJPLTHN@@?@DDDHDHo@t@BFJKHO"
                       }
                     },
                     {
                       "mode": "SUBWAY",
                       "transitLeg": true,
                       "start": {
-                        "scheduledTime": "2026-11-03T08:45:30+01:00",
+                        "scheduledTime": "2026-11-10T08:46:45+01:00",
                         "estimated": null
                       },
                       "end": {
-                        "scheduledTime": "2026-11-03T09:01:16+01:00",
+                        "scheduledTime": "2026-11-10T09:02:31+01:00",
                         "estimated": null
                       },
                       "duration": 946.0,
@@ -1403,15 +1484,15 @@
                       "mode": "WALK",
                       "transitLeg": false,
                       "start": {
-                        "scheduledTime": "2026-11-03T09:01:16+01:00",
+                        "scheduledTime": "2026-11-10T09:02:31+01:00",
                         "estimated": null
                       },
                       "end": {
-                        "scheduledTime": "2026-11-03T09:02:51+01:00",
+                        "scheduledTime": "2026-11-10T09:04:07+01:00",
                         "estimated": null
                       },
-                      "duration": 95.0,
-                      "distance": 80.47,
+                      "duration": 96.0,
+                      "distance": 82.05,
                       "headsign": null,
                       "from": {
                         "name": "Ramonville",
@@ -1423,14 +1504,14 @@
                       },
                       "to": {
                         "name": "Ramonville",
-                        "lat": 43.555887,
-                        "lon": 1.477101,
+                        "lat": 43.555883,
+                        "lon": 1.477122,
                         "stop": null
                       },
                       "agency": null,
                       "route": null,
                       "legGeometry": {
-                        "points": "i~yhGkj_H?q@BAE_@?EA?K@CWAOQDAQ"
+                        "points": "i~yhGkj_H?q@BAE_@?EA?K@CWAOQDAU"
                       }
                     }
                   ]
@@ -1459,13 +1540,13 @@
           "label": "Ramonville",
           "location": {
             "coordinate": {
-              "latitude": 43.555887,
-              "longitude": 1.477101
+              "latitude": 43.555883,
+              "longitude": 1.477122
             }
           }
         },
         "dateTime": {
-          "earliestDeparture": "2026-11-03T08:30:00+01:00"
+          "earliestDeparture": "2026-11-10T08:30:00+01:00"
         },
         "modes": {
           "direct": [
@@ -1519,28 +1600,28 @@
       "response": {
         "data": {
           "planConnection": {
-            "searchDateTime": "2026-11-03T08:30:00+01:00",
+            "searchDateTime": "2026-11-10T08:30:00+01:00",
             "routingErrors": [],
             "edges": [
               {
                 "node": {
-                  "start": "2026-11-03T08:31:00+01:00",
-                  "end": "2026-11-03T08:52:10+01:00",
-                  "duration": 1270,
+                  "start": "2026-11-10T08:31:00+01:00",
+                  "end": "2026-11-10T08:52:12+01:00",
+                  "duration": 1272,
                   "numberOfTransfers": 1,
-                  "walkDistance": 185.51,
-                  "walkTime": 416,
+                  "walkDistance": 187.1,
+                  "walkTime": 418,
                   "waitingTime": 168,
                   "legs": [
                     {
                       "mode": "RAIL",
                       "transitLeg": true,
                       "start": {
-                        "scheduledTime": "2026-11-03T08:31:00+01:00",
+                        "scheduledTime": "2026-11-10T08:31:00+01:00",
                         "estimated": null
                       },
                       "end": {
-                        "scheduledTime": "2026-11-03T08:35:00+01:00",
+                        "scheduledTime": "2026-11-10T08:35:00+01:00",
                         "estimated": null
                       },
                       "duration": 240.0,
@@ -1581,11 +1662,11 @@
                       "mode": "WALK",
                       "transitLeg": false,
                       "start": {
-                        "scheduledTime": "2026-11-03T08:35:00+01:00",
+                        "scheduledTime": "2026-11-10T08:35:00+01:00",
                         "estimated": null
                       },
                       "end": {
-                        "scheduledTime": "2026-11-03T08:38:32+01:00",
+                        "scheduledTime": "2026-11-10T08:38:32+01:00",
                         "estimated": null
                       },
                       "duration": 212.0,
@@ -1617,11 +1698,11 @@
                       "mode": "SUBWAY",
                       "transitLeg": true,
                       "start": {
-                        "scheduledTime": "2026-11-03T08:41:20+01:00",
+                        "scheduledTime": "2026-11-10T08:41:20+01:00",
                         "estimated": null
                       },
                       "end": {
-                        "scheduledTime": "2026-11-03T08:48:46+01:00",
+                        "scheduledTime": "2026-11-10T08:48:46+01:00",
                         "estimated": null
                       },
                       "duration": 446.0,
@@ -1662,15 +1743,15 @@
                       "mode": "WALK",
                       "transitLeg": false,
                       "start": {
-                        "scheduledTime": "2026-11-03T08:48:46+01:00",
+                        "scheduledTime": "2026-11-10T08:48:46+01:00",
                         "estimated": null
                       },
                       "end": {
-                        "scheduledTime": "2026-11-03T08:52:10+01:00",
+                        "scheduledTime": "2026-11-10T08:52:12+01:00",
                         "estimated": null
                       },
-                      "duration": 204.0,
-                      "distance": 100.07,
+                      "duration": 206.0,
+                      "distance": 101.66,
                       "headsign": null,
                       "from": {
                         "name": "Ramonville",
@@ -1682,14 +1763,14 @@
                       },
                       "to": {
                         "name": "Ramonville",
-                        "lat": 43.555887,
-                        "lon": 1.477101,
+                        "lat": 43.555883,
+                        "lon": 1.477122,
                         "stop": null
                       },
                       "agency": null,
                       "route": null,
                       "legGeometry": {
-                        "points": "m~yhGkj_H@?QDUBG@AOS}AFGBA@AFEDCBAAQ"
+                        "points": "m~yhGkj_H@?QDUBG@AOS}AFGBA@AFEDCBAAU"
                       }
                     }
                   ]
@@ -1697,23 +1778,23 @@
               },
               {
                 "node": {
-                  "start": "2026-11-03T08:31:02+01:00",
-                  "end": "2026-11-03T09:03:25+01:00",
-                  "duration": 1943,
+                  "start": "2026-11-10T08:31:02+01:00",
+                  "end": "2026-11-10T09:03:27+01:00",
+                  "duration": 1945,
                   "numberOfTransfers": 0,
-                  "walkDistance": 908.1500000000001,
-                  "walkTime": 997,
+                  "walkDistance": 909.74,
+                  "walkTime": 999,
                   "waitingTime": 0,
                   "legs": [
                     {
                       "mode": "WALK",
                       "transitLeg": false,
                       "start": {
-                        "scheduledTime": "2026-11-03T08:31:02+01:00",
+                        "scheduledTime": "2026-11-10T08:31:02+01:00",
                         "estimated": null
                       },
                       "end": {
-                        "scheduledTime": "2026-11-03T08:44:15+01:00",
+                        "scheduledTime": "2026-11-10T08:44:15+01:00",
                         "estimated": null
                       },
                       "duration": 793.0,
@@ -1743,11 +1824,11 @@
                       "mode": "SUBWAY",
                       "transitLeg": true,
                       "start": {
-                        "scheduledTime": "2026-11-03T08:44:15+01:00",
+                        "scheduledTime": "2026-11-10T08:44:15+01:00",
                         "estimated": null
                       },
                       "end": {
-                        "scheduledTime": "2026-11-03T09:00:01+01:00",
+                        "scheduledTime": "2026-11-10T09:00:01+01:00",
                         "estimated": null
                       },
                       "duration": 946.0,
@@ -1788,15 +1869,15 @@
                       "mode": "WALK",
                       "transitLeg": false,
                       "start": {
-                        "scheduledTime": "2026-11-03T09:00:01+01:00",
+                        "scheduledTime": "2026-11-10T09:00:01+01:00",
                         "estimated": null
                       },
                       "end": {
-                        "scheduledTime": "2026-11-03T09:03:25+01:00",
+                        "scheduledTime": "2026-11-10T09:03:27+01:00",
                         "estimated": null
                       },
-                      "duration": 204.0,
-                      "distance": 100.07,
+                      "duration": 206.0,
+                      "distance": 101.66,
                       "headsign": null,
                       "from": {
                         "name": "Ramonville",
@@ -1808,14 +1889,14 @@
                       },
                       "to": {
                         "name": "Ramonville",
-                        "lat": 43.555887,
-                        "lon": 1.477101,
+                        "lat": 43.555883,
+                        "lon": 1.477122,
                         "stop": null
                       },
                       "agency": null,
                       "route": null,
                       "legGeometry": {
-                        "points": "m~yhGkj_H@?QDUBG@AOS}AFGBA@AFEDCBAAQ"
+                        "points": "m~yhGkj_H@?QDUBG@AOS}AFGBA@AFEDCBAAU"
                       }
                     }
                   ]
@@ -1823,23 +1904,23 @@
               },
               {
                 "node": {
-                  "start": "2026-11-03T08:32:17+01:00",
-                  "end": "2026-11-03T09:04:40+01:00",
-                  "duration": 1943,
+                  "start": "2026-11-10T08:32:17+01:00",
+                  "end": "2026-11-10T09:04:42+01:00",
+                  "duration": 1945,
                   "numberOfTransfers": 0,
-                  "walkDistance": 908.1500000000001,
-                  "walkTime": 997,
+                  "walkDistance": 909.74,
+                  "walkTime": 999,
                   "waitingTime": 0,
                   "legs": [
                     {
                       "mode": "WALK",
                       "transitLeg": false,
                       "start": {
-                        "scheduledTime": "2026-11-03T08:32:17+01:00",
+                        "scheduledTime": "2026-11-10T08:32:17+01:00",
                         "estimated": null
                       },
                       "end": {
-                        "scheduledTime": "2026-11-03T08:45:30+01:00",
+                        "scheduledTime": "2026-11-10T08:45:30+01:00",
                         "estimated": null
                       },
                       "duration": 793.0,
@@ -1869,11 +1950,11 @@
                       "mode": "SUBWAY",
                       "transitLeg": true,
                       "start": {
-                        "scheduledTime": "2026-11-03T08:45:30+01:00",
+                        "scheduledTime": "2026-11-10T08:45:30+01:00",
                         "estimated": null
                       },
                       "end": {
-                        "scheduledTime": "2026-11-03T09:01:16+01:00",
+                        "scheduledTime": "2026-11-10T09:01:16+01:00",
                         "estimated": null
                       },
                       "duration": 946.0,
@@ -1914,15 +1995,15 @@
                       "mode": "WALK",
                       "transitLeg": false,
                       "start": {
-                        "scheduledTime": "2026-11-03T09:01:16+01:00",
+                        "scheduledTime": "2026-11-10T09:01:16+01:00",
                         "estimated": null
                       },
                       "end": {
-                        "scheduledTime": "2026-11-03T09:04:40+01:00",
+                        "scheduledTime": "2026-11-10T09:04:42+01:00",
                         "estimated": null
                       },
-                      "duration": 204.0,
-                      "distance": 100.07,
+                      "duration": 206.0,
+                      "distance": 101.66,
                       "headsign": null,
                       "from": {
                         "name": "Ramonville",
@@ -1934,14 +2015,14 @@
                       },
                       "to": {
                         "name": "Ramonville",
-                        "lat": 43.555887,
-                        "lon": 1.477101,
+                        "lat": 43.555883,
+                        "lon": 1.477122,
                         "stop": null
                       },
                       "agency": null,
                       "route": null,
                       "legGeometry": {
-                        "points": "m~yhGkj_H@?QDUBG@AOS}AFGBA@AFEDCBAAQ"
+                        "points": "m~yhGkj_H@?QDUBG@AOS}AFGBA@AFEDCBAAU"
                       }
                     }
                   ]
@@ -1976,7 +2057,7 @@
           }
         },
         "dateTime": {
-          "earliestDeparture": "2026-11-03T08:30:00+01:00"
+          "earliestDeparture": "2026-11-10T08:30:00+01:00"
         },
         "modes": {
           "direct": [
@@ -2030,13 +2111,13 @@
       "response": {
         "data": {
           "planConnection": {
-            "searchDateTime": "2026-11-03T08:30:00+01:00",
+            "searchDateTime": "2026-11-10T08:30:00+01:00",
             "routingErrors": [],
             "edges": [
               {
                 "node": {
-                  "start": "2026-11-03T08:43:00+01:00",
-                  "end": "2026-11-03T09:28:00+01:00",
+                  "start": "2026-11-10T08:43:00+01:00",
+                  "end": "2026-11-10T09:28:00+01:00",
                   "duration": 2700,
                   "numberOfTransfers": 1,
                   "walkDistance": 0.0,
@@ -2047,11 +2128,11 @@
                       "mode": "RAIL",
                       "transitLeg": true,
                       "start": {
-                        "scheduledTime": "2026-11-03T08:43:00+01:00",
+                        "scheduledTime": "2026-11-10T08:43:00+01:00",
                         "estimated": null
                       },
                       "end": {
-                        "scheduledTime": "2026-11-03T09:06:00+01:00",
+                        "scheduledTime": "2026-11-10T09:06:00+01:00",
                         "estimated": null
                       },
                       "duration": 1380.0,
@@ -2092,11 +2173,11 @@
                       "mode": "RAIL",
                       "transitLeg": true,
                       "start": {
-                        "scheduledTime": "2026-11-03T09:19:00+01:00",
+                        "scheduledTime": "2026-11-10T09:19:00+01:00",
                         "estimated": null
                       },
                       "end": {
-                        "scheduledTime": "2026-11-03T09:28:00+01:00",
+                        "scheduledTime": "2026-11-10T09:28:00+01:00",
                         "estimated": null
                       },
                       "duration": 540.0,
@@ -2138,8 +2219,8 @@
               },
               {
                 "node": {
-                  "start": "2026-11-03T09:15:00+01:00",
-                  "end": "2026-11-03T10:12:07+01:00",
+                  "start": "2026-11-10T09:15:00+01:00",
+                  "end": "2026-11-10T10:12:07+01:00",
                   "duration": 3427,
                   "numberOfTransfers": 2,
                   "walkDistance": 677.35,
@@ -2150,11 +2231,11 @@
                       "mode": "RAIL",
                       "transitLeg": true,
                       "start": {
-                        "scheduledTime": "2026-11-03T09:15:00+01:00",
+                        "scheduledTime": "2026-11-10T09:15:00+01:00",
                         "estimated": null
                       },
                       "end": {
-                        "scheduledTime": "2026-11-03T09:28:00+01:00",
+                        "scheduledTime": "2026-11-10T09:28:00+01:00",
                         "estimated": null
                       },
                       "duration": 780.0,
@@ -2195,11 +2276,11 @@
                       "mode": "WALK",
                       "transitLeg": false,
                       "start": {
-                        "scheduledTime": "2026-11-03T09:28:00+01:00",
+                        "scheduledTime": "2026-11-10T09:28:00+01:00",
                         "estimated": null
                       },
                       "end": {
-                        "scheduledTime": "2026-11-03T09:32:27+01:00",
+                        "scheduledTime": "2026-11-10T09:32:27+01:00",
                         "estimated": null
                       },
                       "duration": 267.0,
@@ -2231,11 +2312,11 @@
                       "mode": "SUBWAY",
                       "transitLeg": true,
                       "start": {
-                        "scheduledTime": "2026-11-03T09:34:40+01:00",
+                        "scheduledTime": "2026-11-10T09:34:40+01:00",
                         "estimated": null
                       },
                       "end": {
-                        "scheduledTime": "2026-11-03T09:37:15+01:00",
+                        "scheduledTime": "2026-11-10T09:37:15+01:00",
                         "estimated": null
                       },
                       "duration": 155.0,
@@ -2276,11 +2357,11 @@
                       "mode": "WALK",
                       "transitLeg": false,
                       "start": {
-                        "scheduledTime": "2026-11-03T09:37:15+01:00",
+                        "scheduledTime": "2026-11-10T09:37:15+01:00",
                         "estimated": null
                       },
                       "end": {
-                        "scheduledTime": "2026-11-03T09:41:05+01:00",
+                        "scheduledTime": "2026-11-10T09:41:05+01:00",
                         "estimated": null
                       },
                       "duration": 230.0,
@@ -2312,11 +2393,11 @@
                       "mode": "BUS",
                       "transitLeg": true,
                       "start": {
-                        "scheduledTime": "2026-11-03T09:50:00+01:00",
+                        "scheduledTime": "2026-11-10T09:50:00+01:00",
                         "estimated": null
                       },
                       "end": {
-                        "scheduledTime": "2026-11-03T10:09:00+01:00",
+                        "scheduledTime": "2026-11-10T10:09:00+01:00",
                         "estimated": null
                       },
                       "duration": 1140.0,
@@ -2357,11 +2438,11 @@
                       "mode": "WALK",
                       "transitLeg": false,
                       "start": {
-                        "scheduledTime": "2026-11-03T10:09:00+01:00",
+                        "scheduledTime": "2026-11-10T10:09:00+01:00",
                         "estimated": null
                       },
                       "end": {
-                        "scheduledTime": "2026-11-03T10:12:07+01:00",
+                        "scheduledTime": "2026-11-10T10:12:07+01:00",
                         "estimated": null
                       },
                       "duration": 187.0,
@@ -2392,8 +2473,8 @@
               },
               {
                 "node": {
-                  "start": "2026-11-03T09:15:00+01:00",
-                  "end": "2026-11-03T10:23:00+01:00",
+                  "start": "2026-11-10T09:15:00+01:00",
+                  "end": "2026-11-10T10:23:00+01:00",
                   "duration": 4080,
                   "numberOfTransfers": 1,
                   "walkDistance": 0.0,
@@ -2404,11 +2485,11 @@
                       "mode": "RAIL",
                       "transitLeg": true,
                       "start": {
-                        "scheduledTime": "2026-11-03T09:15:00+01:00",
+                        "scheduledTime": "2026-11-10T09:15:00+01:00",
                         "estimated": null
                       },
                       "end": {
-                        "scheduledTime": "2026-11-03T09:36:00+01:00",
+                        "scheduledTime": "2026-11-10T09:36:00+01:00",
                         "estimated": null
                       },
                       "duration": 1260.0,
@@ -2449,11 +2530,11 @@
                       "mode": "RAIL",
                       "transitLeg": true,
                       "start": {
-                        "scheduledTime": "2026-11-03T10:14:00+01:00",
+                        "scheduledTime": "2026-11-10T10:14:00+01:00",
                         "estimated": null
                       },
                       "end": {
-                        "scheduledTime": "2026-11-03T10:23:00+01:00",
+                        "scheduledTime": "2026-11-10T10:23:00+01:00",
                         "estimated": null
                       },
                       "duration": 540.0,
@@ -2522,7 +2603,7 @@
           }
         },
         "dateTime": {
-          "earliestDeparture": "2026-11-03T08:30:00+01:00"
+          "earliestDeparture": "2026-11-10T08:30:00+01:00"
         },
         "modes": {
           "direct": [
@@ -2576,13 +2657,13 @@
       "response": {
         "data": {
           "planConnection": {
-            "searchDateTime": "2026-11-03T08:30:00+01:00",
+            "searchDateTime": "2026-11-10T08:30:00+01:00",
             "routingErrors": [],
             "edges": [
               {
                 "node": {
-                  "start": "2026-11-03T08:30:25+01:00",
-                  "end": "2026-11-03T09:18:46+01:00",
+                  "start": "2026-11-10T08:30:25+01:00",
+                  "end": "2026-11-10T09:18:46+01:00",
                   "duration": 2901,
                   "numberOfTransfers": 0,
                   "walkDistance": 706.75,
@@ -2593,11 +2674,11 @@
                       "mode": "WALK",
                       "transitLeg": false,
                       "start": {
-                        "scheduledTime": "2026-11-03T08:30:25+01:00",
+                        "scheduledTime": "2026-11-10T08:30:25+01:00",
                         "estimated": null
                       },
                       "end": {
-                        "scheduledTime": "2026-11-03T08:34:04+01:00",
+                        "scheduledTime": "2026-11-10T08:34:04+01:00",
                         "estimated": null
                       },
                       "duration": 219.0,
@@ -2627,11 +2708,11 @@
                       "mode": "SUBWAY",
                       "transitLeg": true,
                       "start": {
-                        "scheduledTime": "2026-11-03T08:34:04+01:00",
+                        "scheduledTime": "2026-11-10T08:34:04+01:00",
                         "estimated": null
                       },
                       "end": {
-                        "scheduledTime": "2026-11-03T09:08:49+01:00",
+                        "scheduledTime": "2026-11-10T09:08:49+01:00",
                         "estimated": null
                       },
                       "duration": 2085.0,
@@ -2672,11 +2753,11 @@
                       "mode": "WALK",
                       "transitLeg": false,
                       "start": {
-                        "scheduledTime": "2026-11-03T09:08:49+01:00",
+                        "scheduledTime": "2026-11-10T09:08:49+01:00",
                         "estimated": null
                       },
                       "end": {
-                        "scheduledTime": "2026-11-03T09:18:46+01:00",
+                        "scheduledTime": "2026-11-10T09:18:46+01:00",
                         "estimated": null
                       },
                       "duration": 597.0,
@@ -2707,8 +2788,8 @@
               },
               {
                 "node": {
-                  "start": "2026-11-03T08:33:50+01:00",
-                  "end": "2026-11-03T09:22:11+01:00",
+                  "start": "2026-11-10T08:33:50+01:00",
+                  "end": "2026-11-10T09:22:11+01:00",
                   "duration": 2901,
                   "numberOfTransfers": 0,
                   "walkDistance": 706.75,
@@ -2719,11 +2800,11 @@
                       "mode": "WALK",
                       "transitLeg": false,
                       "start": {
-                        "scheduledTime": "2026-11-03T08:33:50+01:00",
+                        "scheduledTime": "2026-11-10T08:33:50+01:00",
                         "estimated": null
                       },
                       "end": {
-                        "scheduledTime": "2026-11-03T08:37:29+01:00",
+                        "scheduledTime": "2026-11-10T08:37:29+01:00",
                         "estimated": null
                       },
                       "duration": 219.0,
@@ -2753,11 +2834,11 @@
                       "mode": "SUBWAY",
                       "transitLeg": true,
                       "start": {
-                        "scheduledTime": "2026-11-03T08:37:29+01:00",
+                        "scheduledTime": "2026-11-10T08:37:29+01:00",
                         "estimated": null
                       },
                       "end": {
-                        "scheduledTime": "2026-11-03T09:12:14+01:00",
+                        "scheduledTime": "2026-11-10T09:12:14+01:00",
                         "estimated": null
                       },
                       "duration": 2085.0,
@@ -2798,11 +2879,11 @@
                       "mode": "WALK",
                       "transitLeg": false,
                       "start": {
-                        "scheduledTime": "2026-11-03T09:12:14+01:00",
+                        "scheduledTime": "2026-11-10T09:12:14+01:00",
                         "estimated": null
                       },
                       "end": {
-                        "scheduledTime": "2026-11-03T09:22:11+01:00",
+                        "scheduledTime": "2026-11-10T09:22:11+01:00",
                         "estimated": null
                       },
                       "duration": 597.0,
@@ -2833,8 +2914,8 @@
               },
               {
                 "node": {
-                  "start": "2026-11-03T08:37:15+01:00",
-                  "end": "2026-11-03T09:25:36+01:00",
+                  "start": "2026-11-10T08:37:15+01:00",
+                  "end": "2026-11-10T09:25:36+01:00",
                   "duration": 2901,
                   "numberOfTransfers": 0,
                   "walkDistance": 706.75,
@@ -2845,11 +2926,11 @@
                       "mode": "WALK",
                       "transitLeg": false,
                       "start": {
-                        "scheduledTime": "2026-11-03T08:37:15+01:00",
+                        "scheduledTime": "2026-11-10T08:37:15+01:00",
                         "estimated": null
                       },
                       "end": {
-                        "scheduledTime": "2026-11-03T08:40:54+01:00",
+                        "scheduledTime": "2026-11-10T08:40:54+01:00",
                         "estimated": null
                       },
                       "duration": 219.0,
@@ -2879,11 +2960,11 @@
                       "mode": "SUBWAY",
                       "transitLeg": true,
                       "start": {
-                        "scheduledTime": "2026-11-03T08:40:54+01:00",
+                        "scheduledTime": "2026-11-10T08:40:54+01:00",
                         "estimated": null
                       },
                       "end": {
-                        "scheduledTime": "2026-11-03T09:15:39+01:00",
+                        "scheduledTime": "2026-11-10T09:15:39+01:00",
                         "estimated": null
                       },
                       "duration": 2085.0,
@@ -2924,11 +3005,11 @@
                       "mode": "WALK",
                       "transitLeg": false,
                       "start": {
-                        "scheduledTime": "2026-11-03T09:15:39+01:00",
+                        "scheduledTime": "2026-11-10T09:15:39+01:00",
                         "estimated": null
                       },
                       "end": {
-                        "scheduledTime": "2026-11-03T09:25:36+01:00",
+                        "scheduledTime": "2026-11-10T09:25:36+01:00",
                         "estimated": null
                       },
                       "duration": 597.0,
@@ -2986,7 +3067,7 @@
           }
         },
         "dateTime": {
-          "earliestDeparture": "2026-11-03T08:30:00+01:00"
+          "earliestDeparture": "2026-11-10T08:30:00+01:00"
         },
         "modes": {
           "direct": [
@@ -3040,13 +3121,13 @@
       "response": {
         "data": {
           "planConnection": {
-            "searchDateTime": "2026-11-03T08:30:00+01:00",
+            "searchDateTime": "2026-11-10T08:30:00+01:00",
             "routingErrors": [],
             "edges": [
               {
                 "node": {
-                  "start": "2026-11-03T08:43:00+01:00",
-                  "end": "2026-11-03T09:35:57+01:00",
+                  "start": "2026-11-10T08:43:00+01:00",
+                  "end": "2026-11-10T09:35:57+01:00",
                   "duration": 3177,
                   "numberOfTransfers": 1,
                   "walkDistance": 580.89,
@@ -3057,11 +3138,11 @@
                       "mode": "RAIL",
                       "transitLeg": true,
                       "start": {
-                        "scheduledTime": "2026-11-03T08:43:00+01:00",
+                        "scheduledTime": "2026-11-10T08:43:00+01:00",
                         "estimated": null
                       },
                       "end": {
-                        "scheduledTime": "2026-11-03T09:06:00+01:00",
+                        "scheduledTime": "2026-11-10T09:06:00+01:00",
                         "estimated": null
                       },
                       "duration": 1380.0,
@@ -3102,11 +3183,11 @@
                       "mode": "RAIL",
                       "transitLeg": true,
                       "start": {
-                        "scheduledTime": "2026-11-03T09:19:00+01:00",
+                        "scheduledTime": "2026-11-10T09:19:00+01:00",
                         "estimated": null
                       },
                       "end": {
-                        "scheduledTime": "2026-11-03T09:28:00+01:00",
+                        "scheduledTime": "2026-11-10T09:28:00+01:00",
                         "estimated": null
                       },
                       "duration": 540.0,
@@ -3147,11 +3228,11 @@
                       "mode": "WALK",
                       "transitLeg": false,
                       "start": {
-                        "scheduledTime": "2026-11-03T09:28:00+01:00",
+                        "scheduledTime": "2026-11-10T09:28:00+01:00",
                         "estimated": null
                       },
                       "end": {
-                        "scheduledTime": "2026-11-03T09:35:57+01:00",
+                        "scheduledTime": "2026-11-10T09:35:57+01:00",
                         "estimated": null
                       },
                       "duration": 477.0,
@@ -3182,8 +3263,8 @@
               },
               {
                 "node": {
-                  "start": "2026-11-03T08:55:00+01:00",
-                  "end": "2026-11-03T10:02:35+01:00",
+                  "start": "2026-11-10T08:55:00+01:00",
+                  "end": "2026-11-10T10:02:35+01:00",
                   "duration": 4055,
                   "numberOfTransfers": 3,
                   "walkDistance": 597.78,
@@ -3194,11 +3275,11 @@
                       "mode": "RAIL",
                       "transitLeg": true,
                       "start": {
-                        "scheduledTime": "2026-11-03T08:55:00+01:00",
+                        "scheduledTime": "2026-11-10T08:55:00+01:00",
                         "estimated": null
                       },
                       "end": {
-                        "scheduledTime": "2026-11-03T09:09:00+01:00",
+                        "scheduledTime": "2026-11-10T09:09:00+01:00",
                         "estimated": null
                       },
                       "duration": 840.0,
@@ -3239,11 +3320,11 @@
                       "mode": "WALK",
                       "transitLeg": false,
                       "start": {
-                        "scheduledTime": "2026-11-03T09:09:00+01:00",
+                        "scheduledTime": "2026-11-10T09:09:00+01:00",
                         "estimated": null
                       },
                       "end": {
-                        "scheduledTime": "2026-11-03T09:12:52+01:00",
+                        "scheduledTime": "2026-11-10T09:12:52+01:00",
                         "estimated": null
                       },
                       "duration": 232.0,
@@ -3275,11 +3356,11 @@
                       "mode": "BUS",
                       "transitLeg": true,
                       "start": {
-                        "scheduledTime": "2026-11-03T09:15:00+01:00",
+                        "scheduledTime": "2026-11-10T09:15:00+01:00",
                         "estimated": null
                       },
                       "end": {
-                        "scheduledTime": "2026-11-03T09:28:00+01:00",
+                        "scheduledTime": "2026-11-10T09:28:00+01:00",
                         "estimated": null
                       },
                       "duration": 780.0,
@@ -3320,11 +3401,11 @@
                       "mode": "WALK",
                       "transitLeg": false,
                       "start": {
-                        "scheduledTime": "2026-11-03T09:28:00+01:00",
+                        "scheduledTime": "2026-11-10T09:28:00+01:00",
                         "estimated": null
                       },
                       "end": {
-                        "scheduledTime": "2026-11-03T09:30:42+01:00",
+                        "scheduledTime": "2026-11-10T09:30:42+01:00",
                         "estimated": null
                       },
                       "duration": 162.0,
@@ -3356,11 +3437,11 @@
                       "mode": "SUBWAY",
                       "transitLeg": true,
                       "start": {
-                        "scheduledTime": "2026-11-03T09:33:00+01:00",
+                        "scheduledTime": "2026-11-10T09:33:00+01:00",
                         "estimated": null
                       },
                       "end": {
-                        "scheduledTime": "2026-11-03T09:40:26+01:00",
+                        "scheduledTime": "2026-11-10T09:40:26+01:00",
                         "estimated": null
                       },
                       "duration": 446.0,
@@ -3401,11 +3482,11 @@
                       "mode": "WALK",
                       "transitLeg": false,
                       "start": {
-                        "scheduledTime": "2026-11-03T09:40:26+01:00",
+                        "scheduledTime": "2026-11-10T09:40:26+01:00",
                         "estimated": null
                       },
                       "end": {
-                        "scheduledTime": "2026-11-03T09:42:09+01:00",
+                        "scheduledTime": "2026-11-10T09:42:09+01:00",
                         "estimated": null
                       },
                       "duration": 103.0,
@@ -3437,11 +3518,11 @@
                       "mode": "BUS",
                       "transitLeg": true,
                       "start": {
-                        "scheduledTime": "2026-11-03T09:47:00+01:00",
+                        "scheduledTime": "2026-11-10T09:47:00+01:00",
                         "estimated": null
                       },
                       "end": {
-                        "scheduledTime": "2026-11-03T10:01:00+01:00",
+                        "scheduledTime": "2026-11-10T10:01:00+01:00",
                         "estimated": null
                       },
                       "duration": 840.0,
@@ -3482,11 +3563,11 @@
                       "mode": "WALK",
                       "transitLeg": false,
                       "start": {
-                        "scheduledTime": "2026-11-03T10:01:00+01:00",
+                        "scheduledTime": "2026-11-10T10:01:00+01:00",
                         "estimated": null
                       },
                       "end": {
-                        "scheduledTime": "2026-11-03T10:02:35+01:00",
+                        "scheduledTime": "2026-11-10T10:02:35+01:00",
                         "estimated": null
                       },
                       "duration": 95.0,
@@ -3517,8 +3598,8 @@
               },
               {
                 "node": {
-                  "start": "2026-11-03T09:15:00+01:00",
-                  "end": "2026-11-03T10:15:35+01:00",
+                  "start": "2026-11-10T09:15:00+01:00",
+                  "end": "2026-11-10T10:15:35+01:00",
                   "duration": 3635,
                   "numberOfTransfers": 2,
                   "walkDistance": 455.54999999999995,
@@ -3529,11 +3610,11 @@
                       "mode": "RAIL",
                       "transitLeg": true,
                       "start": {
-                        "scheduledTime": "2026-11-03T09:15:00+01:00",
+                        "scheduledTime": "2026-11-10T09:15:00+01:00",
                         "estimated": null
                       },
                       "end": {
-                        "scheduledTime": "2026-11-03T09:28:00+01:00",
+                        "scheduledTime": "2026-11-10T09:28:00+01:00",
                         "estimated": null
                       },
                       "duration": 780.0,
@@ -3574,11 +3655,11 @@
                       "mode": "WALK",
                       "transitLeg": false,
                       "start": {
-                        "scheduledTime": "2026-11-03T09:28:00+01:00",
+                        "scheduledTime": "2026-11-10T09:28:00+01:00",
                         "estimated": null
                       },
                       "end": {
-                        "scheduledTime": "2026-11-03T09:32:27+01:00",
+                        "scheduledTime": "2026-11-10T09:32:27+01:00",
                         "estimated": null
                       },
                       "duration": 267.0,
@@ -3610,11 +3691,11 @@
                       "mode": "SUBWAY",
                       "transitLeg": true,
                       "start": {
-                        "scheduledTime": "2026-11-03T09:34:40+01:00",
+                        "scheduledTime": "2026-11-10T09:34:40+01:00",
                         "estimated": null
                       },
                       "end": {
-                        "scheduledTime": "2026-11-03T09:42:06+01:00",
+                        "scheduledTime": "2026-11-10T09:42:06+01:00",
                         "estimated": null
                       },
                       "duration": 446.0,
@@ -3655,11 +3736,11 @@
                       "mode": "WALK",
                       "transitLeg": false,
                       "start": {
-                        "scheduledTime": "2026-11-03T09:42:06+01:00",
+                        "scheduledTime": "2026-11-10T09:42:06+01:00",
                         "estimated": null
                       },
                       "end": {
-                        "scheduledTime": "2026-11-03T09:44:10+01:00",
+                        "scheduledTime": "2026-11-10T09:44:10+01:00",
                         "estimated": null
                       },
                       "duration": 124.0,
@@ -3691,11 +3772,11 @@
                       "mode": "BUS",
                       "transitLeg": true,
                       "start": {
-                        "scheduledTime": "2026-11-03T10:00:00+01:00",
+                        "scheduledTime": "2026-11-10T10:00:00+01:00",
                         "estimated": null
                       },
                       "end": {
-                        "scheduledTime": "2026-11-03T10:14:00+01:00",
+                        "scheduledTime": "2026-11-10T10:14:00+01:00",
                         "estimated": null
                       },
                       "duration": 840.0,
@@ -3736,11 +3817,11 @@
                       "mode": "WALK",
                       "transitLeg": false,
                       "start": {
-                        "scheduledTime": "2026-11-03T10:14:00+01:00",
+                        "scheduledTime": "2026-11-10T10:14:00+01:00",
                         "estimated": null
                       },
                       "end": {
-                        "scheduledTime": "2026-11-03T10:15:35+01:00",
+                        "scheduledTime": "2026-11-10T10:15:35+01:00",
                         "estimated": null
                       },
                       "duration": 95.0,
@@ -3798,7 +3879,7 @@
           }
         },
         "dateTime": {
-          "earliestDeparture": "2026-11-03T08:30:00+01:00"
+          "earliestDeparture": "2026-11-10T08:30:00+01:00"
         },
         "modes": {
           "direct": [
@@ -3852,13 +3933,13 @@
       "response": {
         "data": {
           "planConnection": {
-            "searchDateTime": "2026-11-03T08:30:00+01:00",
+            "searchDateTime": "2026-11-10T08:30:00+01:00",
             "routingErrors": [],
             "edges": [
               {
                 "node": {
-                  "start": "2026-11-03T08:30:25+01:00",
-                  "end": "2026-11-03T09:08:49+01:00",
+                  "start": "2026-11-10T08:30:25+01:00",
+                  "end": "2026-11-10T09:08:49+01:00",
                   "duration": 2304,
                   "numberOfTransfers": 0,
                   "walkDistance": 125.86,
@@ -3869,11 +3950,11 @@
                       "mode": "WALK",
                       "transitLeg": false,
                       "start": {
-                        "scheduledTime": "2026-11-03T08:30:25+01:00",
+                        "scheduledTime": "2026-11-10T08:30:25+01:00",
                         "estimated": null
                       },
                       "end": {
-                        "scheduledTime": "2026-11-03T08:34:04+01:00",
+                        "scheduledTime": "2026-11-10T08:34:04+01:00",
                         "estimated": null
                       },
                       "duration": 219.0,
@@ -3903,11 +3984,11 @@
                       "mode": "SUBWAY",
                       "transitLeg": true,
                       "start": {
-                        "scheduledTime": "2026-11-03T08:34:04+01:00",
+                        "scheduledTime": "2026-11-10T08:34:04+01:00",
                         "estimated": null
                       },
                       "end": {
-                        "scheduledTime": "2026-11-03T09:08:49+01:00",
+                        "scheduledTime": "2026-11-10T09:08:49+01:00",
                         "estimated": null
                       },
                       "duration": 2085.0,
@@ -3949,8 +4030,8 @@
               },
               {
                 "node": {
-                  "start": "2026-11-03T08:33:50+01:00",
-                  "end": "2026-11-03T09:12:14+01:00",
+                  "start": "2026-11-10T08:33:50+01:00",
+                  "end": "2026-11-10T09:12:14+01:00",
                   "duration": 2304,
                   "numberOfTransfers": 0,
                   "walkDistance": 125.86,
@@ -3961,11 +4042,11 @@
                       "mode": "WALK",
                       "transitLeg": false,
                       "start": {
-                        "scheduledTime": "2026-11-03T08:33:50+01:00",
+                        "scheduledTime": "2026-11-10T08:33:50+01:00",
                         "estimated": null
                       },
                       "end": {
-                        "scheduledTime": "2026-11-03T08:37:29+01:00",
+                        "scheduledTime": "2026-11-10T08:37:29+01:00",
                         "estimated": null
                       },
                       "duration": 219.0,
@@ -3995,11 +4076,11 @@
                       "mode": "SUBWAY",
                       "transitLeg": true,
                       "start": {
-                        "scheduledTime": "2026-11-03T08:37:29+01:00",
+                        "scheduledTime": "2026-11-10T08:37:29+01:00",
                         "estimated": null
                       },
                       "end": {
-                        "scheduledTime": "2026-11-03T09:12:14+01:00",
+                        "scheduledTime": "2026-11-10T09:12:14+01:00",
                         "estimated": null
                       },
                       "duration": 2085.0,
@@ -4041,8 +4122,8 @@
               },
               {
                 "node": {
-                  "start": "2026-11-03T08:37:15+01:00",
-                  "end": "2026-11-03T09:15:39+01:00",
+                  "start": "2026-11-10T08:37:15+01:00",
+                  "end": "2026-11-10T09:15:39+01:00",
                   "duration": 2304,
                   "numberOfTransfers": 0,
                   "walkDistance": 125.86,
@@ -4053,11 +4134,11 @@
                       "mode": "WALK",
                       "transitLeg": false,
                       "start": {
-                        "scheduledTime": "2026-11-03T08:37:15+01:00",
+                        "scheduledTime": "2026-11-10T08:37:15+01:00",
                         "estimated": null
                       },
                       "end": {
-                        "scheduledTime": "2026-11-03T08:40:54+01:00",
+                        "scheduledTime": "2026-11-10T08:40:54+01:00",
                         "estimated": null
                       },
                       "duration": 219.0,
@@ -4087,11 +4168,11 @@
                       "mode": "SUBWAY",
                       "transitLeg": true,
                       "start": {
-                        "scheduledTime": "2026-11-03T08:40:54+01:00",
+                        "scheduledTime": "2026-11-10T08:40:54+01:00",
                         "estimated": null
                       },
                       "end": {
-                        "scheduledTime": "2026-11-03T09:15:39+01:00",
+                        "scheduledTime": "2026-11-10T09:15:39+01:00",
                         "estimated": null
                       },
                       "duration": 2085.0,
